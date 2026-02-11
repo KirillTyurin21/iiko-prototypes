@@ -20,7 +20,7 @@ export interface TabItem {
         type="button"
         class="relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors outline-none whitespace-nowrap"
         [ngClass]="tab.key === activeTab
-          ? 'text-iiko-primary'
+          ? 'text-app-primary'
           : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'"
         (click)="onTabClick(tab.key)"
       >
@@ -32,7 +32,7 @@ export interface TabItem {
         {{ tab.label }}
         <span
           *ngIf="tab.badge !== undefined && tab.badge !== null"
-          class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold bg-iiko-primary text-white leading-none"
+          class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold bg-app-primary text-white leading-none"
         >
           {{ tab.badge }}
         </span>
@@ -40,7 +40,7 @@ export interface TabItem {
         <!-- Active indicator -->
         <span
           *ngIf="tab.key === activeTab"
-          class="absolute bottom-0 left-0 right-0 h-0.5 bg-iiko-primary"
+          class="absolute bottom-0 left-0 right-0 h-0.5 bg-app-primary"
         ></span>
       </button>
     </div>

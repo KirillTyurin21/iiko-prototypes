@@ -16,24 +16,24 @@
         "git remote": true,
         "git add": true,
         "winget": true,
-        "/^powershell -ExecutionPolicy Bypass -Command \"cd 'd:\\\\1Документы\\\\Задачи iiko\\\\Прототипы'; npx ng serve --port 3000\"$/": {
+        "/^powershell -ExecutionPolicy Bypass -Command \"cd 'd:\\\\1Документы\\\\Задачи app\\\\Прототипы'; npx ng serve --port 3000\"$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^powershell -ExecutionPolicy Bypass -Command \"cd 'd:\\\\1Документы\\\\Задачи iiko\\\\Прототипы'; npx ng serve --port 3001\"$/": {
+        "/^powershell -ExecutionPolicy Bypass -Command \"cd 'd:\\\\1Документы\\\\Задачи app\\\\Прототипы'; npx ng serve --port 3001\"$/": {
             "approve": true,
             "matchCommandLine": true
         },
         "git push": true,
-        "/^cd \"d:\\\\1Документы\\\\Задачи iiko\\\\Прототипы\"; node node_modules/@angular/cli/bin/ng\\.js build --configuration production --base-href /iiko-prototypes/ 2>&1$/": {
+        "/^cd \"d:\\\\1Документы\\\\Задачи app\\\\Прототипы\"; node node_modules/@angular/cli/bin/ng\\.js build --configuration production --base-href /prototypes/ 2>&1$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^node node_modules/@angular/cli/bin/ng\\.js build --configuration production --base-href /iiko-prototypes/ 2>&1$/": {
+        "/^node node_modules/@angular/cli/bin/ng\\.js build --configuration production --base-href /prototypes/ 2>&1$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^node node_modules/@angular/cli/bin/ng\\.js build --base-href /iiko-prototypes/ 2>&1$/": {
+        "/^node node_modules/@angular/cli/bin/ng\\.js build --base-href /prototypes/ 2>&1$/": {
             "approve": true,
             "matchCommandLine": true
         },
@@ -41,7 +41,7 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "/^cd \"d:\\\\1Документы\\\\Задачи iiko\\\\Прототипы\"; node node_modules/@angular/cli/bin/ng\\.js build 2>&1$/": {
+        "/^cd \"d:\\\\1Документы\\\\Задачи app\\\\Прототипы\"; node node_modules/@angular/cli/bin/ng\\.js build 2>&1$/": {
             "approve": true,
             "matchCommandLine": true
         },
@@ -52,9 +52,10 @@
         "git mv": true,
         "Rename-Item": true,
         "Set-Content": true,
-        "/^cmd /c \"cd /d d:\\\\1Документы\\\\Задачи iiko\\\\Прототипы && npx ng build 2>&1\"$/": {
+        "/^cmd /c \"cd /d d:\\\\1Документы\\\\Задачи app\\\\Прототипы && npx ng build 2>&1\"$/": {
             "approve": true,
             "matchCommandLine": true
-        }
+        },
+        "&": true
     }
 }

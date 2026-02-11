@@ -2,7 +2,7 @@
  * Конфигурация кодов доступа к прототипам.
  *
  * Уровни доступа:
- * 1. Мастер-код — открывает ВСЁ (список + все прототипы). Для команды iiko.
+ * 1. Мастер-код — открывает ВСЁ (список + все прототипы). Для команды.
  * 2. Групповой код — открывает группу прототипов (для клиента с несколькими заказами).
  * 3. Код прототипа — открывает один конкретный прототип.
  *
@@ -34,12 +34,12 @@ export interface AccessConfig {
   masterTtlDays: number;
   /** Групповые коды доступа */
   groups: GroupAccessEntry[];
-  /** Индивидуальные коды прототипов (ключ = slug, напр. 'iiko-front-pudu-plugin') */
+  /** Индивидуальные коды прототипов (ключ = slug, напр. 'front-pudu-plugin') */
   prototypes: Record<string, PrototypeAccessEntry>;
 }
 
 export const ACCESS_CONFIG: AccessConfig = {
-  masterCode: 'IIKO_TEAM_2025',
+  masterCode: 'TEAM_2025',
   masterTtlDays: 30,
 
   groups: [
@@ -48,14 +48,14 @@ export const ACCESS_CONFIG: AccessConfig = {
       ttlDays: 7,
       label: 'Pudu — Все прототипы',
       prototypeSlugs: [
-        'iiko-front-pudu-plugin',
+        'front-pudu-plugin',
         'pudu-admin',
       ],
     },
   ],
 
   prototypes: {
-    'iiko-front-pudu-plugin': {
+    'front-pudu-plugin': {
       code: 'PUDU_FRONT_01',
       ttlDays: 7,
     },
@@ -63,11 +63,11 @@ export const ACCESS_CONFIG: AccessConfig = {
       code: 'PUDU_ADMIN_01',
       ttlDays: 7,
     },
-    'iiko-front-plugins': {
+    'front-plugins': {
       code: 'FRONT_PLUGINS_01',
       ttlDays: 7,
     },
-    'iikoweb-screens': {
+    'web-screens': {
       code: 'WEB_SCREENS_01',
       ttlDays: 7,
     },

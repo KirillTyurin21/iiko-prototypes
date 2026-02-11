@@ -6,7 +6,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        iiko: {
+        app: {
           primary: '#1976D2',
           'primary-dark': '#1565C0',
           'primary-light': '#42A5F5',

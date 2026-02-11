@@ -15,8 +15,8 @@ import { IconsModule } from '@/shared/icons.module';
       <div class="bg-white rounded-2xl shadow-elevation-modal p-8 w-full max-w-sm mx-4 animate-fade-in">
         <!-- Icon -->
         <div class="flex justify-center mb-5">
-          <div class="w-[60px] h-[60px] rounded-full bg-iiko-primary/10 flex items-center justify-center">
-            <lucide-icon name="lock" [size]="28" class="text-iiko-primary"></lucide-icon>
+          <div class="w-[60px] h-[60px] rounded-full bg-app-primary/10 flex items-center justify-center">
+            <lucide-icon name="lock" [size]="28" class="text-app-primary"></lucide-icon>
           </div>
         </div>
 
@@ -34,7 +34,7 @@ import { IconsModule } from '@/shared/icons.module';
             type="text"
             [(ngModel)]="code"
             placeholder="Код доступа"
-            class="w-full px-4 py-3 text-center text-lg tracking-widest uppercase font-mono border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-iiko-primary focus:border-iiko-primary"
+            class="w-full px-4 py-3 text-center text-lg tracking-widest uppercase font-mono border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary"
             (keydown.enter)="onSubmit()"
           />
         </div>
@@ -45,7 +45,7 @@ import { IconsModule } from '@/shared/icons.module';
         <!-- Submit button -->
         <button
           type="button"
-          class="w-full py-3 bg-iiko-primary text-white font-medium rounded-lg hover:bg-iiko-primary/90 transition-colors"
+          class="w-full py-3 bg-app-primary text-white font-medium rounded-lg hover:bg-app-primary/90 transition-colors"
           (click)="onSubmit()"
         >
           Войти
@@ -54,7 +54,7 @@ import { IconsModule } from '@/shared/icons.module';
         <!-- Back link -->
         <div class="text-center mt-4">
           <span
-            class="text-sm text-text-secondary hover:text-iiko-primary cursor-pointer"
+            class="text-sm text-text-secondary hover:text-app-primary cursor-pointer"
             (click)="onClose()"
           >
             Вернуться на главную

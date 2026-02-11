@@ -20,12 +20,12 @@ import { CodeInputModalComponent } from '@/components/ui/code-input-modal.compon
       <!-- Logo -->
       <div class="flex items-center gap-3 px-4 h-14 border-b border-white/10">
         <div
-          class="w-8 h-8 rounded bg-iiko-primary flex items-center justify-center text-white text-sm font-bold shrink-0"
+          class="w-8 h-8 rounded bg-app-primary flex items-center justify-center text-white text-sm font-bold shrink-0"
         >
           ii
         </div>
         <div *ngIf="!collapsed" class="overflow-hidden">
-          <div class="text-sm font-semibold text-white leading-tight">iiko Прототипы</div>
+          <div class="text-sm font-semibold text-white leading-tight">Прототипы</div>
           <div class="text-xs text-sidebar-text-muted leading-tight">Workspace</div>
         </div>
       </div>

@@ -35,7 +35,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
   template: `
     <!-- Loading state -->
     <div *ngIf="loading" class="flex-1 flex items-center justify-center">
-      <lucide-icon name="loader-2" [size]="32" class="animate-spin text-iiko-primary"></lucide-icon>
+      <lucide-icon name="loader-2" [size]="32" class="animate-spin text-app-primary"></lucide-icon>
     </div>
 
     <!-- No robots state -->
@@ -83,7 +83,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
               <input
                 type="number"
                 [(ngModel)]="settings.send_menu.wait_time"
-                class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20"
+                class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 min="1"
                 max="600"
               />
@@ -108,7 +108,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
               <input
                 type="number"
                 [(ngModel)]="settings.send_dish.max_dishes_per_trip"
-                class="w-full h-9 rounded border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20"
+                class="w-full h-9 rounded border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 [ngClass]="getNumberError(settings.send_dish.max_dishes_per_trip, 1, 20) ? 'border-red-500' : 'border-border'"
                 min="1"
                 max="20"
@@ -172,7 +172,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
               <input
                 type="number"
                 [(ngModel)]="settings.send_dish.wait_time"
-                class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20"
+                class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 min="1"
               />
               <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает у стола</p>
@@ -235,7 +235,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
               <input
                 type="number"
                 [(ngModel)]="settings.cleanup.wait_time"
-                class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20"
+                class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 min="1"
               />
               <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает, пока гость положит посуду</p>
@@ -267,7 +267,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
                 <input
                   type="number"
                   [(ngModel)]="settings.cleanup.auto_timer_after_delivery"
-                  class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20"
+                  class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                   min="1"
                 />
                 <p class="text-xs text-gray-400 mt-1">Через сколько минут после доставки блюда робот приедет для уборки</p>
@@ -280,7 +280,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
                 <input
                   type="number"
                   [(ngModel)]="settings.cleanup.auto_timer_after_check"
-                  class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20"
+                  class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                   min="0"
                 />
                 <p class="text-xs text-gray-400 mt-1">Через сколько минут после закрытия чека робот приедет для уборки. 0 — сразу</p>
@@ -315,7 +315,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
               <input
                 type="number"
                 [(ngModel)]="settings.qr_payment.cashier_timeout"
-                class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20"
+                class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 min="1"
               />
             </div>
@@ -332,7 +332,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
               <input
                 type="number"
                 [(ngModel)]="settings.qr_payment.guest_wait_time"
-                class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20"
+                class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 min="1"
               />
             </div>
@@ -388,7 +388,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
                   <h4 class="text-sm font-semibold text-gray-900 mb-1">Загрузка рекламных материалов</h4>
                   <p class="text-sm text-gray-600 leading-relaxed">
                     Загрузка рекламных материалов (видео, изображения, аудио) производится через приложение PuduLink.
-                    Обратитесь к инженеру NE для настройки контента. В будущем функция будет доступна через iikoSignage.
+                    Обратитесь к инженеру NE для настройки контента. В будущем функция будет доступна через Signage.
                   </p>
                 </div>
               </div>
@@ -422,7 +422,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
                 <input
                   type="time"
                   [(ngModel)]="settings.marketing.timer_start"
-                  class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20"
+                  class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 />
               </div>
               <div>
@@ -430,7 +430,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
                 <input
                   type="time"
                   [(ngModel)]="settings.marketing.timer_end"
-                  class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20"
+                  class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 />
               </div>
             </div>

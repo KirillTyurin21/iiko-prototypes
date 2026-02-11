@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 /* ============================================
-   iiko Web Design System — Global Styles
-   Имитирует внешний вид iikoWeb (Angular 16 + Material)
+   Web Design System — Global Styles
+   Имитирует внешний вид Web (Angular 16 + Material)
    ============================================ */
 
 * {
@@ -28,7 +28,7 @@ app-root {
   height: 100%;
 }
 
-/* Scrollbar styling (Chrome/Edge) — iikoWeb style */
+/* Scrollbar styling (Chrome/Edge) — Web style */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -45,7 +45,7 @@ app-root {
 }
 
 /* ============================================
-   Utility layers for iiko components
+   Utility layers for app components
    ============================================ */
 
 @layer components {

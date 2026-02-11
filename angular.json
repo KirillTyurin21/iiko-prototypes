@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "iiko-prototypes": {
+    "prototypes": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/iiko-prototypes",
+            "outputPath": "dist/prototypes",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": ["zone.js"],
@@ -53,10 +53,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "iiko-prototypes:build:production"
+              "browserTarget": "prototypes:build:production"
             },
             "development": {
-              "browserTarget": "iiko-prototypes:build:development"
+              "browserTarget": "prototypes:build:development"
             }
           },
           "defaultConfiguration": "development"

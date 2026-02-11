@@ -10,7 +10,7 @@ import {
   UiConfirmDialogComponent,
   SelectOption,
 } from '@/components/ui';
-import { Robot, RobotPoint, IikoTable, TableMapping } from '../types';
+import { Robot, RobotPoint, DiningTable, TableMapping } from '../types';
 import { MOCK_ROBOTS, MOCK_TABLES, getInitialMapping, getPointsForRobot } from '../data/mock-data';
 
 interface PointTestState {
@@ -125,7 +125,7 @@ interface Toast {
           >
             <lucide-icon name="info" [size]="20" class="text-blue-500 shrink-0 mt-0.5"></lucide-icon>
             <p class="text-sm text-gray-700">
-              <strong>{{ unassignedPointsCount }}</strong> {{ unassignedPointsLabel }} робота не {{ unassignedPointsVerb }} к столам iiko
+              <strong>{{ unassignedPointsCount }}</strong> {{ unassignedPointsLabel }} робота не {{ unassignedPointsVerb }} к столам системы
             </p>
           </div>
         </div>
@@ -136,7 +136,7 @@ interface Toast {
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">Стол iiko</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">Стол системы</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Привязанные точки</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">Тип точки</th>
                   <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Статус</th>
@@ -145,7 +145,7 @@ interface Toast {
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <tr *ngFor="let mapping of mappings; let i = index" class="hover:bg-gray-50/50">
-                  <!-- Стол iiko -->
+                  <!-- Стол системы -->
                   <td class="px-4 py-3 align-top">
                     <div class="font-medium text-sm text-gray-900">{{ getTableName(mapping.table_id) }}</div>
                     <div class="text-xs text-gray-500">{{ getTableSection(mapping.table_id) }}</div>
@@ -294,7 +294,7 @@ export class MappingScreenComponent implements OnInit {
 
   // Data
   robots: Robot[] = [];
-  tables: IikoTable[] = [];
+  tables: DiningTable[] = [];
   availablePoints: RobotPoint[] = [];
   mappings: TableMapping[] = [];
   originalMappings: TableMapping[] = [];

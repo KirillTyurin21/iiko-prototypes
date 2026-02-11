@@ -57,17 +57,17 @@ export class UiButtonComponent {
 
   private readonly variantClasses: Record<string, string> = {
     primary:
-      'bg-iiko-primary text-white hover:bg-iiko-primary-dark active:bg-blue-800 focus:ring-2 focus:ring-iiko-primary/40',
+      'bg-app-primary text-white hover:bg-app-primary-dark active:bg-blue-800 focus:ring-2 focus:ring-app-primary/40',
     secondary:
       'bg-surface-secondary text-text-primary hover:bg-surface-tertiary active:bg-gray-300 border border-border focus:ring-2 focus:ring-gray-300',
     outline:
-      'bg-transparent text-iiko-primary border border-iiko-primary hover:bg-iiko-primary/5 active:bg-iiko-primary/10 focus:ring-2 focus:ring-iiko-primary/30',
+      'bg-transparent text-app-primary border border-app-primary hover:bg-app-primary/5 active:bg-app-primary/10 focus:ring-2 focus:ring-app-primary/30',
     danger:
-      'bg-iiko-danger text-white hover:bg-red-700 active:bg-red-800 focus:ring-2 focus:ring-iiko-danger/40',
+      'bg-app-danger text-white hover:bg-red-700 active:bg-red-800 focus:ring-2 focus:ring-app-danger/40',
     ghost:
       'bg-transparent text-text-secondary hover:bg-surface-secondary active:bg-surface-tertiary focus:ring-2 focus:ring-gray-200',
     success:
-      'bg-iiko-success text-white hover:bg-green-700 active:bg-green-800 focus:ring-2 focus:ring-iiko-success/40',
+      'bg-app-success text-white hover:bg-green-700 active:bg-green-800 focus:ring-2 focus:ring-app-success/40',
   };
 
   private readonly sizeClasses: Record<string, string> = {

@@ -15,8 +15,8 @@ export interface RobotPoint {
   point_type: 'table' | 'pickup' | 'sink' | 'parking' | 'charging';
 }
 
-// Стол iiko
-export interface IikoTable {
+// Стол системы
+export interface DiningTable {
   table_id: string;
   table_name: string;
   section_name: string;

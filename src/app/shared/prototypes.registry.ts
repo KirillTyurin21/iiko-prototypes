@@ -11,10 +11,10 @@ export interface PrototypeEntry {
 
 export const PROTOTYPES: PrototypeEntry[] = [
   {
-    path: '/prototype/iiko-front-plugins',
-    label: 'Плагины iikoFront — Макеты окон',
+    path: '/prototype/front-plugins',
+    label: 'Плагины Front — Макеты окон',
     icon: 'credit-card',
-    description: 'Макеты модальных окон (попапов) плагинов кассового терминала iikoFront',
+    description: 'Макеты модальных окон (попапов) плагинов кассового терминала Front',
   },
   {
     path: '/prototype/demo',
@@ -23,8 +23,8 @@ export const PROTOTYPES: PrototypeEntry[] = [
     description: 'Пример прототипа плагина',
   },
   {
-    path: '/prototype/iikoweb-screens',
-    label: 'iikoWeb — Advertise Screens',
+    path: '/prototype/web-screens',
+    label: 'Web — Advertise Screens',
     icon: 'monitor-play',
     description: 'Прототип модуля управления гостевыми экранами и табло прибытия',
   },
@@ -35,8 +35,8 @@ export const PROTOTYPES: PrototypeEntry[] = [
     description: 'Панель администрирования роботов PUDU: регистрация, маппинг столов, настройки сценариев',
   },
   {
-    path: '/prototype/iiko-front-pudu-plugin',
-    label: 'PUDU — Плагин iikoFront',
+    path: '/prototype/front-pudu-plugin',
+    label: 'PUDU — Плагин Front',
     icon: 'bot',
     description: 'Плагин POS-терминала: управление роботами PUDU, отправка меню, уборка, QR-оплата',
   },

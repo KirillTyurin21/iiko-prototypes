@@ -37,9 +37,9 @@ export class DemoMainScreenComponent {
   private router = inject(Router);
 
   pluginActions = [
-    { icon: 'list', title: 'Список элементов', description: 'Таблица с данными, сортировка, выбор строки', route: 'list', color: 'bg-blue-50 text-iiko-primary' },
-    { icon: 'file-edit', title: 'Форма ввода', description: 'Поля, валидация, модальное окно', route: 'form', color: 'bg-green-50 text-iiko-success' },
-    { icon: 'bar-chart-3', title: 'Отчёт', description: 'Пример информационного экрана', route: '', color: 'bg-orange-50 text-iiko-accent' },
+    { icon: 'list', title: 'Список элементов', description: 'Таблица с данными, сортировка, выбор строки', route: 'list', color: 'bg-blue-50 text-app-primary' },
+    { icon: 'file-edit', title: 'Форма ввода', description: 'Поля, валидация, модальное окно', route: 'form', color: 'bg-green-50 text-app-success' },
+    { icon: 'bar-chart-3', title: 'Отчёт', description: 'Пример информационного экрана', route: '', color: 'bg-orange-50 text-app-accent' },
     { icon: 'settings', title: 'Настройки', description: 'Настройки плагина', route: '', color: 'bg-gray-50 text-text-secondary' },
   ];
 

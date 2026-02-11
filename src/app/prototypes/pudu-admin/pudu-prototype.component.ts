@@ -49,7 +49,7 @@ interface SidebarItem {
             </a>
           </nav>
           <div class="p-3 text-xs text-gray-400 border-t border-gray-200">
-            © 2026 iiko / ver: 9.6.1.240000
+            © 2026 / ver: 9.6.1.240000
           </div>
         </aside>
 

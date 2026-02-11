@@ -1,19 +1,19 @@
-# Коды доступа к прототипам iiko
+# Коды доступа к прототипам
 
 > **КОНФИДЕНЦИАЛЬНО** — не передавайте этот файл клиентам.
 > Клиентам отправляйте только их коды/ссылки.
 
 ---
 
-## Мастер-код (для команды iiko)
+## Мастер-код (для команды)
 
 | Код | Доступ | TTL |
 |-----|--------|-----|
-| `IIKO_TEAM_2025` | **ВСЁ** — список + все прототипы | 30 дней |
+| `TEAM_2025` | **ВСЁ** — список + все прототипы | 30 дней |
 
 **Ссылка для команды:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/?code=IIKO_TEAM_2025
+https://kirilltyurin21.github.io/prototypes/#/?code=TEAM_2025
 ```
 
 ---
@@ -24,22 +24,22 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/?code=IIKO_TEAM_2025
 
 | Код | Доступ | TTL |
 |-----|--------|-----|
-| `PUDU_GROUP_2025` | Плагин iikoFront + Панель Админа | 7 дней |
+| `PUDU_GROUP_2025` | Плагин Front + Панель Админа | 7 дней |
 
 **Прототипы в группе:**
-- PUDU — Плагин iikoFront
+- PUDU — Плагин Front
 - Роботы PUDU — Панель администрирования
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/iiko-front-pudu-plugin?code=PUDU_GROUP_2025
+https://kirilltyurin21.github.io/prototypes/#/prototype/front-pudu-plugin?code=PUDU_GROUP_2025
 ```
 
 ---
 
 ## Индивидуальные коды прототипов
 
-### 1. PUDU — Плагин iikoFront
+### 1. PUDU — Плагин Front
 
 | Код | TTL |
 |-----|-----|
@@ -47,7 +47,7 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/iiko-front-pudu-plu
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/iiko-front-pudu-plugin?code=PUDU_FRONT_01
+https://kirilltyurin21.github.io/prototypes/#/prototype/front-pudu-plugin?code=PUDU_FRONT_01
 ```
 
 ---
@@ -60,12 +60,12 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/iiko-front-pudu-plu
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/pudu-admin?code=PUDU_ADMIN_01
+https://kirilltyurin21.github.io/prototypes/#/prototype/pudu-admin?code=PUDU_ADMIN_01
 ```
 
 ---
 
-### 3. Плагины iikoFront — Макеты окон
+### 3. Плагины Front — Макеты окон
 
 | Код | TTL |
 |-----|-----|
@@ -73,12 +73,12 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/pudu-admin?code=PUD
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/iiko-front-plugins?code=FRONT_PLUGINS_01
+https://kirilltyurin21.github.io/prototypes/#/prototype/front-plugins?code=FRONT_PLUGINS_01
 ```
 
 ---
 
-### 4. iikoWeb — Advertise Screens (Подсказки)
+### 4. Web — Advertise Screens (Подсказки)
 
 | Код | TTL |
 |-----|-----|
@@ -86,7 +86,7 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/iiko-front-plugins?
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/iikoweb-screens?code=WEB_SCREENS_01
+https://kirilltyurin21.github.io/prototypes/#/prototype/web-screens?code=WEB_SCREENS_01
 ```
 
 ---
@@ -99,7 +99,7 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/iikoweb-screens?cod
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/demo?code=DEMO_2025
+https://kirilltyurin21.github.io/prototypes/#/prototype/demo?code=DEMO_2025
 ```
 
 ---

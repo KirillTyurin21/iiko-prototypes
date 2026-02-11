@@ -23,7 +23,7 @@ import {
   FileEdit,
   Settings,
   BarChart3,
-  // iikoWeb Screens prototype
+  // Web Screens prototype
   Menu,
   Bell,
   User,
@@ -99,7 +99,7 @@ const icons = {
   FileEdit,
   Settings,
   BarChart3,
-  // iikoWeb Screens prototype
+  // Web Screens prototype
   Menu,
   Bell,
   User,

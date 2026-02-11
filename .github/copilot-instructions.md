@@ -1,8 +1,8 @@
-# Copilot Instructions — iiko Прототипы
+# Copilot Instructions — Прототипы
 
 ## Контекст проекта
 
-Это рабочая область для **системного аналитика iiko**. Здесь создаются интерактивные веб-прототипы плагинов для **iikoFront** и панелей администрирования **iikoWeb**.
+Это рабочая область для **системного аналитика**. Здесь создаются интерактивные веб-прототипы плагинов для **Front** и панелей администрирования **Web**.
 
 Каждый прототип — это **отдельный мини-проект** внутри общей рабочей области. У прототипов разные заказчики, разные задачи, разная бизнес-логика.
 
@@ -12,7 +12,7 @@
 
 - **Angular 16** + **TypeScript** (standalone-компоненты)
 - **Angular CLI** — dev-сервер, порт 3000
-- **Tailwind CSS** — утилитарные стили, кастомная тема iiko
+- **Tailwind CSS** — утилитарные стили, кастомная тема
 - **Angular Router** — маршрутизация (lazy loading)
 - **Lucide Angular** — иконки (`lucide-angular`)
 - UI-компоненты: `@/components/ui` (UiButton, UiCard, UiInput, UiSelect, UiTextarea, UiCheckbox, UiToggle, UiModal, UiConfirmDialog, UiTable, UiTabs, UiBadge, UiAlert, UiBreadcrumbs, UiStatusDot, UiEmptyState, UiDivider, UiSkeleton)
@@ -25,17 +25,17 @@
 - **FormsModule** для двусторонней привязки: `[(value)]="model"` в UI-компонентах
 - **Lazy loading**: маршруты через `loadComponent()` и `loadChildren()`
 
-## Стилизация — iikoWeb Design System
+## Стилизация — Web Design System
 
-- **Фреймворк-ориентир**: Angular 16 Material Design (iikoWeb)
+- **Фреймворк-ориентир**: Angular 16 Material Design (Web)
 - **Шрифт**: Roboto
 - **Цвета**: определены в `tailwind.config.js` → `theme.extend.colors`
-  - `iiko-primary` (#1976D2) — основной синий
-  - `iiko-accent` (#FF6D00) — акцентный оранжевый iiko
+  - `app-primary` (#1976D2) — основной синий
+  - `app-accent` (#FF6D00) — акцентный оранжевый
   - `sidebar-bg` (#263238) — тёмный sidebar
   - `surface`, `border`, `text` — семантические токены
 - **Тени**: `elevation-1`, `elevation-2`, `elevation-3`, `elevation-modal`
-- Когда пользователь присылает **скриншоты iikoWeb** — воспроизводить дизайн максимально близко
+- Когда пользователь присылает **скриншоты Web** — воспроизводить дизайн максимально близко
 
 ---
 
@@ -223,7 +223,7 @@ export class NameScreenComponent {
 Прототипы работают на **фейковых данных** — без бэкенда:
 
 - Данные хранить в свойствах компонента или в отдельном файле `data/mock-data.ts`
-- Использовать реалистичные названия в контексте ресторанного бизнеса (iiko)
+- Использовать реалистичные названия в контексте ресторанного бизнеса
 - CRUD операции — просто манипуляция массивами/объектами в компоненте
 - При навигации назад данные могут сбрасываться — это **нормально** для прототипа
 
@@ -266,14 +266,14 @@ import { PROTOTYPES, PrototypeEntry } from '@/shared/prototypes.registry';
 
 ---
 
-## Работа со скриншотами iikoWeb
+## Работа со скриншотами Web
 
 Когда пользователь присылает скриншот:
 1. Проанализируй layout: sidebar, header, content area
 2. Определи компоненты: таблицы, формы, карточки, модалки
 3. Воспроизведи с помощью имеющихся UI-компонентов
 4. Если нужен новый компонент — создай в `src/app/components/ui/`
-5. Сохраняй цветовую палитру и spacing iikoWeb
+5. Сохраняй цветовую палитру и spacing Web
 
 ---
 

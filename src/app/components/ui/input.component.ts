@@ -28,7 +28,7 @@ import { IconsModule } from '@/shared/icons.module';
           [ngClass]="inputClasses"
         />
       </div>
-      <p *ngIf="error" class="mt-1 text-xs text-iiko-danger">{{ error }}</p>
+      <p *ngIf="error" class="mt-1 text-xs text-app-danger">{{ error }}</p>
       <p *ngIf="hint && !error" class="mt-1 text-xs text-text-secondary">{{ hint }}</p>
     </div>
   `,
@@ -50,8 +50,8 @@ export class UiInputComponent {
       'w-full h-9 rounded border bg-surface text-sm text-text-primary outline-none transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed';
     const pad = this.iconName ? 'pl-8 pr-3' : 'px-3';
     const state = this.error
-      ? 'border-iiko-danger focus:ring-2 focus:ring-iiko-danger/20'
-      : 'border-border hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20';
+      ? 'border-app-danger focus:ring-2 focus:ring-app-danger/20'
+      : 'border-border hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20';
     return `${base} ${pad} ${state}`;
   }
 
@@ -82,7 +82,7 @@ export class UiInputComponent {
         (input)="onInput($event)"
         [ngClass]="textareaClasses"
       ></textarea>
-      <p *ngIf="error" class="mt-1 text-xs text-iiko-danger">{{ error }}</p>
+      <p *ngIf="error" class="mt-1 text-xs text-app-danger">{{ error }}</p>
       <p *ngIf="hint && !error" class="mt-1 text-xs text-text-secondary">{{ hint }}</p>
     </div>
   `,
@@ -102,8 +102,8 @@ export class UiTextareaComponent {
     const base =
       'w-full min-h-[80px] rounded border bg-surface text-sm text-text-primary px-3 py-2 outline-none transition-colors duration-150 resize-vertical disabled:opacity-50 disabled:cursor-not-allowed';
     const state = this.error
-      ? 'border-iiko-danger focus:ring-2 focus:ring-iiko-danger/20'
-      : 'border-border hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20';
+      ? 'border-app-danger focus:ring-2 focus:ring-app-danger/20'
+      : 'border-border hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20';
     return `${base} ${state}`;
   }
 
@@ -140,7 +140,7 @@ export interface SelectOption {
         <option *ngIf="placeholder" value="" disabled>{{ placeholder }}</option>
         <option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option>
       </select>
-      <p *ngIf="error" class="mt-1 text-xs text-iiko-danger">{{ error }}</p>
+      <p *ngIf="error" class="mt-1 text-xs text-app-danger">{{ error }}</p>
     </div>
   `,
 })
@@ -158,8 +158,8 @@ export class UiSelectComponent {
     const base =
       'w-full h-9 rounded border bg-surface text-sm text-text-primary px-3 outline-none transition-colors duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed appearance-none';
     const state = this.error
-      ? 'border-iiko-danger focus:ring-2 focus:ring-iiko-danger/20'
-      : 'border-border hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-iiko-primary/20';
+      ? 'border-app-danger focus:ring-2 focus:ring-app-danger/20'
+      : 'border-border hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20';
     return `${base} ${state}`;
   }
 
@@ -187,7 +187,7 @@ export class UiSelectComponent {
         [checked]="checked"
         [disabled]="disabled"
         (change)="onToggle()"
-        class="w-4 h-4 rounded border-border text-iiko-primary focus:ring-2 focus:ring-iiko-primary/30 cursor-pointer disabled:cursor-not-allowed"
+        class="w-4 h-4 rounded border-border text-app-primary focus:ring-2 focus:ring-app-primary/30 cursor-pointer disabled:cursor-not-allowed"
       />
       <span *ngIf="label" class="text-sm text-text-primary">{{ label }}</span>
     </label>
@@ -224,8 +224,8 @@ export class UiCheckboxComponent {
         [attr.aria-checked]="checked"
         [disabled]="disabled"
         (click)="onToggle()"
-        class="relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-iiko-primary/30"
-        [ngClass]="checked ? 'bg-iiko-primary' : 'bg-gray-300'"
+        class="relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-app-primary/30"
+        [ngClass]="checked ? 'bg-app-primary' : 'bg-gray-300'"
       >
         <span
           class="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform duration-200 mt-0.5 ml-0.5"

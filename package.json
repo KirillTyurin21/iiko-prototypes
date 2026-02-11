@@ -1,8 +1,8 @@
 {
-  "name": "iiko-prototypes",
+  "name": "prototypes",
   "private": true,
   "version": "1.0.0",
-  "description": "Рабочая область для создания прототипов iikoWeb / iikoFront плагинов",
+  "description": "Рабочая область для создания прототипов Web / Front плагинов",
   "scripts": {
     "ng": "ng",
     "dev": "ng serve --port 3000 --open",

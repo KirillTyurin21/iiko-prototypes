@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ACCESS_CONFIG, GroupAccessEntry } from './access-codes';
 
-const LS_MASTER = 'iiko_master_access';
-const LS_LIST = 'iiko_list_access';
-const LS_GROUP_PREFIX = 'iiko_group_access_';
-const LS_PROTO_PREFIX = 'iiko_proto_access_';
+const LS_MASTER = 'master_access';
+const LS_LIST = 'list_access';
+const LS_GROUP_PREFIX = 'group_access_';
+const LS_PROTO_PREFIX = 'proto_access_';
 
 @Injectable({ providedIn: 'root' })
 export class AccessCodeService {

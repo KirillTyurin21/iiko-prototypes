@@ -1,0 +1,138 @@
+import { PluginEntry, DialogEntry, CustomerData } from '../types';
+
+export const MOCK_PLUGINS: PluginEntry[] = [
+  {
+    id: 'premium-bonus',
+    name: 'Премиум Бонус — Программа лояльности',
+    description:
+      'Плагин кассового терминала для программы лояльности: поиск клиента, оплата с бонусами, накопление, регистрация.',
+    icon: 'credit-card',
+    dialogCount: 11,
+  },
+  {
+    id: 'pudu-robots',
+    name: 'PUDU — Управление роботами',
+    description:
+      'Плагин POS-терминала для управления роботами PUDU: отправка меню, уборка посуды, QR-оплата, маркетинг-круиз.',
+    icon: 'bot',
+    dialogCount: 11,
+    link: '/prototype/front-pudu-plugin',
+  },
+];
+
+export const MOCK_DIALOGS: Record<string, DialogEntry[]> = {
+  'premium-bonus': [
+    {
+      id: 'search',
+      modalType: 'search',
+      name: 'Поиск клиента',
+      description: 'Поиск по номеру телефона или карте с экранной клавиатурой',
+      icon: 'search',
+      iconColor: 'text-[#b8c959]',
+      iconBg: 'bg-[#b8c959]/20',
+    },
+    {
+      id: 'found',
+      modalType: 'found',
+      name: 'Клиент найден',
+      description: 'Отображение данных, бонусов и статуса клиента',
+      icon: 'check-circle-2',
+      iconColor: 'text-[#b8c959]',
+      iconBg: 'bg-[#b8c959]/20',
+    },
+    {
+      id: 'not-found',
+      modalType: 'not-found',
+      name: 'Клиент не найден',
+      description: 'Предупреждение: клиент не найден или не зарегистрирован',
+      icon: 'alert-circle',
+      iconColor: 'text-orange-400',
+      iconBg: 'bg-orange-500/20',
+    },
+    {
+      id: 'blocked',
+      modalType: 'blocked',
+      name: 'Карта заблокирована',
+      description: 'Предупреждение о блокировке карты клиента',
+      icon: 'shield-alert',
+      iconColor: 'text-red-400',
+      iconBg: 'bg-red-500/20',
+    },
+    {
+      id: 'payment',
+      modalType: 'payment',
+      name: 'Оплата заказа',
+      description: 'Промокод, списание бонусов, итоги оплаты',
+      icon: 'wallet',
+      iconColor: 'text-[#b8c959]',
+      iconBg: 'bg-[#b8c959]/20',
+    },
+    {
+      id: 'accumulate',
+      modalType: 'accumulate',
+      name: 'Только накопление',
+      description: 'Накопление бонусов при незавершённой регистрации',
+      icon: 'info',
+      iconColor: 'text-orange-400',
+      iconBg: 'bg-orange-500/20',
+    },
+    {
+      id: 'success',
+      modalType: 'success',
+      name: 'Оплата успешна',
+      description: 'Подтверждение: баланс, начисления, итоги',
+      icon: 'check-circle-2',
+      iconColor: 'text-green-400',
+      iconBg: 'bg-green-500/20',
+    },
+    {
+      id: 'loading',
+      modalType: 'loading',
+      name: 'Загрузка',
+      description: 'Индикатор загрузки данных',
+      icon: 'loader-2',
+      iconColor: 'text-blue-400',
+      iconBg: 'bg-blue-500/20',
+    },
+    {
+      id: 'error',
+      modalType: 'error',
+      name: 'Ошибка соединения (светлая)',
+      description: 'Ошибка связи в стиле светлой темы',
+      icon: 'wifi-off',
+      iconColor: 'text-red-400',
+      iconBg: 'bg-red-500/20',
+    },
+    {
+      id: 'network-error',
+      modalType: 'network-error',
+      name: 'Ошибка сети (тёмная POS)',
+      description: 'Ошибка связи в тёмном стиле POS-терминала',
+      icon: 'wifi-off',
+      iconColor: 'text-orange-400',
+      iconBg: 'bg-orange-500/20',
+    },
+    {
+      id: 'registration',
+      modalType: 'registration',
+      name: 'Регистрация клиента',
+      description: 'Форма регистрации нового клиента в программе лояльности',
+      icon: 'user',
+      iconColor: 'text-[#b8c959]',
+      iconBg: 'bg-[#b8c959]/20',
+    },
+  ],
+};
+
+export const MOCK_CUSTOMER: CustomerData = {
+  full_name: 'Иванов Иван Иванович',
+  phone: '+7 (999) 123-45-67',
+  card_code: '111',
+  birth_date: '01.01.1990',
+  program_name: 'Золотая карта',
+  status_name: 'VIP клиент',
+  discount_percent: 10,
+  bonus_percent: 5,
+  bonus_balance: 1250,
+  max_bonus_out: 800,
+};

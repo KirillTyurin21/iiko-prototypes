@@ -20,10 +20,10 @@ export class UiBadgeComponent {
 
   private readonly variantClasses: Record<string, string> = {
     default: 'bg-surface-tertiary text-text-secondary',
-    primary: 'bg-blue-50 text-iiko-primary',
-    success: 'bg-green-50 text-iiko-success',
-    warning: 'bg-orange-50 text-iiko-warning',
-    danger: 'bg-red-50 text-iiko-danger',
+    primary: 'bg-blue-50 text-app-primary',
+    success: 'bg-green-50 text-app-success',
+    warning: 'bg-orange-50 text-app-warning',
+    danger: 'bg-red-50 text-app-danger',
     info: 'bg-blue-50 text-blue-600',
   };
 
@@ -178,7 +178,7 @@ export interface BreadcrumbItem {
         <button
           *ngIf="item.onClick && !last; else plainText"
           type="button"
-          class="text-iiko-primary hover:underline focus:outline-none"
+          class="text-app-primary hover:underline focus:outline-none"
           (click)="item.onClick!()"
         >
           {{ item.label }}

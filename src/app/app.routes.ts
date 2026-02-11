@@ -39,7 +39,7 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'prototype/iikoweb-screens',
+        path: 'prototype/web-screens',
         canActivate: [accessGuard],
         loadComponent: () =>
           import('./components/layout/protected-prototype.component').then(
@@ -49,14 +49,14 @@ export const routes: Routes = [
           {
             path: '',
             loadChildren: () =>
-              import('./prototypes/iikoweb-screens/iikoweb-screens.routes').then(
-                m => m.IIKOWEB_SCREENS_ROUTES
+              import('./prototypes/web-screens/web-screens.routes').then(
+                m => m.WEB_SCREENS_ROUTES
               ),
           },
         ],
       },
       {
-        path: 'prototype/iiko-front-plugins',
+        path: 'prototype/front-plugins',
         canActivate: [accessGuard],
         loadComponent: () =>
           import('./components/layout/protected-prototype.component').then(
@@ -66,8 +66,8 @@ export const routes: Routes = [
           {
             path: '',
             loadChildren: () =>
-              import('./prototypes/iiko-front-plugins/iiko-front-plugins.routes').then(
-                m => m.IIKO_FRONT_PLUGINS_ROUTES
+              import('./prototypes/front-plugins/front-plugins.routes').then(
+                m => m.FRONT_PLUGINS_ROUTES
               ),
           },
         ],
@@ -90,7 +90,7 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'prototype/iiko-front-pudu-plugin',
+        path: 'prototype/front-pudu-plugin',
         canActivate: [accessGuard],
         loadComponent: () =>
           import('./components/layout/protected-prototype.component').then(
@@ -100,7 +100,7 @@ export const routes: Routes = [
           {
             path: '',
             loadChildren: () =>
-              import('./prototypes/iiko-front-pudu-plugin/pudu-plugin.routes').then(
+              import('./prototypes/front-pudu-plugin/pudu-plugin.routes').then(
                 m => m.PUDU_PLUGIN_ROUTES
               ),
           },

@@ -82,7 +82,7 @@ import { IconsModule } from '@/shared/icons.module';
 
       <ui-modal [open]="successModal" (modalClose)="successModal = false" title="Готово" size="sm">
         <div class="flex flex-col items-center py-4">
-          <lucide-icon name="check-circle-2" [size]="48" class="text-iiko-success mb-3"></lucide-icon>
+          <lucide-icon name="check-circle-2" [size]="48" class="text-app-success mb-3"></lucide-icon>
           <p class="text-text-primary font-medium">Элемент успешно создан!</p>
           <p class="text-sm text-text-secondary mt-1">{{ name }} — {{ price }} ₽</p>
         </div>

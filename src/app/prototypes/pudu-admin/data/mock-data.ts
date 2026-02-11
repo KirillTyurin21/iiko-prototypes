@@ -1,4 +1,4 @@
-import { Robot, RobotPoint, IikoTable, TableMapping, ScenarioSettings } from '../types';
+import { Robot, RobotPoint, DiningTable, TableMapping, ScenarioSettings } from '../types';
 
 export const MOCK_ROBOTS: Robot[] = [
   {
@@ -58,7 +58,7 @@ export const MOCK_POINTS_BELLA03: RobotPoint[] = [
   { point_id: 'pt-240', point_name: 'VIP зарядка', point_type: 'charging' },
 ];
 
-export const MOCK_TABLES: IikoTable[] = [
+export const MOCK_TABLES: DiningTable[] = [
   { table_id: 'tbl-001', table_name: 'Стол №1', section_name: 'Зал 1 этаж' },
   { table_id: 'tbl-002', table_name: 'Стол №2', section_name: 'Зал 1 этаж' },
   { table_id: 'tbl-003', table_name: 'Стол №3 (VIP)', section_name: 'Зал 1 этаж' },

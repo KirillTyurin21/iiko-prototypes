@@ -15,9 +15,9 @@ import { CodeInputModalComponent } from '@/components/ui/code-input-modal.compon
     <div class="max-w-4xl mx-auto">
       <!-- Header -->
       <div class="mb-8">
-        <h2 class="text-2xl font-medium text-text-primary mb-2">Добро пожаловать в iiko Прототипы</h2>
+        <h2 class="text-2xl font-medium text-text-primary mb-2">Добро пожаловать в Прототипы</h2>
         <p class="text-text-secondary">
-          Рабочая область для создания интерактивных прототипов плагинов iikoFront и iikoWeb.
+          Рабочая область для создания интерактивных прототипов плагинов Front и Web.
           Выберите прототип из списка ниже или создайте новый.
         </p>
       </div>
@@ -26,7 +26,7 @@ import { CodeInputModalComponent } from '@/components/ui/code-input-modal.compon
       <div *ngIf="hasListAccess && visiblePrototypes.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <ui-card *ngFor="let proto of visiblePrototypes" [hoverable]="true" [padding]="'lg'" (cardClick)="navigate(proto.path)">
           <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-lg bg-iiko-primary/10 text-iiko-primary flex items-center justify-center shrink-0">
+            <div class="w-10 h-10 rounded-lg bg-app-primary/10 text-app-primary flex items-center justify-center shrink-0">
               <lucide-icon [name]="proto.icon" [size]="20"></lucide-icon>
             </div>
             <div class="flex-1 min-w-0">
@@ -44,8 +44,8 @@ import { CodeInputModalComponent } from '@/components/ui/code-input-modal.compon
       <!-- Locked state (no list access) -->
       <ui-card *ngIf="!hasListAccess" padding="lg" class="mb-8">
         <div class="flex flex-col items-center py-10 text-center">
-          <div class="w-16 h-16 rounded-full bg-iiko-primary/10 flex items-center justify-center mb-4">
-            <lucide-icon name="lock" [size]="32" class="text-iiko-primary"></lucide-icon>
+          <div class="w-16 h-16 rounded-full bg-app-primary/10 flex items-center justify-center mb-4">
+            <lucide-icon name="lock" [size]="32" class="text-app-primary"></lucide-icon>
           </div>
           <h3 class="text-lg font-medium text-text-primary mb-2">Список прототипов</h3>
           <p class="text-sm text-text-secondary mb-6 max-w-md">
@@ -53,7 +53,7 @@ import { CodeInputModalComponent } from '@/components/ui/code-input-modal.compon
             Если у вас есть прямая ссылка на прототип — перейдите по ней.
           </p>
           <button (click)="openCodeModal()"
-                  class="px-6 py-2.5 bg-iiko-primary text-white font-medium rounded-lg hover:bg-iiko-primary/90 transition-colors flex items-center gap-2">
+                  class="px-6 py-2.5 bg-app-primary text-white font-medium rounded-lg hover:bg-app-primary/90 transition-colors flex items-center gap-2">
             <lucide-icon name="lock" [size]="16"></lucide-icon>
             Ввести код доступа
           </button>
