@@ -56,6 +56,10 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "&": true
+        "&": true,
+        "/^cd \"d:\\\\1Документы\\\\Задачи iiko\\\\Прототипы\"; node node_modules/@angular/cli/bin/ng\\.js build --configuration development$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }

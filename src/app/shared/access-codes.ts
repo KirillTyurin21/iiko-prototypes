@@ -39,12 +39,12 @@ export interface AccessConfig {
 }
 
 export const ACCESS_CONFIG: AccessConfig = {
-  masterCode: 'TEAM_2025',
+  masterCode: 'TEAM_2026',
   masterTtlDays: 30,
 
   groups: [
     {
-      code: 'PUDU_GROUP_2025',
+      code: 'PUDU_GROUP_2026',
       ttlDays: 7,
       label: 'Pudu — Все прототипы',
       prototypeSlugs: [
@@ -56,23 +56,23 @@ export const ACCESS_CONFIG: AccessConfig = {
 
   prototypes: {
     'front-pudu-plugin': {
-      code: 'PUDU_FRONT_01',
+      code: 'PUDU_FRONT_2026',
       ttlDays: 7,
     },
     'pudu-admin': {
-      code: 'PUDU_ADMIN_01',
+      code: 'PUDU_ADMIN_2026',
       ttlDays: 7,
     },
     'front-plugins': {
-      code: 'FRONT_PLUGINS_01',
+      code: 'FRONT_PLUGINS_2026',
       ttlDays: 7,
     },
     'web-screens': {
-      code: 'WEB_SCREENS_01',
+      code: 'WEB_SCREENS_2026',
       ttlDays: 7,
     },
     'demo': {
-      code: 'DEMO_2025',
+      code: 'DEMO_2026',
       ttlDays: 7,
     },
   },

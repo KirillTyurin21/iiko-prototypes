@@ -9,11 +9,11 @@
 
 | Код | Доступ | TTL |
 |-----|--------|-----|
-| `TEAM_2025` | **ВСЁ** — список + все прототипы | 30 дней |
+| `TEAM_2026` | **ВСЁ** — список + все прототипы | 30 дней |
 
 **Ссылка для команды:**
 ```
-https://kirilltyurin21.github.io/prototypes/#/?code=TEAM_2025
+https://kirilltyurin21.github.io/iiko-prototypes/#/?code=TEAM_2026
 ```
 
 ---
@@ -24,7 +24,7 @@ https://kirilltyurin21.github.io/prototypes/#/?code=TEAM_2025
 
 | Код | Доступ | TTL |
 |-----|--------|-----|
-| `PUDU_GROUP_2025` | Плагин Front + Панель Админа | 7 дней |
+| `PUDU_GROUP_2026` | Плагин Front + Панель Админа | 7 дней |
 
 **Прототипы в группе:**
 - PUDU — Плагин Front
@@ -32,7 +32,7 @@ https://kirilltyurin21.github.io/prototypes/#/?code=TEAM_2025
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/prototypes/#/prototype/front-pudu-plugin?code=PUDU_GROUP_2025
+https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/front-pudu-plugin?code=PUDU_GROUP_2026
 ```
 
 ---
@@ -43,11 +43,11 @@ https://kirilltyurin21.github.io/prototypes/#/prototype/front-pudu-plugin?code=P
 
 | Код | TTL |
 |-----|-----|
-| `PUDU_FRONT_01` | 7 дней |
+| `PUDU_FRONT_2026` | 7 дней |
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/prototypes/#/prototype/front-pudu-plugin?code=PUDU_FRONT_01
+https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/front-pudu-plugin?code=PUDU_FRONT_2026
 ```
 
 ---
@@ -56,11 +56,11 @@ https://kirilltyurin21.github.io/prototypes/#/prototype/front-pudu-plugin?code=P
 
 | Код | TTL |
 |-----|-----|
-| `PUDU_ADMIN_01` | 7 дней |
+| `PUDU_ADMIN_2026` | 7 дней |
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/prototypes/#/prototype/pudu-admin?code=PUDU_ADMIN_01
+https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/pudu-admin?code=PUDU_ADMIN_2026
 ```
 
 ---
@@ -69,11 +69,11 @@ https://kirilltyurin21.github.io/prototypes/#/prototype/pudu-admin?code=PUDU_ADM
 
 | Код | TTL |
 |-----|-----|
-| `FRONT_PLUGINS_01` | 7 дней |
+| `FRONT_PLUGINS_2026` | 7 дней |
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/prototypes/#/prototype/front-plugins?code=FRONT_PLUGINS_01
+https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/front-plugins?code=FRONT_PLUGINS_2026
 ```
 
 ---
@@ -82,11 +82,11 @@ https://kirilltyurin21.github.io/prototypes/#/prototype/front-plugins?code=FRONT
 
 | Код | TTL |
 |-----|-----|
-| `WEB_SCREENS_01` | 7 дней |
+| `WEB_SCREENS_2026` | 7 дней |
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/prototypes/#/prototype/web-screens?code=WEB_SCREENS_01
+https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/web-screens?code=WEB_SCREENS_2026
 ```
 
 ---
@@ -95,11 +95,11 @@ https://kirilltyurin21.github.io/prototypes/#/prototype/web-screens?code=WEB_SCR
 
 | Код | TTL |
 |-----|-----|
-| `DEMO_2025` | 7 дней |
+| `DEMO_2026` | 7 дней |
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/prototypes/#/prototype/demo?code=DEMO_2025
+https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/demo?code=DEMO_2026
 ```
 
 ---
