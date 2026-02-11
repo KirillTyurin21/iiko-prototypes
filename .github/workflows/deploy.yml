@@ -31,7 +31,7 @@ jobs:
         run: npm ci
 
       - name: Build Angular app
-        run: npx ng build --configuration production --base-href /iiko-prototypes/
+        run: npx ng build --configuration production --base-href /prototypes/
 
       - name: Add 404.html for SPA routing
         run: cp dist/prototypes/index.html dist/prototypes/404.html

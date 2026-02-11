@@ -13,7 +13,7 @@
 
 **Ссылка для команды:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/?code=TEAM_2026
+https://kirilltyurin21.github.io/prototypes/#/?code=TEAM_2026
 ```
 
 ---
@@ -32,7 +32,7 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/?code=TEAM_2026
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/front-pudu-plugin?code=PUDU_GROUP_2026
+https://kirilltyurin21.github.io/prototypes/#/prototype/front-pudu-plugin?code=PUDU_GROUP_2026
 ```
 
 ---
@@ -47,7 +47,7 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/front-pudu-plugin?c
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/front-pudu-plugin?code=PUDU_FRONT_2026
+https://kirilltyurin21.github.io/prototypes/#/prototype/front-pudu-plugin?code=PUDU_FRONT_2026
 ```
 
 ---
@@ -60,7 +60,7 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/front-pudu-plugin?c
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/pudu-admin?code=PUDU_ADMIN_2026
+https://kirilltyurin21.github.io/prototypes/#/prototype/pudu-admin?code=PUDU_ADMIN_2026
 ```
 
 ---
@@ -73,7 +73,7 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/pudu-admin?code=PUD
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/front-plugins?code=FRONT_PLUGINS_2026
+https://kirilltyurin21.github.io/prototypes/#/prototype/front-plugins?code=FRONT_PLUGINS_2026
 ```
 
 ---
@@ -86,7 +86,7 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/front-plugins?code=
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/web-screens?code=WEB_SCREENS_2026
+https://kirilltyurin21.github.io/prototypes/#/prototype/web-screens?code=WEB_SCREENS_2026
 ```
 
 ---
@@ -99,7 +99,7 @@ https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/web-screens?code=WE
 
 **Ссылка:**
 ```
-https://kirilltyurin21.github.io/iiko-prototypes/#/prototype/demo?code=DEMO_2026
+https://kirilltyurin21.github.io/prototypes/#/prototype/demo?code=DEMO_2026
 ```
 
 ---
