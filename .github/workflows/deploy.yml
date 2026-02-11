@@ -34,12 +34,12 @@ jobs:
         run: npx ng build --configuration production --base-href /iiko-prototypes/
 
       - name: Add 404.html for SPA routing
-        run: cp dist/iiko-prototypes/index.html dist/iiko-prototypes/404.html
+        run: cp dist/prototypes/index.html dist/prototypes/404.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/iiko-prototypes
+          path: dist/prototypes
 
   deploy:
     environment:
