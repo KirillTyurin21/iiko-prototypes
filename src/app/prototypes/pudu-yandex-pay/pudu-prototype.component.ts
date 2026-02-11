@@ -40,7 +40,7 @@ interface SidebarItem {
               *ngFor="let item of sidebarItems"
               [routerLink]="item.route"
               routerLinkActive="bg-blue-50 text-blue-700 font-medium"
-              [routerLinkActiveOptions]="{ exact: item.route === '' }"
+              [routerLinkActiveOptions]="{ exact: item.route === './' }"
               class="flex items-center gap-3 rounded px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
               [attr.aria-current]="isActive(item.route) ? 'page' : null"
             >
@@ -79,7 +79,7 @@ export class PuduPrototypeComponent {
   private router = inject(Router);
 
   sidebarItems: SidebarItem[] = [
-    { icon: 'bot', label: 'Роботы PUDU', route: '' },
+    { icon: 'bot', label: 'Роботы PUDU', route: './' },
     { icon: 'map-pin', label: 'Маппинг столов', route: 'mapping' },
     { icon: 'settings', label: 'Настройки роботов', route: 'settings' },
   ];
@@ -91,7 +91,7 @@ export class PuduPrototypeComponent {
   isActive(route: string): boolean {
     const currentUrl = this.router.url;
     const basePath = '/prototype/pudu-yandex-pay';
-    if (route === '') {
+    if (route === './') {
       return currentUrl === basePath || currentUrl === basePath + '/';
     }
     return currentUrl.startsWith(basePath + '/' + route);

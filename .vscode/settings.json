@@ -23,6 +23,23 @@
         "/^powershell -ExecutionPolicy Bypass -Command \"cd 'd:\\\\1Документы\\\\Задачи iiko\\\\Прототипы'; npx ng serve --port 3001\"$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "git push": true,
+        "/^cd \"d:\\\\1Документы\\\\Задачи iiko\\\\Прототипы\"; node node_modules/@angular/cli/bin/ng\\.js build --configuration production --base-href /iiko-prototypes/ 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^node node_modules/@angular/cli/bin/ng\\.js build --configuration production --base-href /iiko-prototypes/ 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^node node_modules/@angular/cli/bin/ng\\.js build --base-href /iiko-prototypes/ 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^node node_modules/@angular/cli/bin/ng\\.js build 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }
