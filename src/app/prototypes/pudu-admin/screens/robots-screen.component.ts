@@ -14,6 +14,7 @@ import {
 } from '@/components/ui';
 import { Robot } from '../types';
 import { MOCK_ROBOTS } from '../data/mock-data';
+import { StorageService } from '@/shared/storage.service';
 
 @Component({
   selector: 'app-robots-screen',
@@ -314,6 +315,8 @@ import { MOCK_ROBOTS } from '../data/mock-data';
   `],
 })
 export class RobotsScreenComponent implements OnInit {
+  private storage = inject(StorageService);
+
   // --- Robot list state ---
   robots: Robot[] = [];
   isLoading = true;
@@ -344,7 +347,7 @@ export class RobotsScreenComponent implements OnInit {
   ngOnInit(): void {
     // Simulate loading delay
     setTimeout(() => {
-      this.robots = MOCK_ROBOTS.map(r => ({ ...r }));
+      this.robots = this.storage.load('pudu-admin', 'robots', MOCK_ROBOTS.map(r => ({ ...r })));
       this.isLoading = false;
     }, 1000);
   }
@@ -369,6 +372,7 @@ export class RobotsScreenComponent implements OnInit {
     if (!this.robotToDelete) return;
     const name = this.robotToDelete.name;
     this.robots = this.robots.filter(r => r.id !== this.robotToDelete!.id);
+    this.persistRobots();
     this.deleteDialogOpen = false;
     this.robotToDelete = null;
     this.showToast(`Робот «${name}» удалён`);
@@ -444,6 +448,7 @@ export class RobotsScreenComponent implements OnInit {
           secret_key: this.editRobot.secret_key.trim(),
         };
       });
+      this.persistRobots();
       this.isSavingEdit = false;
       this.editModalOpen = false;
       this.showToast('Данные робота сохранены');
@@ -511,6 +516,7 @@ export class RobotsScreenComponent implements OnInit {
         active_map_name: '—',
       };
       this.robots = [...this.robots, robot];
+      this.persistRobots();
       this.isRegistering = false;
       this.addModalOpen = false;
       this.showToast('Робот успешно зарегистрирован');
@@ -525,6 +531,10 @@ export class RobotsScreenComponent implements OnInit {
       id: '',
       secret_key: '',
     };
+  }
+
+  private persistRobots(): void {
+    this.storage.save('pudu-admin', 'robots', this.robots);
   }
 
   private showToast(title: string): void {

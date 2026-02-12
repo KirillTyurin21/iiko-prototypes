@@ -12,6 +12,7 @@ import {
 } from '@/components/ui';
 import { Robot, RobotPoint, DiningTable, TableMapping } from '../types';
 import { MOCK_ROBOTS, MOCK_TABLES, getInitialMapping, getPointsForRobot } from '../data/mock-data';
+import { StorageService } from '@/shared/storage.service';
 
 interface PointTestState {
   loading: boolean;
@@ -291,6 +292,7 @@ interface Toast {
 })
 export class MappingScreenComponent implements OnInit {
   private router = inject(Router);
+  private storage = inject(StorageService);
 
   // Data
   robots: Robot[] = [];
@@ -342,10 +344,11 @@ export class MappingScreenComponent implements OnInit {
     this.pointTestStates = {};
     setTimeout(() => {
       this.availablePoints = getPointsForRobot(this.selectedRobotId);
-      this.mappings = getInitialMapping().map((m) => ({
+      const defaultMappings = getInitialMapping().map((m) => ({
         ...m,
         points: m.points.map((p) => ({ ...p })),
       }));
+      this.mappings = this.storage.load('pudu-admin', 'mappings', defaultMappings);
       this.originalMappings = this.cloneMappings(this.mappings);
       this.hasChanges = false;
       this.isLoadingPoints = false;
@@ -543,6 +546,7 @@ export class MappingScreenComponent implements OnInit {
 
   saveMapping(): void {
     this.originalMappings = this.cloneMappings(this.mappings);
+    this.storage.save('pudu-admin', 'mappings', this.mappings);
     this.hasChanges = false;
     this.showToast('Маппинг сохранён');
   }

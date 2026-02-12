@@ -14,6 +14,7 @@ import type { TabItem, SelectOption } from '@/components/ui';
 import { IconsModule } from '@/shared/icons.module';
 import { ScenarioSettings, Robot } from '../types';
 import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
+import { StorageService } from '@/shared/storage.service';
 
 @Component({
   selector: 'app-settings-screen',
@@ -489,6 +490,7 @@ import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
 })
 export class SettingsScreenComponent implements OnInit {
   private router = inject(Router);
+  private storage = inject(StorageService);
 
   loading = true;
   robots: Robot[] = [];
@@ -522,7 +524,7 @@ export class SettingsScreenComponent implements OnInit {
     // Simulate loading
     setTimeout(() => {
       this.robots = [...MOCK_ROBOTS];
-      this.settings = getInitialSettings();
+      this.settings = this.storage.load('pudu-admin', 'settings', getInitialSettings());
       this.originalSettings = JSON.stringify(this.settings);
       this.robotOptions = this.robots.map(r => ({
         value: r.id,
@@ -606,6 +608,7 @@ export class SettingsScreenComponent implements OnInit {
 
   private saveInternal(): void {
     this.originalSettings = JSON.stringify(this.settings);
+    this.storage.save('pudu-admin', 'settings', this.settings);
   }
 
   private showToast(message: string): void {

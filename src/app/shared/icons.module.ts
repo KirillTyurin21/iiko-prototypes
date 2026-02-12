@@ -68,6 +68,8 @@ import {
   LogOut,
   Eye,
   EyeOff,
+  // Reset button
+  RotateCcw,
 } from 'lucide-angular';
 
 /**
@@ -144,6 +146,8 @@ const icons = {
   LogOut,
   Eye,
   EyeOff,
+  // Reset button
+  RotateCcw,
 };
 
 @NgModule({
