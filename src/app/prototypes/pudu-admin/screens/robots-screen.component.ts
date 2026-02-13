@@ -7,7 +7,6 @@ import {
   UiModalComponent,
   UiConfirmDialogComponent,
   UiAlertComponent,
-  UiBadgeComponent,
   UiInputComponent,
   UiSelectComponent,
   SelectOption,
@@ -27,7 +26,6 @@ import { StorageService } from '@/shared/storage.service';
     UiModalComponent,
     UiConfirmDialogComponent,
     UiAlertComponent,
-    UiBadgeComponent,
     UiInputComponent,
     UiSelectComponent,
   ],
@@ -62,22 +60,21 @@ import { StorageService } from '@/shared/storage.service';
             <tr class="bg-gray-50">
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Имя робота</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID робота</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Регион</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Активная карта</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действие после задачи</th>
               <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
             </tr>
           </thead>
           <tbody>
             <tr
-              *ngFor="let robot of robots; let last = last"
+              *ngFor="let robot of robots; let i = index; let last = last"
               class="hover:bg-gray-50 transition-colors"
               [class.border-b]="!last"
               [class.border-gray-200]="!last"
             >
               <td class="px-4 py-3 text-sm text-gray-900">{{ robot.name }}</td>
               <td class="px-4 py-3 font-mono text-sm text-gray-600">{{ robot.id }}</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ robot.server_region }}</td>
               <td class="px-4 py-3">
                 <span class="inline-flex items-center gap-1.5">
                   <lucide-icon
@@ -108,16 +105,22 @@ import { StorageService } from '@/shared/storage.service';
                 </span>
               </td>
               <td class="px-4 py-3 text-sm text-gray-700">{{ robot.active_map_name }}</td>
+              <td class="px-4 py-3">
+                <ui-select
+                  [options]="afterActionOptions"
+                  [value]="robot.after_action"
+                  [fullWidth]="false"
+                  (valueChange)="onAfterActionChange(robot, $event)"
+                ></ui-select>
+              </td>
               <td class="px-4 py-3 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <ui-button variant="ghost" size="sm" iconName="file-edit" (click)="openEditModal(robot)">
-                    Редактировать
-                  </ui-button>
-                  <ui-button variant="ghost" size="sm" iconName="trash-2" (click)="confirmDelete(robot)"
-                    class="text-red-500 hover:text-red-700">
-                    Удалить
-                  </ui-button>
-                </div>
+                <ui-button
+                  variant="ghost"
+                  size="sm"
+                  iconName="trash-2"
+                  (click)="confirmDelete(robot)"
+                  class="text-red-500 hover:text-red-700"
+                ></ui-button>
               </td>
             </tr>
           </tbody>
@@ -141,38 +144,13 @@ import { StorageService } from '@/shared/storage.service';
     <ui-modal [open]="addModalOpen" title="Регистрация робота" size="md" (modalClose)="closeAddModal()">
       <div class="space-y-4">
 
-        <!-- Регион сервера -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Регион сервера <span class="text-red-500">*</span>
-          </label>
-          <ui-select
-            [options]="regionOptions"
-            [(value)]="newRobot.server_region"
-            placeholder="Выберите регион"
-          ></ui-select>
-        </div>
-
-        <!-- Имя робота -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Имя робота <span class="text-red-500">*</span>
-          </label>
-          <ui-input
-            [(value)]="newRobot.name"
-            placeholder="Например: BellaBot-01"
-            hint="Произвольное имя для идентификации робота (например, BellaBot-01)"
-            [error]="formErrors['name']"
-          ></ui-input>
-        </div>
-
         <!-- ID робота -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             ID робота <span class="text-red-500">*</span>
           </label>
           <ui-input
-            [(value)]="newRobot.id"
+            [(value)]="newRobotId"
             placeholder="Серийный номер PUDU"
             hint="Серийный номер робота из системы PUDU"
             [error]="formErrors['id']"
@@ -180,17 +158,17 @@ import { StorageService } from '@/shared/storage.service';
           ></ui-input>
         </div>
 
-        <!-- Секретный ключ -->
+        <!-- Имя робота -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
-            Секретный ключ <span class="text-red-500">*</span>
+            Имя робота
           </label>
           <ui-input
-            type="password"
-            [(value)]="newRobot.secret_key"
-            placeholder="Ключ API"
-            hint="Ключ доступа к API PUDU (предоставляется NE)"
-            [error]="formErrors['secret_key']"
+            [(value)]="newRobotName"
+            placeholder="Например: BellaBot-01"
+            hint="Имя робота для идентификации. Загружается автоматически из системы NE при регистрации. Можно изменить при необходимости"
+            [error]="formErrors['name']"
+            maxlength="64"
           ></ui-input>
         </div>
 
@@ -200,6 +178,7 @@ import { StorageService } from '@/shared/storage.service';
           variant="error"
           [title]="registrationError"
           [dismissible]="true"
+          (dismissed)="registrationError = ''"
         ></ui-alert>
       </div>
 
@@ -212,85 +191,6 @@ import { StorageService } from '@/shared/storage.service';
           (click)="registerRobot()"
         >
           Зарегистрировать
-        </ui-button>
-      </div>
-    </ui-modal>
-
-    <!-- EDIT ROBOT MODAL -->
-    <ui-modal [open]="editModalOpen" title="Редактирование робота" size="md" (modalClose)="closeEditModal()">
-      <div class="space-y-4">
-
-        <!-- Регион сервера -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Регион сервера <span class="text-red-500">*</span>
-          </label>
-          <ui-select
-            [options]="regionOptions"
-            [(value)]="editRobot.server_region"
-            placeholder="Выберите регион"
-          ></ui-select>
-        </div>
-
-        <!-- Имя робота -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Имя робота <span class="text-red-500">*</span>
-          </label>
-          <ui-input
-            [(value)]="editRobot.name"
-            placeholder="Например: BellaBot-01"
-            hint="Произвольное имя для идентификации робота (например, BellaBot-01)"
-            [error]="editFormErrors['name']"
-          ></ui-input>
-        </div>
-
-        <!-- ID робота -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            ID робота <span class="text-red-500">*</span>
-          </label>
-          <ui-input
-            [(value)]="editRobot.id"
-            placeholder="Серийный номер PUDU"
-            hint="Серийный номер робота из системы PUDU"
-            [error]="editFormErrors['id']"
-            (valueChange)="validateEditId()"
-          ></ui-input>
-        </div>
-
-        <!-- Секретный ключ -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Секретный ключ <span class="text-red-500">*</span>
-          </label>
-          <ui-input
-            type="password"
-            [(value)]="editRobot.secret_key"
-            placeholder="Ключ API"
-            hint="Ключ доступа к API PUDU (предоставляется NE)"
-            [error]="editFormErrors['secret_key']"
-          ></ui-input>
-        </div>
-
-        <!-- Error alert -->
-        <ui-alert
-          *ngIf="editError"
-          variant="error"
-          [title]="editError"
-          [dismissible]="true"
-        ></ui-alert>
-      </div>
-
-      <div modalFooter class="flex items-center justify-end gap-3">
-        <ui-button variant="ghost" (click)="closeEditModal()">Отмена</ui-button>
-        <ui-button
-          variant="primary"
-          [disabled]="!isEditFormValid() || isSavingEdit"
-          [loading]="isSavingEdit"
-          (click)="saveEditedRobot()"
-        >
-          Сохранить
         </ui-button>
       </div>
     </ui-modal>
@@ -331,12 +231,13 @@ export class RobotsScreenComponent implements OnInit {
   isRegistering = false;
   registrationError = '';
   formErrors: Record<string, string> = {};
+  newRobotId = '';
+  newRobotName = '';
 
-  newRobot = this.emptyRobot();
-
-  regionOptions: SelectOption[] = [
-    { value: 'EU', label: 'EU' },
-    { value: 'ASIA', label: 'ASIA' },
+  // --- After-action select options ---
+  afterActionOptions: SelectOption[] = [
+    { value: 'idle', label: 'Режим ожидания' },
+    { value: 'marketing', label: 'Маркетинг' },
   ];
 
   // --- Toasts ---
@@ -345,9 +246,12 @@ export class RobotsScreenComponent implements OnInit {
 
   // --- Lifecycle ---
   ngOnInit(): void {
-    // Simulate loading delay
     setTimeout(() => {
-      this.robots = this.storage.load('pudu-admin', 'robots', MOCK_ROBOTS.map(r => ({ ...r })));
+      this.robots = this.storage.load<Robot[]>(
+        'pudu-admin',
+        'robots',
+        MOCK_ROBOTS.map(r => ({ ...r })),
+      );
       this.isLoading = false;
     }, 1000);
   }
@@ -361,10 +265,17 @@ export class RobotsScreenComponent implements OnInit {
     }
   }
 
+  // --- After-action inline change ---
+  onAfterActionChange(robot: Robot, value: string): void {
+    robot.after_action = value as Robot['after_action'];
+    this.persistRobots();
+    this.showToast('Настройка робота обновлена');
+  }
+
   // --- Delete flow ---
   confirmDelete(robot: Robot): void {
     this.robotToDelete = robot;
-    this.deleteMessage = `Удалить робота ${robot.name}? Все настройки маппинга для этого робота будут потеряны.`;
+    this.deleteMessage = `Удалить робота «${robot.name}»? Все настройки маппинга для этого робота будут потеряны.`;
     this.deleteDialogOpen = true;
   }
 
@@ -378,86 +289,10 @@ export class RobotsScreenComponent implements OnInit {
     this.showToast(`Робот «${name}» удалён`);
   }
 
-  // --- Edit modal state ---
-  editModalOpen = false;
-  isSavingEdit = false;
-  editError = '';
-  editFormErrors: Record<string, string> = {};
-  editRobot = this.emptyRobot();
-  private editOriginalId = '';
-
-  // --- Edit modal flow ---
-  openEditModal(robot: Robot): void {
-    this.editRobot = {
-      server_region: robot.server_region,
-      name: robot.name,
-      id: robot.id,
-      secret_key: robot.secret_key,
-    };
-    this.editOriginalId = robot.id;
-    this.editFormErrors = {};
-    this.editError = '';
-    this.isSavingEdit = false;
-    this.editModalOpen = true;
-  }
-
-  closeEditModal(): void {
-    this.editModalOpen = false;
-  }
-
-  validateEditId(): void {
-    const id = this.editRobot.id.trim();
-    if (!id) { this.editFormErrors['id'] = ''; this.editError = ''; return; }
-    if (id === 'PD000ERROR') {
-      this.editError = 'Робот не найден в системе PUDU. Обратитесь к специалистам NE для добавления робота в магазин';
-      this.editFormErrors['id'] = '';
-      return;
-    }
-    if (id !== this.editOriginalId && this.robots.some(r => r.id === id)) {
-      this.editFormErrors['id'] = 'Робот с таким ID уже зарегистрирован';
-      this.editError = '';
-      return;
-    }
-    this.editFormErrors['id'] = '';
-    this.editError = '';
-  }
-
-  isEditFormValid(): boolean {
-    const r = this.editRobot;
-    if (!r.server_region || !r.name.trim() || !r.id.trim() || !r.secret_key.trim()) return false;
-    if (r.name.trim().length > 64) return false;
-    if (r.id.trim() === 'PD000ERROR') return false;
-    if (r.id.trim() !== this.editOriginalId && this.robots.some(x => x.id === r.id.trim())) return false;
-    if (this.editFormErrors['id']) return false;
-    if (this.editError) return false;
-    return true;
-  }
-
-  saveEditedRobot(): void {
-    if (!this.isEditFormValid()) return;
-    this.isSavingEdit = true;
-
-    setTimeout(() => {
-      this.robots = this.robots.map(r => {
-        if (r.id !== this.editOriginalId) return r;
-        return {
-          ...r,
-          id: this.editRobot.id.trim(),
-          name: this.editRobot.name.trim(),
-          server_region: this.editRobot.server_region as 'EU' | 'ASIA',
-          secret_key: this.editRobot.secret_key.trim(),
-        };
-      });
-      this.persistRobots();
-      this.isSavingEdit = false;
-      this.editModalOpen = false;
-      this.showToast('Данные робота сохранены');
-    }, 1500);
-  }
-
   // --- Add modal flow ---
   openAddModal(): void {
-    this.newRobot = this.emptyRobot();
+    this.newRobotId = '';
+    this.newRobotName = '';
     this.formErrors = {};
     this.registrationError = '';
     this.isRegistering = false;
@@ -469,14 +304,15 @@ export class RobotsScreenComponent implements OnInit {
   }
 
   validateId(): void {
-    const id = this.newRobot.id.trim();
+    const id = this.newRobotId.trim();
     if (!id) {
       this.formErrors['id'] = '';
       this.registrationError = '';
       return;
     }
     if (id === 'PD000ERROR') {
-      this.registrationError = 'Робот не найден в системе PUDU. Обратитесь к специалистам NE для добавления робота в магазин';
+      this.registrationError =
+        'Робот не найден в системе PUDU. Обратитесь к специалистам NE для добавления робота в магазин';
       this.formErrors['id'] = '';
       return;
     }
@@ -490,15 +326,13 @@ export class RobotsScreenComponent implements OnInit {
   }
 
   isFormValid(): boolean {
-    const r = this.newRobot;
-    if (!r.server_region || !r.name.trim() || !r.id.trim() || !r.secret_key.trim()) {
-      return false;
-    }
-    if (r.name.trim().length > 64) return false;
-    if (r.id.trim() === 'PD000ERROR') return false;
-    if (this.robots.some(x => x.id === r.id.trim())) return false;
+    const id = this.newRobotId.trim();
+    if (!id) return false;
+    if (id === 'PD000ERROR') return false;
+    if (this.robots.some(r => r.id === id)) return false;
     if (this.formErrors['id']) return false;
     if (this.registrationError) return false;
+    if (this.newRobotName.trim().length > 64) return false;
     return true;
   }
 
@@ -507,13 +341,13 @@ export class RobotsScreenComponent implements OnInit {
     this.isRegistering = true;
 
     setTimeout(() => {
+      const name = this.newRobotName.trim() || 'BellaBot';
       const robot: Robot = {
-        id: this.newRobot.id.trim(),
-        name: this.newRobot.name.trim(),
-        server_region: this.newRobot.server_region as 'EU' | 'ASIA',
-        secret_key: this.newRobot.secret_key.trim(),
+        id: this.newRobotId.trim(),
+        name,
         connection_status: 'online',
         active_map_name: '—',
+        after_action: 'idle',
       };
       this.robots = [...this.robots, robot];
       this.persistRobots();
@@ -524,15 +358,6 @@ export class RobotsScreenComponent implements OnInit {
   }
 
   // --- Helpers ---
-  private emptyRobot() {
-    return {
-      server_region: 'EU',
-      name: '',
-      id: '',
-      secret_key: '',
-    };
-  }
-
   private persistRobots(): void {
     this.storage.save('pudu-admin', 'robots', this.robots);
   }

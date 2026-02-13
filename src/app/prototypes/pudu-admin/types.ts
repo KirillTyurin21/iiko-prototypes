@@ -1,18 +1,16 @@
-// Робот PUDU
+// Робот PUDU (v1.2)
 export interface Robot {
   id: string;
   name: string;
-  server_region: 'EU' | 'ASIA';
-  secret_key: string;
   connection_status: 'online' | 'offline' | 'error';
   active_map_name: string;
+  after_action: 'idle' | 'marketing';
 }
 
-// Точка на карте робота
+// Точка на карте робота (v1.2) — все точки являются точками столов
 export interface RobotPoint {
   point_id: string;
   point_name: string;
-  point_type: 'table' | 'pickup' | 'sink' | 'parking' | 'charging';
 }
 
 // Стол системы
@@ -28,36 +26,47 @@ export interface TableMapping {
   points: RobotPoint[];
 }
 
-// Настройки сценариев
+// Фраза с таймером (для send_dish)
+export interface PhraseWithTimer {
+  text: string;
+  url: string;
+  delay_sec: number;
+}
+
+// Настройки сценариев (v1.2)
 export interface ScenarioSettings {
   send_menu: {
     phrase: string;
+    phrase_url?: string;
+    phrase_pickup: string;
+    phrase_pickup_url?: string;
     wait_time: number;
-    after_action: 'idle' | 'marketing';
+    wait_time_pickup: number;
   };
   send_dish: {
     max_dishes_per_trip: number;
-    phrase_delivery: string;
-    phrase_dishes_info: string;
-    phrase_tray: string;
     wait_time: number;
-    after_action: 'idle' | 'marketing';
+    phrases: PhraseWithTimer[];
   };
   cleanup: {
-    mode: 'manual' | 'auto';
+    mode: 'manual' | 'auto' | 'mixed';
     phrase_arrival: string;
+    phrase_arrival_url?: string;
     wait_time: number;
     phrase_later: string;
+    phrase_later_url?: string;
     auto_timer_after_delivery: number;
     auto_timer_after_check: number;
   };
   qr_payment: {
     cashier_phrase: string;
+    cashier_phrase_url?: string;
     cashier_timeout: number;
     guest_wait_time: number;
     phrase_success: string;
+    phrase_success_url?: string;
     phrase_failure: string;
-    after_action: 'idle' | 'marketing';
+    phrase_failure_url?: string;
   };
   marketing: {
     robot_id: string;
@@ -65,8 +74,5 @@ export interface ScenarioSettings {
     timer_enabled: boolean;
     timer_start: string;
     timer_end: string;
-  };
-  general: {
-    default_robot_id: string;
   };
 }
