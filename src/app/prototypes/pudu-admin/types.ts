@@ -1,3 +1,14 @@
+// Ресторан организации (v1.4)
+export interface Restaurant {
+  account_id: string;
+  restaurant_name: string;
+  robots_total: number;
+  robots_online: number;
+  mapping_completed: boolean;
+  scenarios_enabled: number;
+  setup_status: 'configured' | 'partial' | 'not_configured';
+}
+
 // Робот PUDU (v1.2)
 export interface Robot {
   id: string;

@@ -13,6 +13,7 @@ import {
 import { Robot, RobotPoint, DiningTable, TableMapping } from '../types';
 import { MOCK_ROBOTS, MOCK_TABLES, MOCK_POINTS, getInitialMapping } from '../data/mock-data';
 import { StorageService } from '@/shared/storage.service';
+import { PuduPrototypeComponent } from '../pudu-prototype.component';
 
 interface DropdownPointOption {
   point_id: string;
@@ -67,43 +68,47 @@ interface Toast {
 
     <!-- MAIN CONTENT -->
     <ng-container *ngIf="!isLoading && robots.length > 0">
-      <!-- SUBHEADER -->
-      <div class="border-b border-gray-200 bg-white px-6 py-4 flex items-center justify-between shrink-0">
-        <h1 class="text-lg font-semibold text-gray-900">Маппинг столов</h1>
-        <div class="flex items-center gap-3">
-          <!-- Segmented Control -->
-          <div class="inline-flex rounded-lg bg-gray-100 p-0.5">
+      <!-- SUBHEADER (v1.4: breadcrumb) -->
+      <div class="border-b border-gray-200 bg-white px-6 py-4 shrink-0">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
             <button
-              class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
-              [ngClass]="mappingMode === 'tables-to-points'
-                ? 'bg-white shadow text-gray-900'
-                : 'text-gray-500 hover:text-gray-700'"
-              (click)="setMappingMode('tables-to-points')"
-            >Столы → Точки</button>
-            <button
-              class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
-              [ngClass]="mappingMode === 'points-to-tables'
-                ? 'bg-white shadow text-gray-900'
-                : 'text-gray-500 hover:text-gray-700'"
-              (click)="setMappingMode('points-to-tables')"
-            >Точки → Столы</button>
+              class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              aria-label="Назад к списку ресторанов"
+              (click)="goBack()"
+            >
+              <lucide-icon name="arrow-left" [size]="16"></lucide-icon>
+              <span>Назад к списку ресторанов</span>
+            </button>
           </div>
-          <!-- Refresh button -->
-          <ui-button
-            variant="ghost"
-            size="sm"
-            [iconName]="isRefreshing ? '' : 'refresh-cw'"
-            (click)="refreshPoints()"
-          >
-            <lucide-icon
-              *ngIf="isRefreshing"
-              name="refresh-cw"
-              [size]="14"
-              class="animate-spin"
-            ></lucide-icon>
-            Обновить точки
-          </ui-button>
+          <div class="flex items-center gap-3">
+            <!-- Segmented Control -->
+            <div class="inline-flex rounded-lg bg-gray-100 p-0.5">
+              <button
+                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
+                [ngClass]="mappingMode === 'tables-to-points'
+                  ? 'bg-white shadow text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'"
+                (click)="setMappingMode('tables-to-points')"
+              >Столы → Точки</button>
+              <button
+                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
+                [ngClass]="mappingMode === 'points-to-tables'
+                  ? 'bg-white shadow text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'"
+                (click)="setMappingMode('points-to-tables')"
+              >Точки → Столы</button>
+            </div>
+          </div>
         </div>
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-1.5 text-sm mt-2" aria-label="Breadcrumb">
+          <span class="text-gray-400">Настройки PUDU</span>
+          <lucide-icon name="chevron-right" [size]="14" class="text-gray-300"></lucide-icon>
+          <span class="text-gray-400">{{ parent.selectedRestaurant?.restaurant_name || 'Ресторан' }}</span>
+          <lucide-icon name="chevron-right" [size]="14" class="text-gray-300"></lucide-icon>
+          <span class="text-gray-900 font-medium">Маппинг столов</span>
+        </nav>
       </div>
 
       <!-- LOADING POINTS -->
@@ -118,6 +123,38 @@ interface Toast {
 
       <!-- TABLE CONTENT -->
       <div *ngIf="!isLoadingPoints" class="overflow-y-auto flex-1 p-6 animate-fade-in">
+        <!-- v1.4: TOOLBAR — Hall filter + Refresh points -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2" *ngIf="hallOptions.length > 1">
+            <label class="text-sm font-medium text-gray-700">Зал</label>
+            <select
+              class="w-64 h-9 rounded-md border border-gray-300 bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              [(ngModel)]="selectedHall"
+              (ngModelChange)="onHallFilterChange()"
+              aria-label="Фильтр столов по залу ресторана"
+            >
+              <option value="">Все залы</option>
+              <option *ngFor="let h of hallOptions" [value]="h.value">{{ h.label }}</option>
+            </select>
+          </div>
+          <div *ngIf="hallOptions.length <= 1"></div>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [iconName]="isRefreshing ? '' : 'refresh-cw'"
+            (click)="refreshPoints()"
+            aria-label="Обновить список точек с карты робота"
+          >
+            <lucide-icon
+              *ngIf="isRefreshing"
+              name="refresh-cw"
+              [size]="14"
+              class="animate-spin"
+            ></lucide-icon>
+            Обновить точки
+          </ui-button>
+        </div>
+
         <!-- INFO HINT -->
         <div class="border border-blue-200 bg-blue-50/50 rounded-lg p-4 flex items-start gap-3 mb-4">
           <lucide-icon name="info" [size]="18" class="text-blue-500 shrink-0 mt-0.5"></lucide-icon>
@@ -128,6 +165,7 @@ interface Toast {
         <div class="space-y-3 mb-6" *ngIf="unmappedTablesCount > 0">
           <div
             class="border border-orange-200 bg-orange-50/50 rounded-lg p-5 flex items-start gap-3"
+            role="alert"
           >
             <lucide-icon name="alert-triangle" [size]="20" class="text-orange-500 shrink-0 mt-0.5"></lucide-icon>
             <p class="text-sm text-gray-700">
@@ -145,13 +183,13 @@ interface Toast {
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">Стол iiko</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Привязанные точки</th>
-                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Статус</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48" title="Название стола из конфигурации залов iiko. Для ручных столов — введённый пользователем номер">Стол iiko</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Точки на карте робота, привязанные к этому столу. Один стол может иметь несколько точек подъезда (1:N)">Привязанные точки</th>
+                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20" title="Индикатор наличия привязки точек к столу. Зелёный — стол замаплен, серый — нет привязки">Статус</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                  <tr *ngFor="let mapping of mappings; let i = index" class="hover:bg-gray-50/50">
+                  <tr *ngFor="let mapping of filteredMappings" class="hover:bg-gray-50/50">
                     <!-- Стол iiko -->
                     <td class="px-4 py-3 align-top">
                       <div class="font-medium text-sm text-gray-900">{{ getTableName(mapping.table_id) }}</div>
@@ -168,49 +206,50 @@ interface Toast {
                               type="button"
                               class="w-full h-9 px-3 text-left rounded-md border bg-white transition-colors text-sm truncate"
                               [ngClass]="{
-                                'border-blue-500 ring-1 ring-blue-500': isDropdownOpen(i, j),
-                                'border-gray-300 hover:border-gray-400': !isDropdownOpen(i, j),
+                                'border-blue-500 ring-1 ring-blue-500': isDropdownOpen(getMappingIndex(mapping), j),
+                                'border-gray-300 hover:border-gray-400': !isDropdownOpen(getMappingIndex(mapping), j),
                                 'font-mono text-gray-900': point.point_id,
                                 'text-gray-400 italic': !point.point_id
                               }"
-                              (click)="toggleDropdown(i, j, $event)"
+                              (click)="toggleDropdown(getMappingIndex(mapping), j, $event)"
                             >{{ point.point_id ? point.point_name : 'Выберите точку...' }}</button>
                             <!-- Дропдаун список -->
                             <div
-                              *ngIf="isDropdownOpen(i, j)"
+                              *ngIf="isDropdownOpen(getMappingIndex(mapping), j)"
                               class="absolute z-50 mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
                             >
                               <!-- Не назначена -->
                               <button
                                 type="button"
                                 class="w-full px-3 py-2 text-left text-sm italic text-gray-400 hover:bg-gray-50"
-                                (click)="selectPointFromDropdown(i, j, '')"
+                                (click)="selectPointFromDropdown(getMappingIndex(mapping), j, '')"
                               >Не назначена</button>
                               <!-- Свободные точки -->
-                              <ng-container *ngIf="getDropdownOptions(i, j).free.length > 0">
+                              <ng-container *ngIf="getDropdownOptions(getMappingIndex(mapping), j).free.length > 0">
                                 <div class="border-t border-gray-200"></div>
                                 <button
-                                  *ngFor="let opt of getDropdownOptions(i, j).free"
+                                  *ngFor="let opt of getDropdownOptions(getMappingIndex(mapping), j).free"
                                   type="button"
                                   class="w-full px-3 py-2 text-left font-mono text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700"
-                                  (click)="selectPointFromDropdown(i, j, opt.point_id)"
+                                  (click)="selectPointFromDropdown(getMappingIndex(mapping), j, opt.point_id)"
                                 >{{ opt.point_name }}</button>
                               </ng-container>
                               <!-- Занятые точки -->
-                              <ng-container *ngIf="getDropdownOptions(i, j).occupied.length > 0">
+                              <ng-container *ngIf="getDropdownOptions(getMappingIndex(mapping), j).occupied.length > 0">
                                 <div class="border-t border-gray-200"></div>
                                 <button
-                                  *ngFor="let opt of getDropdownOptions(i, j).occupied"
+                                  *ngFor="let opt of getDropdownOptions(getMappingIndex(mapping), j).occupied"
                                   type="button"
                                   class="w-full px-3 py-2 text-left font-mono text-sm text-gray-400 hover:bg-orange-50 hover:text-orange-600"
-                                  (click)="selectPointFromDropdown(i, j, opt.point_id)"
+                                  (click)="selectPointFromDropdown(getMappingIndex(mapping), j, opt.point_id)"
                                 >{{ opt.point_name }} <span class="italic font-sans text-xs">({{ opt.occupiedByTable }})</span></button>
                               </ng-container>
                             </div>
                           </div>
                           <button
                             class="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                            (click)="removePoint(i, j)"
+                            (click)="removePoint(getMappingIndex(mapping), j)"
+                            [attr.aria-label]="'Удалить привязку точки ' + point.point_name + ' от стола ' + getTableName(mapping.table_id)"
                             title="Удалить привязку"
                           >
                             <lucide-icon name="x" [size]="16"></lucide-icon>
@@ -219,7 +258,8 @@ interface Toast {
                         <button
                           type="button"
                           class="inline-flex items-center gap-1 px-2 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
-                          (click)="addPoint(i)"
+                          (click)="addPoint(getMappingIndex(mapping))"
+                          [attr.aria-label]="'Добавить точку к столу ' + getTableName(mapping.table_id)"
                         >
                           <lucide-icon name="plus" [size]="14"></lucide-icon>
                           Точку
@@ -235,12 +275,14 @@ interface Toast {
                           name="check-circle-2"
                           [size]="18"
                           class="text-green-600"
+                          title="Стол привязан к точке робота"
                         ></lucide-icon>
                         <lucide-icon
                           *ngIf="mapping.points.length === 0 || !hasAnyMappedPoint(mapping)"
                           name="circle"
                           [size]="18"
                           class="text-gray-300"
+                          title="Стол не привязан к точке — робот не сможет доставить заказ"
                         ></lucide-icon>
                       </div>
                     </td>
@@ -315,12 +357,14 @@ interface Toast {
           size="sm"
           [disabled]="!hasChanges"
           (click)="resetMapping()"
+          aria-label="Отменить несохранённые изменения маппинга"
         >Сбросить</ui-button>
         <ui-button
           variant="primary"
           size="sm"
           [disabled]="!hasChanges"
           (click)="saveMapping()"
+          aria-label="Сохранить маппинг столов к точкам"
         >Сохранить</ui-button>
       </div>
     </ng-container>
@@ -357,6 +401,7 @@ interface Toast {
 export class MappingScreenComponent implements OnInit {
   private router = inject(Router);
   private storage = inject(StorageService);
+  parent = inject(PuduPrototypeComponent);
 
   // Data
   robots: Robot[] = [];
@@ -372,6 +417,10 @@ export class MappingScreenComponent implements OnInit {
   hasChanges = false;
   mappingMode: 'tables-to-points' | 'points-to-tables' = 'tables-to-points';
 
+  // v1.4: Hall filter
+  selectedHall = '';
+  hallOptions: { value: string; label: string }[] = [];
+
   // Dropdown state (v1.3)
   openDropdownKey: string | null = null;
 
@@ -386,6 +435,7 @@ export class MappingScreenComponent implements OnInit {
       this.availablePoints = [...MOCK_POINTS];
       this.loadMappings();
       this.isLoading = false;
+      this.initHallOptions();
     }, 1000);
   }
 
@@ -666,6 +716,38 @@ export class MappingScreenComponent implements OnInit {
 
   goToRobots(): void {
     this.router.navigate(['/prototype/pudu-admin']);
+  }
+
+  goBack(): void {
+    this.parent.clearRestaurantContext();
+    this.router.navigate(['/prototype/pudu-admin']);
+  }
+
+  // ── v1.4: Hall filter ─────────────────────────────────
+
+  initHallOptions(): void {
+    const sections = new Set<string>();
+    this.tables.forEach(t => {
+      if (t.section_name) sections.add(t.section_name);
+    });
+    this.hallOptions = Array.from(sections).map(s => ({ value: s, label: s }));
+  }
+
+  onHallFilterChange(): void {
+    // Filter is applied via get filteredMappings
+  }
+
+  get filteredMappings(): TableMapping[] {
+    if (!this.selectedHall) return this.mappings;
+    return this.mappings.filter(m => {
+      const table = this.tables.find(t => t.table_id === m.table_id);
+      if (!table || !table.section_name) return true;
+      return table.section_name === this.selectedHall;
+    });
+  }
+
+  getMappingIndex(mapping: TableMapping): number {
+    return this.mappings.findIndex(m => m.table_id === mapping.table_id);
   }
 
   // ── Toast ──────────────────────────────────────────────

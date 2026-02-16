@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { IconsModule } from '@/shared/icons.module';
 import { UiButtonComponent } from '@/components/ui';
+import { Restaurant } from './types';
+import { filter } from 'rxjs/operators';
 
 interface SidebarItem {
   icon: string;
@@ -38,20 +40,35 @@ interface SidebarItem {
 
       <!-- BODY -->
       <div class="flex flex-1 overflow-hidden">
-        <!-- SIDEBAR -->
+        <!-- SIDEBAR (v1.4: двухуровневая навигация) -->
         <aside class="w-52 border-r border-gray-200 bg-slate-50 shrink-0 flex flex-col" role="navigation">
           <nav class="space-y-1 p-2 flex-1">
+            <!-- Уровень 1: Корневой пункт -->
             <a
-              *ngFor="let item of sidebarItems"
-              [routerLink]="item.route"
-              routerLinkActive="bg-blue-50 text-blue-700 font-medium"
-              [routerLinkActiveOptions]="{ exact: item.route === './' }"
-              class="flex items-center gap-3 rounded px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
-              [attr.aria-current]="isActive(item.route) ? 'page' : null"
+              class="flex items-center gap-3 rounded px-3 py-2 text-sm transition-colors cursor-pointer"
+              [ngClass]="!selectedRestaurant
+                ? 'bg-blue-50 text-blue-700 font-medium'
+                : 'text-gray-600 hover:bg-gray-100'"
+              (click)="goToRestaurants()"
             >
-              <lucide-icon [name]="item.icon" [size]="18" class="shrink-0"></lucide-icon>
-              <span>{{ item.label }}</span>
+              <lucide-icon name="bot" [size]="18" class="shrink-0"></lucide-icon>
+              <span>Настройки PUDU</span>
             </a>
+
+            <!-- Уровень 2: Подпункты (видны только при выбранном ресторане) -->
+            <ng-container *ngIf="selectedRestaurant">
+              <a
+                *ngFor="let item of subItems"
+                [routerLink]="item.route"
+                routerLinkActive="bg-blue-50 text-blue-700 font-medium"
+                [routerLinkActiveOptions]="{ exact: item.route === 'robots' }"
+                class="flex items-center gap-3 rounded pl-6 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer animate-fade-in"
+                [attr.aria-label]="item.label + ' для ' + selectedRestaurant.restaurant_name"
+              >
+                <lucide-icon [name]="item.icon" [size]="16" class="shrink-0"></lucide-icon>
+                <span>{{ item.label }}</span>
+              </a>
+            </ng-container>
           </nav>
           <div class="p-3 text-xs text-gray-400 border-t border-gray-200">
             © 2026 / ver: 9.6.1.240000
@@ -83,23 +100,54 @@ interface SidebarItem {
 export class PuduPrototypeComponent {
   private router = inject(Router);
 
-  sidebarItems: SidebarItem[] = [
-    { icon: 'bot', label: 'Роботы PUDU', route: './' },
+  // v1.4: Restaurant context
+  selectedRestaurant: Restaurant | null = null;
+
+  // v1.4: Sub-items (level 2) — visible only when restaurant is selected
+  subItems: SidebarItem[] = [
+    { icon: 'bot', label: 'Роботы PUDU', route: 'robots' },
     { icon: 'map-pin', label: 'Маппинг столов', route: 'mapping' },
     { icon: 'settings', label: 'Настройки роботов', route: 'settings' },
   ];
 
-  // Toast state (shared via service pattern — simple array)
+  // Toast state
   toasts: { id: number; title: string; description?: string }[] = [];
   private toastCounter = 0;
 
-  isActive(route: string): boolean {
-    const currentUrl = this.router.url;
-    const basePath = '/prototype/pudu-admin';
-    if (route === './') {
-      return currentUrl === basePath || currentUrl === basePath + '/';
-    }
-    return currentUrl.startsWith(basePath + '/' + route);
+  constructor() {
+    // Track navigation to detect when user is on root screen
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
+    ).subscribe((e) => {
+      const basePath = '/prototype/pudu-admin';
+      // If navigated to root, clear context
+      if (e.urlAfterRedirects === basePath || e.urlAfterRedirects === basePath + '/') {
+        this.selectedRestaurant = null;
+      }
+    });
+  }
+
+  // v1.4: Restaurant context methods
+  setRestaurantContext(restaurant: Restaurant): void {
+    this.selectedRestaurant = restaurant;
+  }
+
+  clearRestaurantContext(): void {
+    this.selectedRestaurant = null;
+  }
+
+  goToRestaurants(): void {
+    this.selectedRestaurant = null;
+    this.router.navigate(['/prototype/pudu-admin']);
+  }
+
+  /** Get current screen label for breadcrumb */
+  getCurrentScreenLabel(): string {
+    const url = this.router.url;
+    if (url.includes('/robots')) return 'Роботы PUDU';
+    if (url.includes('/mapping')) return 'Маппинг столов';
+    if (url.includes('/settings')) return 'Настройки роботов';
+    return '';
   }
 
   showToast(title: string, description?: string, duration = 3000) {
