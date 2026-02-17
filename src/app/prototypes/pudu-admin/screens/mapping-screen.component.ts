@@ -564,8 +564,8 @@ export class MappingScreenComponent implements OnInit {
       // "Не назначена" — clear this slot
       this.mappings[rowIndex].points[pointIndex] = { point_id: '', point_name: '' };
       this.recalcChanges();
-    this.rebuildPointToTableMap();
-    return;
+      this.rebuildPointToTableMap();
+      return;
     }
 
     const point = this.availablePoints.find((p) => p.point_id === pointId);
@@ -600,6 +600,7 @@ export class MappingScreenComponent implements OnInit {
 
     this.recalcChanges();
     this.rebuildPointToTableMap();
+  }
 
   // ── Add / Remove points ────────────────────────────────
 
