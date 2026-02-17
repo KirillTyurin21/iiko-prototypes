@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IconsModule } from '@/shared/icons.module';
 import { UiButtonComponent, UiAlertComponent, UiModalComponent, UiInputComponent } from '@/components/ui';
+import { StorageService } from '@/shared/storage.service';
 import { Restaurant } from '../types';
 import { MOCK_RESTAURANTS } from '../data/mock-data';
 import { PuduPrototypeComponent } from '../pudu-prototype.component';
@@ -59,9 +60,15 @@ type NeConnectionStatus = 'connected' | 'not_configured' | 'error';
               <p class="text-xs text-green-600">Учётные данные настроены. JWT-токен активен</p>
             </div>
           </div>
-          <ui-button variant="ghost" size="sm" (click)="showCredentialsModal = true">
-            <span class="text-green-700 hover:text-green-800">Изменить</span>
-          </ui-button>
+          <div class="flex items-center gap-2">
+            <ui-button variant="ghost" size="sm" (click)="showCredentialsModal = true">
+              <span class="text-green-700 hover:text-green-800">Изменить</span>
+            </ui-button>
+            <ui-button variant="ghost" size="sm" (click)="disconnectNeConnection()">
+              <span class="text-red-600 hover:text-red-700">Отключить</span>
+            </ui-button>
+            <span class="text-[10px] uppercase tracking-wide text-red-600">Только в прототипе</span>
+          </div>
         </div>
 
         <!-- NOT CONFIGURED (K7: Alert-баннер) -->
@@ -213,13 +220,13 @@ type NeConnectionStatus = 'connected' | 'not_configured' | 'error';
             <span>NE API доступен</span>
           </label>
           <button
-            (click)="neConnectionStatus = 'not_configured'"
+            (click)="setNeConnectionStatus('not_configured')"
             class="px-2 py-0.5 rounded border text-[10px] hover:bg-gray-100"
           >
             Сбросить подключение
           </button>
           <button
-            (click)="neConnectionStatus = 'error'"
+            (click)="setNeConnectionStatus('error')"
             class="px-2 py-0.5 rounded border text-[10px] hover:bg-gray-100 text-red-500"
           >
             Симуляция ошибки
@@ -285,7 +292,10 @@ type NeConnectionStatus = 'connected' | 'not_configured' | 'error';
 })
 export class RestaurantsScreenComponent implements OnInit {
   private router = inject(Router);
+  private storage = inject(StorageService);
   parent = inject(PuduPrototypeComponent);
+  private readonly storageSlug = 'pudu-admin';
+  private readonly connectionStorageKey = 'neConnectionStatus';
 
   restaurants: Restaurant[] = [];
   filteredRestaurants: Restaurant[] = [];
@@ -307,6 +317,11 @@ export class RestaurantsScreenComponent implements OnInit {
   ngOnInit(): void {
     // Clear restaurant context when navigating back to Э0
     this.parent.clearRestaurantContext();
+    this.neConnectionStatus = this.storage.load<NeConnectionStatus>(
+      this.storageSlug,
+      this.connectionStorageKey,
+      'not_configured'
+    );
     this.loadData();
   }
 
@@ -384,7 +399,7 @@ export class RestaurantsScreenComponent implements OnInit {
     setTimeout(() => {
       if (this.mockNeAvailable) {
         // Сценарий 1: NE доступен, credentials валидны (200)
-        this.neConnectionStatus = 'connected';
+        this.setNeConnectionStatus('connected');
         this.showCredentialsModal = false;
         this.credClientId = '';
         this.credApiSecret = '';
@@ -402,6 +417,16 @@ export class RestaurantsScreenComponent implements OnInit {
       }
       this.credSaving = false;
     }, 1500);
+  }
+
+  disconnectNeConnection(): void {
+    this.setNeConnectionStatus('not_configured');
+    this.parent.showToast('Подключение к NE отключено (только для прототипа)');
+  }
+
+  setNeConnectionStatus(status: NeConnectionStatus): void {
+    this.neConnectionStatus = status;
+    this.storage.save(this.storageSlug, this.connectionStorageKey, status);
   }
 
   // Закрытие модалки
