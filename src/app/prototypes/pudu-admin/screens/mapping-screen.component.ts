@@ -317,11 +317,10 @@ interface Toast {
                       <div class="max-w-xs">
                         <select
                           class="w-full h-9 rounded-md border border-gray-300 bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                          [ngModel]="getTableIdForPoint(point.point_id)"
-                          (ngModelChange)="onTableChangeForPoint(point.point_id, $event)"
+                          (change)="onTableSelectChange(point.point_id, $event)"
                         >
-                          <option value="">Не назначена</option>
-                          <option *ngFor="let opt of filteredTableOptionsForPoint(point.point_id)" [value]="opt.value">{{ opt.label }}</option>
+                          <option value="" [selected]="!pointToTableMap[point.point_id]">Не назначена</option>
+                          <option *ngFor="let opt of cachedTableOptions; trackBy: trackOptionValue" [value]="opt.value" [selected]="pointToTableMap[point.point_id] === opt.value">{{ opt.label }}</option>
                         </select>
                       </div>
                     </td>
@@ -329,14 +328,14 @@ interface Toast {
                     <!-- Статус -->
                     <td class="px-4 py-3 text-center">
                       <lucide-icon
-                        *ngIf="getTableIdForPoint(point.point_id)"
+                        *ngIf="pointToTableMap[point.point_id]"
                         name="check-circle-2"
                         [size]="18"
                         class="text-green-600"
                         title="Стол привязан к точке робота"
                       ></lucide-icon>
                       <lucide-icon
-                        *ngIf="!getTableIdForPoint(point.point_id)"
+                        *ngIf="!pointToTableMap[point.point_id]"
                         name="circle"
                         [size]="18"
                         class="text-gray-300"
@@ -425,6 +424,10 @@ export class MappingScreenComponent implements OnInit {
   // Dropdown state (v1.3)
   openDropdownKey: string | null = null;
 
+  // Points→Tables cached lookups (fix: avoid method calls in template)
+  pointToTableMap: Record<string, string> = {};          // point_id → table_id
+  cachedTableOptions: SelectOption[] = [];                // pre-computed table options for selects
+
   // Toast
   toasts: Toast[] = [];
   private toastCounter = 0;
@@ -453,6 +456,7 @@ export class MappingScreenComponent implements OnInit {
       this.mappings = this.storage.load('pudu-admin', 'mappings', defaultMappings);
       this.originalMappings = this.cloneMappings(this.mappings);
       this.hasChanges = false;
+      this.rebuildPointToTableCache();
       this.isLoadingPoints = false;
     }, 1000);
   }
@@ -463,6 +467,7 @@ export class MappingScreenComponent implements OnInit {
     if (this.mappingMode === mode) return;
     this.mappingMode = mode;
     this.openDropdownKey = null;
+    this.rebuildPointToTableCache();
   }
 
   // ── Refresh points ─────────────────────────────────────
@@ -559,7 +564,8 @@ export class MappingScreenComponent implements OnInit {
       // "Не назначена" — clear this slot
       this.mappings[rowIndex].points[pointIndex] = { point_id: '', point_name: '' };
       this.recalcChanges();
-      return;
+    this.rebuildPointToTableMap();
+    return;
     }
 
     const point = this.availablePoints.find((p) => p.point_id === pointId);
@@ -593,7 +599,7 @@ export class MappingScreenComponent implements OnInit {
     }
 
     this.recalcChanges();
-  }
+    this.rebuildPointToTableMap();
 
   // ── Add / Remove points ────────────────────────────────
 
@@ -606,15 +612,49 @@ export class MappingScreenComponent implements OnInit {
     // Auto-open dropdown for new slot
     this.openDropdownKey = `${rowIndex}-${newIndex}`;
     this.recalcChanges();
+    this.rebuildPointToTableMap();
   }
 
   removePoint(rowIndex: number, pointIndex: number): void {
     this.openDropdownKey = null;
     this.mappings[rowIndex].points.splice(pointIndex, 1);
     this.recalcChanges();
+    this.rebuildPointToTableMap();
   }
 
   // ── Points→Tables mode helpers ─────────────────────────
+
+  /** Rebuild only the point→table lookup map. Safe to call on every mapping mutation
+   *  without disrupting select options DOM. */
+  private rebuildPointToTableMap(): void {
+    const map: Record<string, string> = {};
+    for (const m of this.mappings) {
+      for (const p of m.points) {
+        if (p.point_id) {
+          map[p.point_id] = m.table_id;
+        }
+      }
+    }
+    this.pointToTableMap = map;
+  }
+
+  /** Rebuild cached table options for selects. Only call when hall filter or tables change
+   *  (NOT on every mapping mutation — that would recreate options and break <select> binding). */
+  private rebuildCachedTableOptions(): void {
+    const tablesToShow = this.selectedHall
+      ? this.tables.filter(t => t.section_name === this.selectedHall)
+      : this.tables;
+    this.cachedTableOptions = tablesToShow.map(t => ({
+      value: t.table_id,
+      label: `${t.table_name} — ${t.section_name}`,
+    }));
+  }
+
+  /** Rebuild both map and options. Use on init, load, mode switch, hall filter change. */
+  rebuildPointToTableCache(): void {
+    this.rebuildPointToTableMap();
+    this.rebuildCachedTableOptions();
+  }
 
   getTableIdForPoint(pointId: string): string {
     for (const m of this.mappings) {
@@ -625,17 +665,6 @@ export class MappingScreenComponent implements OnInit {
     return '';
   }
 
-  tableOptionsForPoint(pointId: string): SelectOption[] {
-    const opts: SelectOption[] = [];
-    this.tables.forEach((t) => {
-      opts.push({
-        value: t.table_id,
-        label: `${t.table_name} — ${t.section_name}`,
-      });
-    });
-    return opts;
-  }
-
   filteredTableOptionsForPoint(pointId: string): SelectOption[] {
     const tablesToShow = this.selectedHall
       ? this.tables.filter(t => t.section_name === this.selectedHall)
@@ -644,6 +673,16 @@ export class MappingScreenComponent implements OnInit {
       value: t.table_id,
       label: `${t.table_name} — ${t.section_name}`,
     }));
+  }
+
+  trackOptionValue(_: number, opt: SelectOption): string {
+    return opt.value;
+  }
+
+  /** Handle native (change) event from the <select> in Points→Tables mode */
+  onTableSelectChange(pointId: string, event: Event): void {
+    const newTableId = (event.target as HTMLSelectElement).value;
+    this.onTableChangeForPoint(pointId, newTableId);
   }
 
   onTableChangeForPoint(pointId: string, newTableId: string): void {
@@ -663,6 +702,8 @@ export class MappingScreenComponent implements OnInit {
       }
     }
 
+    // Only rebuild the map, NOT the options (to avoid select DOM disruption)
+    this.rebuildPointToTableMap();
     this.recalcChanges();
   }
 
@@ -726,6 +767,7 @@ export class MappingScreenComponent implements OnInit {
     this.mappings = this.cloneMappings(this.originalMappings);
     this.hasChanges = false;
     this.openDropdownKey = null;
+    this.rebuildPointToTableMap();
   }
 
   // ── Change tracking ────────────────────────────────────
@@ -764,6 +806,7 @@ export class MappingScreenComponent implements OnInit {
 
   onHallFilterChange(): void {
     // Filter is applied via get filteredMappings
+    this.rebuildPointToTableCache();
   }
 
   get filteredMappings(): TableMapping[] {
