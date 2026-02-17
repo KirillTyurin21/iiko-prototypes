@@ -306,7 +306,7 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
           <!-- ============================================ -->
           <ng-container *ngIf="activeTab === 'cleanup'">
 
-            <!-- Radio Group: 3 режима -->
+            <!-- Radio Group: 3 режима (H4 v1.6) -->
             <div class="space-y-0">
               <!-- Ручной режим -->
               <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100" title="Уборка запускается вручную из iikoFront">
@@ -319,12 +319,12 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
                 />
                 <div>
                   <span class="text-sm font-medium text-gray-900">Ручной режим</span>
-                  <p class="text-xs text-gray-500 mt-0.5">Официант вручную отправляет робота для уборки стола через iikoFront</p>
+                  <p class="text-xs text-gray-500 mt-0.5">Официант вручную отправляет робота для уборки конкретного стола через iikoFront</p>
                 </div>
               </label>
 
               <!-- Автоматический режим -->
-              <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100" title="Уборка запускается автоматически по таймеру или закрытию чека">
+              <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100" title="Уборка по таймеру. Кнопка «Уборка» в iikoFront скрыта">
                 <input
                   type="radio"
                   name="cleanupMode"
@@ -334,12 +334,12 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
                 />
                 <div>
                   <span class="text-sm font-medium text-gray-900">Автоматический режим</span>
-                  <p class="text-xs text-gray-500 mt-0.5">Робот автоматически отправляется на уборку по таймерам: после доставки блюда или закрытия чека</p>
+                  <p class="text-xs text-gray-500 mt-0.5">Робот автоматически приезжает для уборки по таймерам: после доставки блюда или закрытия чека. Кнопка «Уборка» в iikoFront скрыта</p>
                 </div>
               </label>
 
               <!-- Смешанный режим -->
-              <label class="flex items-start gap-3 py-3 cursor-pointer" title="Ручной запуск всегда доступен + автоматические триггеры работают параллельно">
+              <label class="flex items-start gap-3 py-3 cursor-pointer" title="Ручной запуск + авто-таймеры параллельно. Дедупликация задач автоматическая">
                 <input
                   type="radio"
                   name="cleanupMode"
@@ -349,7 +349,7 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
                 />
                 <div>
                   <span class="text-sm font-medium text-gray-900">Смешанный режим</span>
-                  <p class="text-xs text-gray-500 mt-0.5">Автоматическая уборка по таймерам с возможностью ручного запуска через iikoFront</p>
+                  <p class="text-xs text-gray-500 mt-0.5">Ручной запуск уборки через iikoFront всегда доступен, авто-триггеры (таймеры) работают параллельно в фоне. Дублирование задач на один стол исключается автоматически</p>
                 </div>
               </label>
             </div>
@@ -367,73 +367,75 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
 
             <hr class="border-t border-gray-200" />
 
-            <!-- Секция ручной (фразы) — видна для manual и mixed -->
-            <ng-container *ngIf="settings.cleanup.mode === 'manual' || settings.cleanup.mode === 'mixed'">
-              <div class="space-y-6 animate-fade-in">
-                <h3 class="text-base font-semibold text-gray-900">Фразы при уборке</h3>
+            <!-- H1 v1.6: Секция «Настройки поведения у стола» — ВИДНА ВСЕГДА -->
+            <div class="space-y-6">
+              <div>
+                <h3 class="text-base font-semibold text-gray-900">Настройки поведения у стола</h3>
+                <p class="text-xs text-gray-500 mt-1">Фраза, видео и время ожидания — используются во всех режимах уборки</p>
+              </div>
 
-                <!-- 1. Фраза при подъезде к столу -->
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Фраза при подъезде к столу</label>
-                  <ui-input
-                    [(value)]="settings.cleanup.phrase_arrival"
-                    placeholder="Введите фразу"
-                    [error]="getPhraseError(settings.cleanup.phrase_arrival)"
-                  ></ui-input>
-                  <div class="flex justify-between mt-1">
-                    <span class="text-xs text-gray-400">Фраза робота при прибытии к столу для уборки</span>
-                    <span class="text-xs" [ngClass]="settings.cleanup.phrase_arrival.length > 180 ? 'text-red-500' : 'text-gray-400'">
-                      {{ settings.cleanup.phrase_arrival.length }} / 180
-                    </span>
-                  </div>
-                </div>
+              <!-- H6 v1.6: Info-блок «общие настройки» -->
+              <div class="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600" role="status">
+                <lucide-icon name="info" [size]="16" class="text-gray-400 shrink-0 mt-0.5"></lucide-icon>
+                <span>Эти настройки применяются ко всем режимам уборки. Значения сохраняются при переключении между режимами.</span>
+              </div>
 
-                <!-- 2. URL видео/аудио -->
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">URL видео/аудио</label>
-                  <ui-input
-                    [(value)]="cleanupArrivalUrl"
-                    placeholder="https://example.com/audio.mp3"
-                  ></ui-input>
-                  <p class="text-xs text-gray-400 mt-1">Ссылка на mp4/mp3 для фразы при уборке</p>
-                </div>
-
-                <!-- 3. Время ожидания у стола -->
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Время ожидания у стола (сек)</label>
-                  <input
-                    type="number"
-                    [(ngModel)]="settings.cleanup.wait_time"
-                    class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
-                    min="1"
-                    max="600"
-                    aria-label="Таймер ожидания в секундах"
-                  />
-                  <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает у стола, затем уезжает безусловно</p>
-                </div>
-
-                <!-- v1.5 G7: Info-блок ограничения датчиков -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4" role="note">
-                  <div class="flex items-start gap-3">
-                    <lucide-icon name="info" [size]="18" class="text-blue-500 shrink-0 mt-0.5"></lucide-icon>
-                    <p class="text-xs text-gray-600">
-                      Робот стоит у стола заданное время и уезжает безусловно.
-                      Определение факта загрузки посуды недоступно (ограничение API PUDU).
-                    </p>
-                  </div>
+              <!-- 1. Фраза при подъезде к столу -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Фраза при подъезде к столу</label>
+                <ui-input
+                  [(value)]="settings.cleanup.phrase_arrival"
+                  placeholder="Введите фразу"
+                  [error]="getPhraseError(settings.cleanup.phrase_arrival)"
+                ></ui-input>
+                <div class="flex justify-between mt-1">
+                  <span class="text-xs text-gray-400">Фраза робота при прибытии к столу для уборки</span>
+                  <span class="text-xs" [ngClass]="settings.cleanup.phrase_arrival.length > 180 ? 'text-red-500' : 'text-gray-400'">
+                    {{ settings.cleanup.phrase_arrival.length }} / 180
+                  </span>
                 </div>
               </div>
-            </ng-container>
 
-            <!-- Подсказка для авто-режима (без ручной секции) -->
-            <p *ngIf="settings.cleanup.mode === 'auto'" class="text-sm italic text-orange-500 animate-fade-in">
-              Фраза и время ожидания из ручного режима. Для изменения переключитесь в «Смешанный» режим.
-            </p>
+              <!-- 2. URL видео/аудио -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">URL видео/аудио</label>
+                <ui-input
+                  [(value)]="cleanupArrivalUrl"
+                  placeholder="https://example.com/audio.mp3"
+                ></ui-input>
+                <p class="text-xs text-gray-400 mt-1">Ссылка на mp4/mp3 для фразы при уборке</p>
+              </div>
 
-            <!-- Секция авто (таймеры) — видна для auto и mixed -->
+              <!-- 3. Время ожидания у стола -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Время ожидания у стола (сек)</label>
+                <input
+                  type="number"
+                  [(ngModel)]="settings.cleanup.wait_time"
+                  class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
+                  min="1"
+                  max="600"
+                  aria-label="Таймер ожидания в секундах"
+                />
+                <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает у стола, затем уезжает безусловно</p>
+              </div>
+
+              <!-- v1.5 G7: Info-блок ограничения датчиков -->
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4" role="note">
+                <div class="flex items-start gap-3">
+                  <lucide-icon name="info" [size]="18" class="text-blue-500 shrink-0 mt-0.5"></lucide-icon>
+                  <p class="text-xs text-gray-600">
+                    Робот стоит у стола заданное время и уезжает безусловно.
+                    Определение факта загрузки посуды недоступно (ограничение API PUDU).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- H2 v1.6: Секция «Таймеры автоматической уборки» — видна при auto / mixed -->
             <ng-container *ngIf="settings.cleanup.mode === 'auto' || settings.cleanup.mode === 'mixed'">
               <div class="space-y-6 animate-fade-in">
-                <h3 class="text-base font-semibold text-gray-900">Автоматический режим</h3>
+                <h3 class="text-base font-semibold text-gray-900">Таймеры автоматической уборки</h3>
 
                 <!-- 6. Таймер после доставки блюда -->
                 <div>
