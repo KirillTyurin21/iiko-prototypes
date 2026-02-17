@@ -9,6 +9,11 @@ export const PUDU_ADMIN_ROUTES: Routes = [
       {
         path: '',
         loadComponent: () =>
+          import('./screens/restaurants-screen.component').then(m => m.RestaurantsScreenComponent),
+      },
+      {
+        path: 'robots',
+        loadComponent: () =>
           import('./screens/robots-screen.component').then(m => m.RobotsScreenComponent),
       },
       {

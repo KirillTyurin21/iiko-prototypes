@@ -15,6 +15,7 @@ import { IconsModule } from '@/shared/icons.module';
 import { ScenarioSettings, Robot, PhraseWithTimer } from '../types';
 import { MOCK_ROBOTS, getInitialSettings } from '../data/mock-data';
 import { StorageService } from '@/shared/storage.service';
+import { PuduPrototypeComponent } from '../pudu-prototype.component';
 
 @Component({
   selector: 'app-settings-screen',
@@ -46,9 +47,27 @@ import { StorageService } from '@/shared/storage.service';
 
     <!-- Content -->
     <ng-container *ngIf="!loading && robots.length > 0">
-      <!-- Header -->
-      <div class="px-6 pt-5 pb-4">
-        <h1 class="text-xl font-semibold text-gray-900">Настройки роботов</h1>
+      <!-- SUBHEADER (v1.4: breadcrumb + back button) -->
+      <div class="border-b border-gray-200 bg-white px-6 py-4 shrink-0">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <button
+              class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              aria-label="Назад к списку ресторанов"
+              (click)="goBack()"
+            >
+              <lucide-icon name="arrow-left" [size]="16"></lucide-icon>
+              <span>Назад к списку ресторанов</span>
+            </button>
+          </div>
+        </div>
+        <nav class="flex items-center gap-1.5 text-sm mt-2" aria-label="Breadcrumb">
+          <a class="text-gray-400 hover:text-blue-600 hover:underline cursor-pointer transition-colors" (click)="goBack()">Настройки PUDU</a>
+          <lucide-icon name="chevron-right" [size]="14" class="text-gray-300"></lucide-icon>
+          <span class="text-gray-400">{{ parent.selectedRestaurant?.restaurant_name || 'Ресторан' }}</span>
+          <lucide-icon name="chevron-right" [size]="14" class="text-gray-300"></lucide-icon>
+          <span class="text-gray-900 font-medium">Настройки роботов</span>
+        </nav>
       </div>
 
       <!-- Tabs -->
@@ -82,7 +101,7 @@ import { StorageService } from '@/shared/storage.service';
                   {{ settings.send_menu.phrase.length }} / 180
                 </span>
               </div>
-              <p *ngIf="phraseChangedRecently" class="text-xs text-orange-500 mt-1">Следующее изменение фразы доступно через 23:45</p>
+              <p *ngIf="phraseChangedRecently" class="text-xs text-gray-400 italic mt-1">Следующее изменение доступно через 23 ч 59 мин</p>
             </div>
 
             <!-- 2. URL видео/аудио для фразы при доставке -->
@@ -104,6 +123,7 @@ import { StorageService } from '@/shared/storage.service';
                 class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 min="1"
                 max="600"
+                aria-label="Таймер ожидания в секундах"
               />
               <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает у стола</p>
             </div>
@@ -127,7 +147,7 @@ import { StorageService } from '@/shared/storage.service';
                   {{ settings.send_menu.phrase_pickup.length }} / 180
                 </span>
               </div>
-              <p *ngIf="phraseChangedRecently" class="text-xs text-orange-500 mt-1">Следующее изменение фразы доступно через 23:45</p>
+              <p *ngIf="phraseChangedRecently" class="text-xs text-gray-400 italic mt-1">Следующее изменение доступно через 23 ч 59 мин</p>
             </div>
 
             <!-- 4. URL видео/аудио для фразы при заборе -->
@@ -149,6 +169,7 @@ import { StorageService } from '@/shared/storage.service';
                 class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 min="1"
                 max="600"
+                aria-label="Таймер ожидания в секундах"
               />
               <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает на станции выдачи</p>
             </div>
@@ -158,6 +179,17 @@ import { StorageService } from '@/shared/storage.service';
           <!-- TAB 2: Доставка блюд (send_dish) — C5        -->
           <!-- ============================================ -->
           <ng-container *ngIf="activeTab === 'send_dish'">
+
+            <!-- F12: Warning — синтезатор речи -->
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4" role="alert">
+              <div class="flex items-start gap-3">
+                <lucide-icon name="alert-triangle" [size]="20" class="text-amber-500 shrink-0 mt-0.5"></lucide-icon>
+                <div>
+                  <p class="font-medium text-amber-800">Настройка требует внимания</p>
+                  <p class="text-sm text-amber-700 mt-1">При включении «Привезти блюдо» убедитесь, что названия блюд корректно озвучиваются синтезатором речи робота. Рекомендуется протестировать на реальном устройстве.</p>
+                </div>
+              </div>
+            </div>
 
             <!-- Макс. блюд за рейс -->
             <div>
@@ -169,6 +201,7 @@ import { StorageService } from '@/shared/storage.service';
                 [ngClass]="getNumberError(settings.send_dish.max_dishes_per_trip, 1, 20) ? 'border-red-500' : 'border-border'"
                 min="1"
                 max="20"
+                aria-label="Максимальное количество блюд за один рейс"
               />
               <p class="text-xs mt-1" [ngClass]="getNumberError(settings.send_dish.max_dishes_per_trip, 1, 20) ? 'text-red-500' : 'text-gray-400'">
                 {{ getNumberError(settings.send_dish.max_dishes_per_trip, 1, 20) || 'Максимальное количество блюд за один рейс (не более 20)' }}
@@ -185,6 +218,7 @@ import { StorageService } from '@/shared/storage.service';
                 [ngClass]="getNumberError(settings.send_dish.wait_time, 1, 600) ? 'border-red-500' : 'border-border'"
                 min="1"
                 max="600"
+                aria-label="Таймер ожидания в секундах"
               />
               <p class="text-xs mt-1" [ngClass]="getNumberError(settings.send_dish.wait_time, 1, 600) ? 'text-red-500' : 'text-gray-400'">
                 {{ getNumberError(settings.send_dish.wait_time, 1, 600) || 'Общее время ожидания робота у стола. Сумма таймеров фраз не должна его превышать' }}
@@ -252,6 +286,7 @@ import { StorageService } from '@/shared/storage.service';
                   [(ngModel)]="phrase.delay_sec"
                   class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                   min="0"
+                  aria-label="Таймер ожидания в секундах"
                 />
                 <p class="text-xs text-gray-400 mt-1">Пауза перед произнесением этой фразы</p>
               </div>
@@ -274,7 +309,7 @@ import { StorageService } from '@/shared/storage.service';
             <!-- Radio Group: 3 режима -->
             <div class="space-y-0">
               <!-- Ручной режим -->
-              <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100">
+              <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100" title="Уборка запускается вручную из iikoFront">
                 <input
                   type="radio"
                   name="cleanupMode"
@@ -289,7 +324,7 @@ import { StorageService } from '@/shared/storage.service';
               </label>
 
               <!-- Автоматический режим -->
-              <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100">
+              <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100" title="Уборка запускается автоматически по таймеру или закрытию чека">
                 <input
                   type="radio"
                   name="cleanupMode"
@@ -304,7 +339,7 @@ import { StorageService } from '@/shared/storage.service';
               </label>
 
               <!-- Смешанный режим -->
-              <label class="flex items-start gap-3 py-3 cursor-pointer">
+              <label class="flex items-start gap-3 py-3 cursor-pointer" title="Ручной запуск всегда доступен + автоматические триггеры работают параллельно">
                 <input
                   type="radio"
                   name="cleanupMode"
@@ -317,6 +352,17 @@ import { StorageService } from '@/shared/storage.service';
                   <p class="text-xs text-gray-500 mt-0.5">Автоматическая уборка по таймерам с возможностью ручного запуска через iikoFront</p>
                 </div>
               </label>
+            </div>
+
+            <!-- F13: Info — как работает клининг -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4" role="alert">
+              <div class="flex items-start gap-3">
+                <lucide-icon name="info" [size]="20" class="text-blue-500 shrink-0 mt-0.5"></lucide-icon>
+                <div>
+                  <p class="font-medium text-blue-800">Как работает клининг</p>
+                  <p class="text-sm text-blue-700 mt-1">Робот подъезжает к указанному столу и озвучивает фразу клининга. Персонал может воспользоваться роботом для сбора посуды. Время ожидания — в секундах.</p>
+                </div>
+              </div>
             </div>
 
             <hr class="border-t border-gray-200" />
@@ -361,6 +407,7 @@ import { StorageService } from '@/shared/storage.service';
                     class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                     min="1"
                     max="600"
+                    aria-label="Таймер ожидания в секундах"
                   />
                   <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает, пока гость положит посуду</p>
                 </div>
@@ -411,6 +458,7 @@ import { StorageService } from '@/shared/storage.service';
                     [(ngModel)]="settings.cleanup.auto_timer_after_delivery"
                     class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                     min="1"
+                    aria-label="Таймер ожидания в секундах"
                   />
                   <p class="text-xs text-gray-400 mt-1">Через сколько минут после доставки робот приедет</p>
                   <p class="text-xs text-gray-400 mt-0.5 italic">Рекомендуемое: 12–14 мин</p>
@@ -424,6 +472,7 @@ import { StorageService } from '@/shared/storage.service';
                     [(ngModel)]="settings.cleanup.auto_timer_after_check"
                     class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                     min="0"
+                    aria-label="Таймер ожидания в секундах"
                   />
                   <p class="text-xs text-gray-400 mt-1">Через сколько минут после закрытия чека. 0 — сразу</p>
                 </div>
@@ -474,6 +523,7 @@ import { StorageService } from '@/shared/storage.service';
                 class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 min="1"
                 max="600"
+                aria-label="Таймер ожидания в секундах"
               />
               <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает укладки чека</p>
             </div>
@@ -492,6 +542,7 @@ import { StorageService } from '@/shared/storage.service';
                 class="w-full h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
                 min="1"
                 max="600"
+                aria-label="Таймер ожидания в секундах"
               />
               <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает оплату. По умолчанию 120 сек</p>
             </div>
@@ -618,11 +669,13 @@ import { StorageService } from '@/shared/storage.service';
           variant="primary"
           iconName="save"
           [disabled]="!hasChanges"
+          aria-label="Сохранить настройки сценариев"
           (click)="save()"
         >Сохранить</ui-button>
         <ui-button
           variant="outline"
           [disabled]="!hasChanges"
+          aria-label="Отменить несохранённые изменения настроек"
           (click)="resetSettings()"
         >Сбросить</ui-button>
       </div>
@@ -651,9 +704,9 @@ import { StorageService } from '@/shared/storage.service';
     <!-- Confirm dialog: 24h phrase change -->
     <ui-confirm-dialog
       [open]="phraseConfirmOpen"
-      title="Ограничение на изменение фразы"
-      message="Изменить фразу можно один раз в 24 часа (конвертация текста в аудио — платная услуга). После сохранения повторное изменение фразы будет доступно через 24 часа. Продолжить?"
-      confirmText="Сохранить"
+      title="Изменение фразы"
+      message="Изменить фразу можно раз в 24 часа. Продолжить?"
+      confirmText="Продолжить"
       cancelText="Отмена"
       (confirmed)="onPhraseConfirmSave()"
       (cancelled)="phraseConfirmOpen = false"
@@ -663,6 +716,7 @@ import { StorageService } from '@/shared/storage.service';
 export class SettingsScreenComponent implements OnInit {
   private router = inject(Router);
   private storage = inject(StorageService);
+  parent = inject(PuduPrototypeComponent);
 
   loading = true;
   robots: Robot[] = [];
@@ -683,6 +737,12 @@ export class SettingsScreenComponent implements OnInit {
   /** Original phrases for send_menu to detect change */
   private savedPhrase = '';
   private savedPhrasePickup = '';
+  private savedSendDishPhrases: string = '';
+  private savedCleanupPhraseArrival: string = '';
+  private savedCleanupPhraseLater: string = '';
+  private savedQrCashierPhrase: string = '';
+  private savedQrPhraseSuccess: string = '';
+  private savedQrPhraseFailure: string = '';
 
   tabItems: TabItem[] = [
     { key: 'send_menu', label: 'Доставка меню' },
@@ -701,6 +761,12 @@ export class SettingsScreenComponent implements OnInit {
       this.originalSettings = JSON.stringify(this.settings);
       this.savedPhrase = this.settings.send_menu.phrase;
       this.savedPhrasePickup = this.settings.send_menu.phrase_pickup;
+      this.savedSendDishPhrases = JSON.stringify(this.settings.send_dish.phrases.map(p => p.text));
+      this.savedCleanupPhraseArrival = this.settings.cleanup.phrase_arrival;
+      this.savedCleanupPhraseLater = this.settings.cleanup.phrase_later;
+      this.savedQrCashierPhrase = this.settings.qr_payment.cashier_phrase;
+      this.savedQrPhraseSuccess = this.settings.qr_payment.phrase_success;
+      this.savedQrPhraseFailure = this.settings.qr_payment.phrase_failure;
       this.robotOptions = this.robots.map(r => ({
         value: r.id,
         label: `${r.name} (${r.id})`,
@@ -810,8 +876,7 @@ export class SettingsScreenComponent implements OnInit {
   // ---- Save / Reset ----
 
   save(): void {
-    // Check if send_menu phrases changed → 24h confirm
-    if (this.activeTab === 'send_menu' && this.isSendMenuPhrasesChanged()) {
+    if (this.hasAnyPhraseChanged()) {
       this.phraseConfirmOpen = true;
       return;
     }
@@ -822,6 +887,11 @@ export class SettingsScreenComponent implements OnInit {
     this.phraseConfirmOpen = false;
     this.phraseChangedRecently = true;
     this.performSave();
+    this.showToast('Настройки фразы сохранены');
+    // Simulated 5-second disable (v1.4 F5)
+    setTimeout(() => {
+      this.phraseChangedRecently = false;
+    }, 5000);
   }
 
   resetSettings(): void {
@@ -865,11 +935,21 @@ export class SettingsScreenComponent implements OnInit {
 
   // ---- Internal ----
 
-  private isSendMenuPhrasesChanged(): boolean {
-    return (
-      this.settings.send_menu.phrase !== this.savedPhrase ||
-      this.settings.send_menu.phrase_pickup !== this.savedPhrasePickup
-    );
+  private hasAnyPhraseChanged(): boolean {
+    // send_menu
+    if (this.settings.send_menu.phrase !== this.savedPhrase) return true;
+    if (this.settings.send_menu.phrase_pickup !== this.savedPhrasePickup) return true;
+    // send_dish
+    const currentDishPhrases = JSON.stringify(this.settings.send_dish.phrases.map(p => p.text));
+    if (currentDishPhrases !== this.savedSendDishPhrases) return true;
+    // cleanup
+    if (this.settings.cleanup.phrase_arrival !== this.savedCleanupPhraseArrival) return true;
+    if (this.settings.cleanup.phrase_later !== this.savedCleanupPhraseLater) return true;
+    // qr_payment
+    if (this.settings.qr_payment.cashier_phrase !== this.savedQrCashierPhrase) return true;
+    if (this.settings.qr_payment.phrase_success !== this.savedQrPhraseSuccess) return true;
+    if (this.settings.qr_payment.phrase_failure !== this.savedQrPhraseFailure) return true;
+    return false;
   }
 
   private performSave(): void {
@@ -881,7 +961,18 @@ export class SettingsScreenComponent implements OnInit {
     this.originalSettings = JSON.stringify(this.settings);
     this.savedPhrase = this.settings.send_menu.phrase;
     this.savedPhrasePickup = this.settings.send_menu.phrase_pickup;
+    this.savedSendDishPhrases = JSON.stringify(this.settings.send_dish.phrases.map(p => p.text));
+    this.savedCleanupPhraseArrival = this.settings.cleanup.phrase_arrival;
+    this.savedCleanupPhraseLater = this.settings.cleanup.phrase_later;
+    this.savedQrCashierPhrase = this.settings.qr_payment.cashier_phrase;
+    this.savedQrPhraseSuccess = this.settings.qr_payment.phrase_success;
+    this.savedQrPhraseFailure = this.settings.qr_payment.phrase_failure;
     this.storage.save('pudu-admin', 'settings', this.settings);
+  }
+
+  goBack(): void {
+    this.parent.clearRestaurantContext();
+    this.router.navigate(['/prototype/pudu-admin']);
   }
 
   private showToast(message: string): void {

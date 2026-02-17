@@ -1,4 +1,35 @@
-import { Robot, RobotPoint, DiningTable, TableMapping, ScenarioSettings } from '../types';
+import { Restaurant, Robot, RobotPoint, DiningTable, TableMapping, ScenarioSettings } from '../types';
+
+// v1.4: Рестораны организации
+export const MOCK_RESTAURANTS: Restaurant[] = [
+  {
+    account_id: '550e8400-e29b-41d4-a716-446655440000',
+    restaurant_name: 'Ресторан «Белуга» Тверская',
+    robots_total: 3,
+    robots_online: 2,
+    mapping_completed: true,
+    scenarios_enabled: 2,
+    setup_status: 'configured',
+  },
+  {
+    account_id: '550e8400-e29b-41d4-a716-446655440001',
+    restaurant_name: 'Кафе «Причал» Арбат',
+    robots_total: 1,
+    robots_online: 0,
+    mapping_completed: false,
+    scenarios_enabled: 0,
+    setup_status: 'partial',
+  },
+  {
+    account_id: '550e8400-e29b-41d4-a716-446655440002',
+    restaurant_name: 'Бар «Маяк» Патрики',
+    robots_total: 0,
+    robots_online: 0,
+    mapping_completed: false,
+    scenarios_enabled: 0,
+    setup_status: 'not_configured',
+  },
+];
 
 export const MOCK_ROBOTS: Robot[] = [
   {
@@ -39,27 +70,30 @@ export const MOCK_POINTS: RobotPoint[] = [
 ];
 
 export const MOCK_TABLES: DiningTable[] = [
+  // Зал 1 этаж (5 столов)
   { table_id: 'tbl-001', table_name: 'Стол №1', section_name: 'Зал 1 этаж' },
   { table_id: 'tbl-002', table_name: 'Стол №2', section_name: 'Зал 1 этаж' },
   { table_id: 'tbl-003', table_name: 'Стол №3 (VIP)', section_name: 'Зал 1 этаж' },
   { table_id: 'tbl-004', table_name: 'Стол №4 (бар)', section_name: 'Зал 1 этаж' },
   { table_id: 'tbl-005', table_name: 'Стол №5', section_name: 'Зал 1 этаж' },
-  { table_id: 'tbl-006', table_name: 'Стол №6 (терраса)', section_name: 'Зал 1 этаж' },
-  { table_id: 'tbl-007', table_name: 'Стол №7', section_name: 'Зал 1 этаж' },
-  { table_id: 'tbl-008', table_name: 'Стол №8', section_name: 'Зал 1 этаж' },
+  // Терраса (2 стола)
+  { table_id: 'tbl-006', table_name: 'Стол №6', section_name: 'Терраса' },
+  { table_id: 'tbl-007', table_name: 'Стол №7', section_name: 'Терраса' },
+  // VIP-зал (1 стол)
+  { table_id: 'tbl-008', table_name: 'Стол №8 (VIP)', section_name: 'VIP-зал' },
 ];
 
-// v1.3: 5 из 8 столов замаплены, 3 свободных; 4 точки не назначены
+// v1.4: 5 из 8 столов замаплены, 3 свободных; обновлены комментарии по залам
 export function getInitialMapping(): TableMapping[] {
   return [
-    { table_id: 'tbl-001', points: [{ ...MOCK_POINTS[0] }] },                  // Стол №1 → SF234201A
-    { table_id: 'tbl-002', points: [{ ...MOCK_POINTS[1] }] },                  // Стол №2 → SF234202B
-    { table_id: 'tbl-003', points: [{ ...MOCK_POINTS[2] }, { ...MOCK_POINTS[3] }] }, // Стол №3 → SF234203C + SF234204D
-    { table_id: 'tbl-004', points: [{ ...MOCK_POINTS[4] }] },                  // Стол №4 → SF234205E
-    { table_id: 'tbl-005', points: [] },                                         // Стол №5 → НЕ ЗАМАПЛЕН
-    { table_id: 'tbl-006', points: [{ ...MOCK_POINTS[5] }] },                  // Стол №6 → SF234206F
-    { table_id: 'tbl-007', points: [] },                                         // Стол №7 → НЕ ЗАМАПЛЕН
-    { table_id: 'tbl-008', points: [] },                                         // Стол №8 → НЕ ЗАМАПЛЕН
+    { table_id: 'tbl-001', points: [{ ...MOCK_POINTS[0] }] },                           // Зал 1 этаж, Стол №1 → SF234201A
+    { table_id: 'tbl-002', points: [{ ...MOCK_POINTS[1] }] },                           // Зал 1 этаж, Стол №2 → SF234202B
+    { table_id: 'tbl-003', points: [{ ...MOCK_POINTS[2] }, { ...MOCK_POINTS[3] }] },    // Зал 1 этаж, Стол №3 (VIP) → SF234203C + SF234204D
+    { table_id: 'tbl-004', points: [{ ...MOCK_POINTS[4] }] },                           // Зал 1 этаж, Стол №4 (бар) → SF234205E
+    { table_id: 'tbl-005', points: [] },                                                  // Зал 1 этаж, Стол №5 → НЕ ЗАМАПЛЕН
+    { table_id: 'tbl-006', points: [{ ...MOCK_POINTS[5] }] },                           // Терраса, Стол №6 → SF234206F
+    { table_id: 'tbl-007', points: [] },                                                  // Терраса, Стол №7 → НЕ ЗАМАПЛЕН
+    { table_id: 'tbl-008', points: [] },                                                  // VIP-зал, Стол №8 → НЕ ЗАМАПЛЕН
   ];
 }
 

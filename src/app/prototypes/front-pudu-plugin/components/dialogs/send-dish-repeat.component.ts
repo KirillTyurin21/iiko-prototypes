@@ -46,8 +46,14 @@ import { IconsModule } from '@/shared/icons.module';
           Отмена
         </button>
         <button (click)="onConfirm.emit()"
-          class="h-14 bg-amber-600 text-white rounded text-base font-bold hover:bg-amber-700 transition-colors">
-          Повторить
+          [disabled]="isSubmitting"
+          class="h-14 rounded text-base font-bold transition-colors"
+          [ngClass]="isSubmitting ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-amber-600 text-white hover:bg-amber-700'">
+          <span *ngIf="!isSubmitting">Повторить</span>
+          <span *ngIf="isSubmitting" class="flex items-center justify-center gap-2">
+            <lucide-icon name="loader-2" [size]="20" class="animate-spin"></lucide-icon>
+            Отправка...
+          </span>
         </button>
       </div>
     </pudu-pos-dialog>
@@ -58,5 +64,6 @@ export class SendDishRepeatComponent {
   @Input() tableName = '';
   @Input() phraseRepeat = '';
   @Output() onCancel = new EventEmitter<void>();
+  @Input() isSubmitting = false;
   @Output() onConfirm = new EventEmitter<void>();
 }

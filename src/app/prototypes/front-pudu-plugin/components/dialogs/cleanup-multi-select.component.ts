@@ -48,10 +48,14 @@ import { OrderTable } from '../../types';
             Отмена
           </button>
           <button (click)="onConfirm.emit(selectedTables)"
-            [disabled]="selectedTables.length === 0"
-            [ngClass]="selectedTables.length === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#252525]'"
-            class="h-14 bg-[#1a1a1a] text-white rounded font-medium transition-colors">
-            Отправить робота
+            [disabled]="selectedTables.length === 0 || isSubmitting"
+            class="h-14 rounded font-medium transition-colors"
+            [ngClass]="isSubmitting ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : (selectedTables.length === 0 ? 'bg-[#1a1a1a] text-white opacity-50 cursor-not-allowed' : 'bg-[#1a1a1a] text-white hover:bg-[#252525]')">
+            <span *ngIf="!isSubmitting">Отправить робота</span>
+            <span *ngIf="isSubmitting" class="flex items-center justify-center gap-2">
+              <lucide-icon name="loader-2" [size]="20" class="animate-spin"></lucide-icon>
+              Отправка...
+            </span>
           </button>
         </div>
       </div>
@@ -62,6 +66,7 @@ export class CleanupMultiSelectComponent {
   @Input() open = false;
   @Input() tables: OrderTable[] = [];
   @Output() onCancel = new EventEmitter<void>();
+  @Input() isSubmitting = false;
   @Output() onConfirm = new EventEmitter<OrderTable[]>();
 
   selectedTables: OrderTable[] = [];

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PuduPosDialogComponent } from '../pos-dialog.component';
 import { IconsModule } from '@/shared/icons.module';
@@ -24,32 +24,10 @@ import { IconsModule } from '@/shared/icons.module';
     </pudu-pos-dialog>
   `,
 })
-export class QrSuccessComponent implements OnChanges, OnDestroy {
+export class QrSuccessComponent {
   @Input() open = false;
   @Input() tableName = '';
   @Input() total = 0;
   @Input() phraseSuccess = 'Спасибо за оплату!';
   @Output() onClose = new EventEmitter<void>();
-
-  private autoCloseId: any = null;
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['open']) {
-      this.clearAutoClose();
-      if (this.open) {
-        this.autoCloseId = setTimeout(() => this.onClose.emit(), 3000);
-      }
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.clearAutoClose();
-  }
-
-  private clearAutoClose(): void {
-    if (this.autoCloseId) {
-      clearTimeout(this.autoCloseId);
-      this.autoCloseId = null;
-    }
-  }
 }

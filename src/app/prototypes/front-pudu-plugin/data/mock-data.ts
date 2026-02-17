@@ -1,5 +1,6 @@
 import {
   PuduRobot,
+  AvailableRobot,
   OrderTable,
   CurrentOrder,
   RobotTask,
@@ -44,15 +45,88 @@ export const MOCK_TABLES: OrderTable[] = [
   { table_id: 'tbl-015', table_name: 'Стол №15 (кабинет)', is_mapped: true },
 ];
 
+// v1.5 I7: добавлены ne_name и alias
 export const MOCK_ROBOTS: PuduRobot[] = [
-  { robot_id: 'PD2024060001', robot_name: 'BellaBot-01', status: 'idle', after_action: 'idle' },
-  { robot_id: 'PD2024080042', robot_name: 'Ketty-02', status: 'busy', after_action: 'marketing' },
+  {
+    robot_id: 'PD2024060001',
+    robot_name: 'BellaBot-01',
+    ne_name: 'BellaBot-01',
+    alias: 'Белла Зал 1',        // Администратор задал alias в iiko Web
+    status: 'idle',
+    after_action: 'idle',
+  },
+  {
+    robot_id: 'PD2024080042',
+    robot_name: 'KettyBot-01',
+    ne_name: 'KettyBot-01',
+    alias: null,                   // Alias не задан — отображается только системное имя
+    status: 'busy',
+    after_action: 'marketing',
+  },
 ];
+
+/** v1.4 (H7) + v1.5 (I7): Расширенные mock-данные для П1 и П7 */
+export const MOCK_AVAILABLE_ROBOTS: AvailableRobot[] = [
+  {
+    robot_id: 'PD2024060001',
+    robot_name: 'BellaBot-1',
+    ne_name: 'BellaBot-1',
+    alias: 'Белла Зал 1',              // Alias задан → двустрочное отображение
+    status: 'free',
+    current_task: null,
+  },
+  {
+    robot_id: 'PD2024060002',
+    robot_name: 'BellaBot-2',
+    ne_name: 'BellaBot-2',
+    alias: null,                         // Alias не задан → одна строка
+    status: 'free',
+    current_task: null,
+  },
+  {
+    robot_id: 'PD2024080042',
+    robot_name: 'KettyBot-1',
+    ne_name: 'KettyBot-1',
+    alias: 'Терраса',                    // Alias задан → двустрочное отображение
+    status: 'busy',
+    current_task: {
+      task_id: 'task-20260216-001',
+      task_type: 'send_menu',
+      target_point: 'TABLE_5',
+    },
+  },
+  {
+    robot_id: 'PD2024080043',
+    robot_name: 'KettyBot-2',
+    ne_name: 'KettyBot-2',
+    alias: null,                         // Alias не задан
+    status: 'offline',
+    current_task: null,
+  },
+];
+
+/** v1.4 (H11): Mock general_settings */
+export const MOCK_GENERAL_SETTINGS = {
+  notification_sound_enabled: true,
+  show_success_notifications: false,   // по умолчанию ВЫКЛ (решение Руслана от 06.02)
+};
+
+/** v1.4 (H11): Маппинг task_type → человекочитаемое название */
+export const TASK_HUMAN_NAMES: Record<string, string> = {
+  send_menu: 'Доставка меню',
+  cleanup: 'Уборка посуды',
+  cleanup_auto: 'Авто-уборка',
+  qr_payment: 'QR-оплата',
+  send_dish: 'Доставка блюд',
+  marketing: 'Маркетинг-круиз',
+};
 
 export const MOCK_ACTIVE_TASKS: RobotTask[] = [
   {
     task_id: 'task-078',
     task_type: 'cleanup',
+    ne_name: 'BellaBot-01',
+    alias: 'Белла Зал 1',
     status: 'in_progress',
     table_id: 'tbl-005',
     robot_name: 'BellaBot-01',
@@ -73,7 +147,7 @@ export const MOCK_SCENARIO_SETTINGS: ScenarioSettings = {
 
   // --- Уборка посуды — ручная (S2) ---
   cleanup: {
-    mode: 'manual',
+    mode: 'mixed',                               // v1.4 (H6): изменено с "manual" на "mixed" для демо
     phrase: 'Пожалуйста, поставьте грязную посуду на поднос',  // v1.3: renamed from phrase_arrival
     phrase_url: '',                                          // v1.3: renamed from phrase_arrival_url
     wait_time: 90,
@@ -150,11 +224,12 @@ export function getAssignedRobot(): PuduRobot {
   return MOCK_ROBOTS.find(r => r.status === 'idle') || MOCK_ROBOTS[0];
 }
 
+// v1.5 I7: двойные имена в уведомлениях
 export const MOCK_NOTIFICATIONS: PuduNotification[] = [
   {
     id: 'notif-001',
     type: 'error',
-    title: 'Робот BellaBot-01: ошибка при уборке',
+    title: 'Робот Белла Зал 1 (BellaBot-01): ошибка при уборке',
     message: 'Код ошибки: ROBOT_STUCK. Проверьте препятствия на маршруте',
     timestamp: new Date('2026-02-11T14:22:30'),
     dismissed: false,
@@ -176,7 +251,7 @@ export const MOCK_NE_ERROR_NOTIFICATIONS: PuduNotification[] = [
   {
     id: 'notif-003',
     type: 'error',
-    title: 'Робот BellaBot-01: ручной режим',
+    title: 'Робот Белла Зал 1 (BellaBot-01): ручной режим',
     message: 'Кто-то зашёл в настройки робота через физическое меню. Робот переведён в ручной режим и недоступен для задач',
     timestamp: new Date('2026-02-11T14:25:00'),
     dismissed: false,
@@ -185,7 +260,7 @@ export const MOCK_NE_ERROR_NOTIFICATIONS: PuduNotification[] = [
   {
     id: 'notif-004',
     type: 'error',
-    title: 'Робот Ketty-02: препятствие на маршруте',
+    title: 'Робот KettyBot-01: препятствие на маршруте',
     message: 'Робот не может продолжить движение — обнаружено препятствие. Код: OBSTACLE_DETECTED',
     timestamp: new Date('2026-02-11T14:26:00'),
     dismissed: false,
@@ -194,7 +269,7 @@ export const MOCK_NE_ERROR_NOTIFICATIONS: PuduNotification[] = [
   {
     id: 'notif-005',
     type: 'error',
-    title: 'Робот BellaBot-01: низкий заряд батареи',
+    title: 'Робот Белла Зал 1 (BellaBot-01): низкий заряд батареи',
     message: 'Уровень заряда < 10%. Робот возвращается на станцию зарядки. Код: LOW_BATTERY',
     timestamp: new Date('2026-02-11T14:27:00'),
     dismissed: false,

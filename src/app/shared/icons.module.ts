@@ -75,6 +75,9 @@ import {
   ChefHat,
   Repeat,
   Zap,
+  // PUDU v1.4 fire-and-forget + robot status
+  Send,
+  Activity,
   // Access control
   Lock,
   LogOut,
@@ -165,6 +168,9 @@ const icons = {
   ChefHat,
   Repeat,
   Zap,
+  // PUDU v1.4 fire-and-forget + robot status
+  Send,
+  Activity,
   // Access control
   Lock,
   LogOut,

@@ -43,8 +43,14 @@ import { IconsModule } from '@/shared/icons.module';
             Отмена
           </button>
           <button (click)="onConfirm.emit()"
-            class="h-14 bg-[#1a1a1a] text-white hover:bg-[#252525] rounded font-medium transition-colors">
-            Отправить
+            [disabled]="isSubmitting"
+            class="h-14 rounded font-medium transition-colors"
+            [ngClass]="isSubmitting ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-[#1a1a1a] text-white hover:bg-[#252525]'">
+            <span *ngIf="!isSubmitting">Отправить</span>
+            <span *ngIf="isSubmitting" class="flex items-center justify-center gap-2">
+              <lucide-icon name="loader-2" [size]="20" class="animate-spin"></lucide-icon>
+              Отправка...
+            </span>
           </button>
         </div>
       </div>
@@ -58,5 +64,6 @@ export class CleanupConfirmComponent {
   @Input() phrase = '';
   @Input() waitTime = 90;
   @Output() onCancel = new EventEmitter<void>();
+  @Input() isSubmitting = false;
   @Output() onConfirm = new EventEmitter<void>();
 }

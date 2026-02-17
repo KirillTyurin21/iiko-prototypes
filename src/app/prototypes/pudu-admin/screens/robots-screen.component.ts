@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { IconsModule } from '@/shared/icons.module';
 import {
   UiButtonComponent,
@@ -14,6 +15,7 @@ import {
 import { Robot } from '../types';
 import { MOCK_ROBOTS } from '../data/mock-data';
 import { StorageService } from '@/shared/storage.service';
+import { PuduPrototypeComponent } from '../pudu-prototype.component';
 
 @Component({
   selector: 'app-robots-screen',
@@ -30,12 +32,31 @@ import { StorageService } from '@/shared/storage.service';
     UiSelectComponent,
   ],
   template: `
-    <!-- SUBHEADER -->
-    <div class="border-b border-gray-200 bg-white px-6 py-4 shrink-0 flex items-center justify-between">
-      <h1 class="text-lg font-semibold text-gray-900">Роботы PUDU</h1>
-      <ui-button variant="primary" size="sm" iconName="plus" (click)="openAddModal()">
-        Добавить робота
-      </ui-button>
+    <!-- SUBHEADER (v1.4: breadcrumb + back button) -->
+    <div class="border-b border-gray-200 bg-white px-6 py-4 shrink-0">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <button
+            class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            aria-label="Назад к списку ресторанов"
+            (click)="goBack()"
+          >
+            <lucide-icon name="arrow-left" [size]="16"></lucide-icon>
+            <span>Назад к списку ресторанов</span>
+          </button>
+        </div>
+        <ui-button variant="primary" size="sm" iconName="plus" (click)="openAddModal()" aria-label="Добавить нового робота">
+          Добавить робота
+        </ui-button>
+      </div>
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-1.5 text-sm mt-2" aria-label="Breadcrumb">
+        <a class="text-gray-400 hover:text-blue-600 hover:underline cursor-pointer transition-colors" (click)="goBack()">Настройки PUDU</a>
+        <lucide-icon name="chevron-right" [size]="14" class="text-gray-300"></lucide-icon>
+        <span class="text-gray-400">{{ parent.selectedRestaurant?.restaurant_name || 'Ресторан' }}</span>
+        <lucide-icon name="chevron-right" [size]="14" class="text-gray-300"></lucide-icon>
+        <span class="text-gray-900 font-medium">Роботы PUDU</span>
+      </nav>
     </div>
 
     <!-- CONTENT -->
@@ -58,11 +79,11 @@ import { StorageService } from '@/shared/storage.service';
         <table class="w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
           <thead>
             <tr class="bg-gray-50">
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Имя робота</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID робота</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Активная карта</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действие после задачи</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Отображаемое имя робота. Заполняется автоматически при регистрации из NE, можно отредактировать">Имя робота</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Серийный номер робота в системе PUDU. Неизменяемый, задаётся при регистрации">ID робота</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Текущий статус подключения робота к облаку PUDU. online — робот доступен, offline — нет связи, ошибка — сбой подключения">Статус</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Название активной карты зала робота в системе PUDU. Настраивается инженером NE при установке">Активная карта</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Поведение робота после завершения задачи: ожидает новую задачу или переходит в маркетинговый круиз">Действие после задачи</th>
               <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
             </tr>
           </thead>
@@ -82,18 +103,21 @@ import { StorageService } from '@/shared/storage.service';
                     name="check-circle-2"
                     [size]="16"
                     class="text-green-600"
+                    title="Робот подключён к облаку PUDU и доступен для задач"
                   ></lucide-icon>
                   <lucide-icon
                     *ngIf="robot.connection_status === 'offline'"
                     name="circle"
                     [size]="16"
                     class="text-gray-300"
+                    title="Робот не подключён к облаку PUDU"
                   ></lucide-icon>
                   <lucide-icon
                     *ngIf="robot.connection_status === 'error'"
                     name="alert-circle"
                     [size]="16"
                     class="text-orange-500"
+                    title="Ошибка подключения к облаку PUDU"
                   ></lucide-icon>
                   <span class="text-sm" [ngClass]="{
                     'text-green-700': robot.connection_status === 'online',
@@ -111,6 +135,7 @@ import { StorageService } from '@/shared/storage.service';
                   [value]="robot.after_action"
                   [fullWidth]="false"
                   (valueChange)="onAfterActionChange(robot, $event)"
+                  [attr.aria-label]="'Действие после задачи для робота ' + robot.name"
                 ></ui-select>
               </td>
               <td class="px-4 py-3 text-right">
@@ -120,6 +145,7 @@ import { StorageService } from '@/shared/storage.service';
                   iconName="trash-2"
                   (click)="confirmDelete(robot)"
                   class="text-red-500 hover:text-red-700"
+                  [attr.aria-label]="'Удалить робота ' + robot.name"
                 ></ui-button>
               </td>
             </tr>
@@ -183,12 +209,13 @@ import { StorageService } from '@/shared/storage.service';
       </div>
 
       <div modalFooter class="flex items-center justify-end gap-3">
-        <ui-button variant="ghost" (click)="closeAddModal()">Отмена</ui-button>
+        <ui-button variant="ghost" (click)="closeAddModal()" aria-label="Отменить регистрацию">Отмена</ui-button>
         <ui-button
           variant="primary"
           [disabled]="!isFormValid() || isRegistering"
           [loading]="isRegistering"
           (click)="registerRobot()"
+          aria-label="Зарегистрировать робота"
         >
           Зарегистрировать
         </ui-button>
@@ -216,6 +243,8 @@ import { StorageService } from '@/shared/storage.service';
 })
 export class RobotsScreenComponent implements OnInit {
   private storage = inject(StorageService);
+  private router = inject(Router);
+  parent = inject(PuduPrototypeComponent);
 
   // --- Robot list state ---
   robots: Robot[] = [];
@@ -355,6 +384,12 @@ export class RobotsScreenComponent implements OnInit {
       this.addModalOpen = false;
       this.showToast('Робот успешно зарегистрирован');
     }, 1500);
+  }
+
+  // --- Navigation ---
+  goBack(): void {
+    this.parent.clearRestaurantContext();
+    this.router.navigate(['/prototype/pudu-admin']);
   }
 
   // --- Helpers ---

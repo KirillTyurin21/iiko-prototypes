@@ -63,9 +63,14 @@ import { MockDish } from '../../data/mock-data';
           Отмена
         </button>
         <button (click)="onConfirm.emit()"
-          class="h-14 bg-blue-600 text-white rounded text-base font-bold hover:bg-blue-700 transition-colors"
-          [disabled]="!tableName">
-          Отправить
+          [disabled]="!tableName || isSubmitting"
+          class="h-14 rounded text-base font-bold transition-colors"
+          [ngClass]="isSubmitting ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'">
+          <span *ngIf="!isSubmitting">Отправить</span>
+          <span *ngIf="isSubmitting" class="flex items-center justify-center gap-2">
+            <lucide-icon name="loader-2" [size]="20" class="animate-spin"></lucide-icon>
+            Отправка...
+          </span>
         </button>
       </div>
     </pudu-pos-dialog>
@@ -77,6 +82,7 @@ export class SendDishConfirmComponent {
   @Input() dishes: MockDish[] = [];
   @Input() maxDishesPerTrip = 4;
   @Output() onCancel = new EventEmitter<void>();
+  @Input() isSubmitting = false;
   @Output() onConfirm = new EventEmitter<void>();
 
   get totalTrips(): number {
