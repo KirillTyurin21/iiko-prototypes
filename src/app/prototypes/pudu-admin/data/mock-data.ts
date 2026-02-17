@@ -120,8 +120,7 @@ export function getInitialSettings(): ScenarioSettings {
       phrase_arrival: 'Пожалуйста, поставьте грязную посуду на поднос',
       phrase_arrival_url: '',
       wait_time: 90,
-      phrase_later: 'Я приеду позже за посудой',
-      phrase_later_url: '',
+      // phrase_later — УДАЛЕНО (v1.5 G5)
       auto_timer_after_delivery: 12,
       auto_timer_after_check: 3,
     },

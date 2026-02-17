@@ -409,33 +409,18 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
                     max="600"
                     aria-label="Таймер ожидания в секундах"
                   />
-                  <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает, пока гость положит посуду</p>
+                  <p class="text-xs text-gray-400 mt-1">Сколько секунд робот ожидает у стола, затем уезжает безусловно</p>
                 </div>
 
-                <!-- 4. Фраза «приеду позже» -->
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Фраза «приеду позже»</label>
-                  <ui-input
-                    [(value)]="settings.cleanup.phrase_later"
-                    placeholder="Введите фразу"
-                    [error]="getPhraseError(settings.cleanup.phrase_later)"
-                  ></ui-input>
-                  <div class="flex justify-between mt-1">
-                    <span class="text-xs text-gray-400">Фраза, если гость не положил посуду</span>
-                    <span class="text-xs" [ngClass]="settings.cleanup.phrase_later.length > 180 ? 'text-red-500' : 'text-gray-400'">
-                      {{ settings.cleanup.phrase_later.length }} / 180
-                    </span>
+                <!-- v1.5 G7: Info-блок ограничения датчиков -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4" role="note">
+                  <div class="flex items-start gap-3">
+                    <lucide-icon name="info" [size]="18" class="text-blue-500 shrink-0 mt-0.5"></lucide-icon>
+                    <p class="text-xs text-gray-600">
+                      Робот стоит у стола заданное время и уезжает безусловно.
+                      Определение факта загрузки посуды недоступно (ограничение API PUDU).
+                    </p>
                   </div>
-                </div>
-
-                <!-- 5. URL видео/аудио для «приеду позже» -->
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">URL видео/аудио</label>
-                  <ui-input
-                    [(value)]="cleanupLaterUrl"
-                    placeholder="https://example.com/audio.mp3"
-                  ></ui-input>
-                  <p class="text-xs text-gray-400 mt-1">Ссылка на mp4/mp3 для фразы «приеду позже»</p>
                 </div>
               </div>
             </ng-container>
@@ -739,7 +724,6 @@ export class SettingsScreenComponent implements OnInit {
   private savedPhrasePickup = '';
   private savedSendDishPhrases: string = '';
   private savedCleanupPhraseArrival: string = '';
-  private savedCleanupPhraseLater: string = '';
   private savedQrCashierPhrase: string = '';
   private savedQrPhraseSuccess: string = '';
   private savedQrPhraseFailure: string = '';
@@ -763,7 +747,6 @@ export class SettingsScreenComponent implements OnInit {
       this.savedPhrasePickup = this.settings.send_menu.phrase_pickup;
       this.savedSendDishPhrases = JSON.stringify(this.settings.send_dish.phrases.map(p => p.text));
       this.savedCleanupPhraseArrival = this.settings.cleanup.phrase_arrival;
-      this.savedCleanupPhraseLater = this.settings.cleanup.phrase_later;
       this.savedQrCashierPhrase = this.settings.qr_payment.cashier_phrase;
       this.savedQrPhraseSuccess = this.settings.qr_payment.phrase_success;
       this.savedQrPhraseFailure = this.settings.qr_payment.phrase_failure;
@@ -796,13 +779,6 @@ export class SettingsScreenComponent implements OnInit {
   }
   set cleanupArrivalUrl(v: string) {
     this.settings.cleanup.phrase_arrival_url = v;
-  }
-
-  get cleanupLaterUrl(): string {
-    return this.settings.cleanup.phrase_later_url ?? '';
-  }
-  set cleanupLaterUrl(v: string) {
-    this.settings.cleanup.phrase_later_url = v;
   }
 
   get qrCashierUrl(): string {
@@ -944,7 +920,6 @@ export class SettingsScreenComponent implements OnInit {
     if (currentDishPhrases !== this.savedSendDishPhrases) return true;
     // cleanup
     if (this.settings.cleanup.phrase_arrival !== this.savedCleanupPhraseArrival) return true;
-    if (this.settings.cleanup.phrase_later !== this.savedCleanupPhraseLater) return true;
     // qr_payment
     if (this.settings.qr_payment.cashier_phrase !== this.savedQrCashierPhrase) return true;
     if (this.settings.qr_payment.phrase_success !== this.savedQrPhraseSuccess) return true;
@@ -963,7 +938,6 @@ export class SettingsScreenComponent implements OnInit {
     this.savedPhrasePickup = this.settings.send_menu.phrase_pickup;
     this.savedSendDishPhrases = JSON.stringify(this.settings.send_dish.phrases.map(p => p.text));
     this.savedCleanupPhraseArrival = this.settings.cleanup.phrase_arrival;
-    this.savedCleanupPhraseLater = this.settings.cleanup.phrase_later;
     this.savedQrCashierPhrase = this.settings.qr_payment.cashier_phrase;
     this.savedQrPhraseSuccess = this.settings.qr_payment.phrase_success;
     this.savedQrPhraseFailure = this.settings.qr_payment.phrase_failure;

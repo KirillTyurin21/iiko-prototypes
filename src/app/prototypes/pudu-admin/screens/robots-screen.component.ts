@@ -74,6 +74,14 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
         </p>
       </div>
 
+      <!-- v1.5 G3: Mock NE toggle -->
+      <div *ngIf="!isLoading && robots.length > 0" class="flex items-center gap-2 text-xs text-gray-400 mb-3">
+        <label class="inline-flex items-center gap-1.5 cursor-pointer select-none">
+          <input type="checkbox" [(ngModel)]="mockNeAvailable" class="accent-app-primary" />
+          <span>NE API доступен (mock)</span>
+        </label>
+      </div>
+
       <!-- TABLE -->
       <div *ngIf="!isLoading && robots.length > 0" class="animate-fade-in">
         <table class="w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -94,7 +102,33 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
               [class.border-b]="!last"
               [class.border-gray-200]="!last"
             >
-              <td class="px-4 py-3 text-sm text-gray-900">{{ robot.name }}</td>
+              <td class="px-4 py-3">
+                <!-- v1.5 G8: Inline-edit имени робота -->
+                <ng-container *ngIf="editingRobotId === robot.id; else nameDisplay">
+                  <input
+                    #nameInput
+                    type="text"
+                    [value]="editingName"
+                    (input)="editingName = $any($event.target).value"
+                    (keydown.enter)="handleNameSave(robot.id)"
+                    (keydown.escape)="handleNameCancel()"
+                    (blur)="handleNameSave(robot.id)"
+                    maxlength="64"
+                    class="h-8 text-sm px-2 py-1 w-full max-w-[200px] rounded border border-app-primary bg-surface outline-none ring-2 ring-app-primary/20"
+                    [attr.aria-label]="'Редактирование имени робота ' + robot.name"
+                  />
+                </ng-container>
+                <ng-template #nameDisplay>
+                  <button
+                    (click)="handleNameEdit(robot.id, robot.name)"
+                    class="text-sm text-gray-900 hover:text-blue-700 hover:underline cursor-text text-left transition-colors"
+                    title="Нажмите для редактирования имени"
+                    [attr.aria-label]="'Имя робота: ' + robot.name + '. Нажмите для редактирования'"
+                  >
+                    {{ robot.name }}
+                  </button>
+                </ng-template>
+              </td>
               <td class="px-4 py-3 font-mono text-sm text-gray-600">{{ robot.id }}</td>
               <td class="px-4 py-3">
                 <span class="inline-flex items-center gap-1.5">
@@ -222,13 +256,22 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
       </div>
     </ui-modal>
 
-    <!-- TOASTS -->
+    <!-- TOASTS (v1.5: support variant) -->
     <div class="fixed bottom-4 right-4 z-50 space-y-2">
       <div
         *ngFor="let t of toasts"
-        class="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-lg min-w-[300px] animate-slide-up"
+        class="rounded-lg border px-4 py-3 shadow-lg min-w-[300px] animate-slide-up"
+        [ngClass]="{
+          'border-gray-200 bg-white': t.variant === 'default',
+          'border-orange-300 bg-orange-50': t.variant === 'warning',
+          'border-red-300 bg-red-50': t.variant === 'destructive'
+        }"
       >
-        <p class="text-sm font-medium text-gray-900">{{ t.title }}</p>
+        <p class="text-sm font-medium" [ngClass]="{
+          'text-gray-900': t.variant === 'default',
+          'text-orange-800': t.variant === 'warning',
+          'text-red-800': t.variant === 'destructive'
+        }">{{ t.title }}</p>
       </div>
     </div>
   `,
@@ -269,8 +312,16 @@ export class RobotsScreenComponent implements OnInit {
     { value: 'marketing', label: 'Маркетинг' },
   ];
 
+  // --- v1.5 G3: Mock NE availability ---
+  mockNeAvailable = true;
+
+  // --- v1.5 G8: Inline-edit state ---
+  editingRobotId: string | null = null;
+  editingName = '';
+  private previousName = '';
+
   // --- Toasts ---
-  toasts: { id: number; title: string }[] = [];
+  toasts: { id: number; title: string; variant: 'default' | 'warning' | 'destructive' }[] = [];
   private toastId = 0;
 
   // --- Lifecycle ---
@@ -294,11 +345,64 @@ export class RobotsScreenComponent implements OnInit {
     }
   }
 
-  // --- After-action inline change ---
+  // --- After-action inline change (v1.5 G1-G3) ---
   onAfterActionChange(robot: Robot, value: string): void {
     robot.after_action = value as Robot['after_action'];
     this.persistRobots();
-    this.showToast('Настройка робота обновлена');
+
+    if (this.mockNeAvailable) {
+      // Сценарий 1: NE доступен (HTTP 200)
+      this.showToast('Настройка сохранена');
+    } else {
+      // Сценарий 2: NE недоступен (HTTP 502) — soft-fail
+      this.showToast('Сервис NE временно недоступен. Настройка сохранена локально', 'warning', 4000);
+    }
+  }
+
+  // --- v1.5 G8: Inline-edit handlers ---
+  handleNameEdit(robotId: string, currentName: string): void {
+    this.editingRobotId = robotId;
+    this.editingName = currentName;
+    this.previousName = currentName;
+    // Focus will happen via autofocus in template
+    setTimeout(() => {
+      const input = document.querySelector('input[maxlength="64"]') as HTMLInputElement;
+      if (input) input.focus();
+    });
+  }
+
+  handleNameCancel(): void {
+    this.editingRobotId = null;
+    this.editingName = '';
+    this.previousName = '';
+  }
+
+  handleNameSave(robotId: string): void {
+    const trimmed = this.editingName.trim();
+
+    // Если не изменилось — тихо выходим
+    if (trimmed === this.previousName) {
+      this.handleNameCancel();
+      return;
+    }
+
+    // Валидация: 1–64 символа
+    if (trimmed.length === 0 || trimmed.length > 64) {
+      this.showToast('Имя робота должно содержать от 1 до 64 символов', 'destructive', 4000);
+      this.handleNameCancel();
+      return;
+    }
+
+    // Mock: сохраняем в state (имитация PUT 200)
+    const robot = this.robots.find(r => r.id === robotId);
+    if (robot) {
+      robot.name = trimmed;
+      this.persistRobots();
+    }
+    this.editingRobotId = null;
+
+    // Toast: успех
+    this.showToast('Имя робота обновлено');
   }
 
   // --- Delete flow ---
@@ -397,11 +501,11 @@ export class RobotsScreenComponent implements OnInit {
     this.storage.save('pudu-admin', 'robots', this.robots);
   }
 
-  private showToast(title: string): void {
+  private showToast(title: string, variant: 'default' | 'warning' | 'destructive' = 'default', duration = 3000): void {
     const id = ++this.toastId;
-    this.toasts.push({ id, title });
+    this.toasts.push({ id, title, variant });
     setTimeout(() => {
       this.toasts = this.toasts.filter(t => t.id !== id);
-    }, 3000);
+    }, duration);
   }
 }

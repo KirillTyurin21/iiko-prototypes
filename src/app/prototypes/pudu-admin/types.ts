@@ -64,8 +64,9 @@ export interface ScenarioSettings {
     phrase_arrival: string;
     phrase_arrival_url?: string;
     wait_time: number;
-    phrase_later: string;
-    phrase_later_url?: string;
+    // phrase_later — УДАЛЕНО (v1.5 G4): нет доступа к ИК-датчикам робота,
+    // робот не может определить, положил ли гость посуду.
+    // Решается тайм-аутом (wait_time): робот стоит N секунд и уезжает.
     auto_timer_after_delivery: number;
     auto_timer_after_check: number;
   };
