@@ -108,8 +108,9 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
                   <td class="px-4 py-3 text-sm text-gray-700 text-center">{{ r.robots_online }}</td>
                   <td class="px-4 py-3">
                     <span
-                      class="inline-flex items-center gap-1.5 text-sm"
+                      class="inline-flex items-center gap-1.5 text-sm cursor-help"
                       [attr.aria-label]="'Статус настройки: ' + getStatusLabel(r.setup_status)"
+                      [title]="getStatusTooltip(r.setup_status)"
                     >
                       <lucide-icon
                         *ngIf="r.setup_status === 'configured'"
@@ -208,6 +209,14 @@ export class RestaurantsScreenComponent implements OnInit {
       case 'configured': return 'Настроено';
       case 'partial': return 'Частично';
       case 'not_configured': return 'Не настроено';
+    }
+  }
+
+  getStatusTooltip(status: Restaurant['setup_status']): string {
+    switch (status) {
+      case 'configured': return 'Все настройки интеграции PUDU завершены: роботы зарегистрированы, маппинг столов выполнен, сценарии активированы';
+      case 'partial': return 'Настройка интеграции PUDU выполнена частично: часть настроек ещё не завершена (проверьте роботов, маппинг столов и сценарии)';
+      case 'not_configured': return 'Интеграция PUDU не настроена: роботы не зарегистрированы, маппинг столов и сценарии не настроены';
     }
   }
 

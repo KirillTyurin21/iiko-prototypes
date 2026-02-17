@@ -62,7 +62,7 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
           </div>
         </div>
         <nav class="flex items-center gap-1.5 text-sm mt-2" aria-label="Breadcrumb">
-          <span class="text-gray-400">Настройки PUDU</span>
+          <a class="text-gray-400 hover:text-blue-600 hover:underline cursor-pointer transition-colors" (click)="goBack()">Настройки PUDU</a>
           <lucide-icon name="chevron-right" [size]="14" class="text-gray-300"></lucide-icon>
           <span class="text-gray-400">{{ parent.selectedRestaurant?.restaurant_name || 'Ресторан' }}</span>
           <lucide-icon name="chevron-right" [size]="14" class="text-gray-300"></lucide-icon>

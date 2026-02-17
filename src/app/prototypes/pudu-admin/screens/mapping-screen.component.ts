@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { IconsModule } from '@/shared/icons.module';
 import {
   UiButtonComponent,
-  UiSelectComponent,
   UiBadgeComponent,
   UiConfirmDialogComponent,
   SelectOption,
@@ -37,7 +36,6 @@ interface Toast {
     FormsModule,
     IconsModule,
     UiButtonComponent,
-    UiSelectComponent,
     UiBadgeComponent,
     UiConfirmDialogComponent,
   ],
@@ -103,7 +101,7 @@ interface Toast {
         </div>
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-1.5 text-sm mt-2" aria-label="Breadcrumb">
-          <span class="text-gray-400">Настройки PUDU</span>
+          <a class="text-gray-400 hover:text-blue-600 hover:underline cursor-pointer transition-colors" (click)="goBack()">Настройки PUDU</a>
           <lucide-icon name="chevron-right" [size]="14" class="text-gray-300"></lucide-icon>
           <span class="text-gray-400">{{ parent.selectedRestaurant?.restaurant_name || 'Ресторан' }}</span>
           <lucide-icon name="chevron-right" [size]="14" class="text-gray-300"></lucide-icon>
@@ -162,14 +160,14 @@ interface Toast {
         </div>
 
         <!-- WARNINGS -->
-        <div class="space-y-3 mb-6" *ngIf="unmappedTablesCount > 0">
+        <div class="space-y-3 mb-6" *ngIf="currentUnmappedTablesCount > 0">
           <div
             class="border border-orange-200 bg-orange-50/50 rounded-lg p-5 flex items-start gap-3"
             role="alert"
           >
             <lucide-icon name="alert-triangle" [size]="20" class="text-orange-500 shrink-0 mt-0.5"></lucide-icon>
             <p class="text-sm text-gray-700">
-              <strong>{{ unmappedTablesCount }}</strong> {{ unmappedTablesLabel }} не {{ unmappedTablesVerb }} привязки к точкам робота. Робот не сможет доставить заказ к этим столам.
+              <strong>{{ currentUnmappedTablesCount }}</strong> {{ currentUnmappedTablesLabel }} не {{ currentUnmappedTablesVerb }} привязки к точкам робота. Робот не сможет доставить заказ к этим столам.
             </p>
           </div>
         </div>
@@ -317,13 +315,14 @@ interface Toast {
                     <!-- Привязанный стол -->
                     <td class="px-4 py-3">
                       <div class="max-w-xs">
-                        <ui-select
-                          [options]="tableOptionsForPoint(point.point_id)"
-                          [value]="getTableIdForPoint(point.point_id)"
-                          placeholder="Не назначена"
-                          (valueChange)="onTableChangeForPoint(point.point_id, $event)"
-                          [fullWidth]="true"
-                        ></ui-select>
+                        <select
+                          class="w-full h-9 rounded-md border border-gray-300 bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                          [ngModel]="getTableIdForPoint(point.point_id)"
+                          (ngModelChange)="onTableChangeForPoint(point.point_id, $event)"
+                        >
+                          <option value="">Не назначена</option>
+                          <option *ngFor="let opt of filteredTableOptionsForPoint(point.point_id)" [value]="opt.value">{{ opt.label }}</option>
+                        </select>
                       </div>
                     </td>
 
@@ -627,9 +626,7 @@ export class MappingScreenComponent implements OnInit {
   }
 
   tableOptionsForPoint(pointId: string): SelectOption[] {
-    const opts: SelectOption[] = [
-      { value: '', label: 'Не назначена' },
-    ];
+    const opts: SelectOption[] = [];
     this.tables.forEach((t) => {
       opts.push({
         value: t.table_id,
@@ -637,6 +634,16 @@ export class MappingScreenComponent implements OnInit {
       });
     });
     return opts;
+  }
+
+  filteredTableOptionsForPoint(pointId: string): SelectOption[] {
+    const tablesToShow = this.selectedHall
+      ? this.tables.filter(t => t.section_name === this.selectedHall)
+      : this.tables;
+    return tablesToShow.map(t => ({
+      value: t.table_id,
+      label: `${t.table_name} — ${t.section_name}`,
+    }));
   }
 
   onTableChangeForPoint(pointId: string, newTableId: string): void {
@@ -673,15 +680,35 @@ export class MappingScreenComponent implements OnInit {
     ).length;
   }
 
-  get unmappedTablesLabel(): string {
-    const n = this.unmappedTablesCount;
+  /** Count of unmapped tables considering current mode and hall filter */
+  get currentUnmappedTablesCount(): number {
+    if (this.mappingMode === 'tables-to-points') {
+      // In tables->points mode, count from filtered mappings
+      const source = this.selectedHall ? this.filteredMappings : this.mappings;
+      return source.filter(
+        (m) => m.points.length === 0 || !m.points.some((p) => !!p.point_id)
+      ).length;
+    } else {
+      // In points->tables mode, count tables (filtered by hall) that have NO point assigned
+      const tablesToCheck = this.selectedHall
+        ? this.tables.filter(t => t.section_name === this.selectedHall)
+        : this.tables;
+      return tablesToCheck.filter(t => {
+        const mapping = this.mappings.find(m => m.table_id === t.table_id);
+        return !mapping || mapping.points.length === 0 || !mapping.points.some(p => !!p.point_id);
+      }).length;
+    }
+  }
+
+  get currentUnmappedTablesLabel(): string {
+    const n = this.currentUnmappedTablesCount;
     if (n % 10 === 1 && n % 100 !== 11) return 'стол';
     if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return 'стола';
     return 'столов';
   }
 
-  get unmappedTablesVerb(): string {
-    const n = this.unmappedTablesCount;
+  get currentUnmappedTablesVerb(): string {
+    const n = this.currentUnmappedTablesCount;
     if (n % 10 === 1 && n % 100 !== 11) return 'имеет';
     return 'имеют';
   }
