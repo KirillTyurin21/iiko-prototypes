@@ -89,10 +89,27 @@ interface SidebarItem {
       <div class="fixed bottom-4 right-4 z-50 space-y-2" id="toast-container">
         <div
           *ngFor="let t of toasts; trackBy: trackToast"
-          class="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-lg min-w-[300px] animate-slide-up"
+          class="rounded-lg border px-4 py-3 shadow-lg min-w-[300px] animate-slide-up"
+          [ngClass]="{
+            'border-gray-200 bg-white': t.variant === 'default',
+            'border-red-200 bg-red-50': t.variant === 'destructive',
+            'border-orange-200 bg-orange-50': t.variant === 'warning'
+          }"
         >
-          <p class="text-sm font-medium text-gray-900">{{ t.title }}</p>
-          <p *ngIf="t.description" class="text-xs text-gray-500 mt-0.5">{{ t.description }}</p>
+          <p class="text-sm font-medium"
+            [ngClass]="{
+              'text-gray-900': t.variant === 'default',
+              'text-red-800': t.variant === 'destructive',
+              'text-orange-800': t.variant === 'warning'
+            }"
+          >{{ t.title }}</p>
+          <p *ngIf="t.description" class="text-xs mt-0.5"
+            [ngClass]="{
+              'text-gray-500': t.variant === 'default',
+              'text-red-600': t.variant === 'destructive',
+              'text-orange-600': t.variant === 'warning'
+            }"
+          >{{ t.description }}</p>
         </div>
       </div>
     </div>
@@ -115,7 +132,7 @@ export class PuduPrototypeComponent {
   ];
 
   // Toast state
-  toasts: { id: number; title: string; description?: string }[] = [];
+  toasts: { id: number; title: string; description?: string; variant: 'default' | 'destructive' | 'warning' }[] = [];
   private toastCounter = 0;
 
   constructor() {
@@ -154,9 +171,9 @@ export class PuduPrototypeComponent {
     return '';
   }
 
-  showToast(title: string, description?: string, duration = 3000) {
+  showToast(title: string, description?: string, duration = 3000, variant: 'default' | 'destructive' | 'warning' = 'default') {
     const id = ++this.toastCounter;
-    const t = { id, title, description };
+    const t = { id, title, description, variant };
     this.toasts.push(t);
     setTimeout(() => {
       this.toasts = this.toasts.filter(x => x.id !== id);
