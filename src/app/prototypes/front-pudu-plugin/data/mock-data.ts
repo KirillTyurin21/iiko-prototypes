@@ -147,12 +147,13 @@ export const MOCK_SCENARIO_SETTINGS: ScenarioSettings = {
 
   // --- Уборка посуды — ручная (S2) ---
   cleanup: {
-    mode: 'mixed',                               // v1.4 (H6): изменено с "manual" на "mixed" для демо
-    phrase: 'Пожалуйста, поставьте грязную посуду на поднос',  // v1.3: renamed from phrase_arrival
-    phrase_url: '',                                          // v1.3: renamed from phrase_arrival_url
-    wait_time: 90,
-    phrase_fail: 'Я приеду позже за посудой',           // v1.3: renamed from phrase_later
-    phrase_fail_url: '',                                     // v1.3: renamed from phrase_later_url
+    mode: 'mixed',                               // v1.4 (H6): "mixed" для демо
+    phrase: 'Пожалуйста, поставьте грязную посуду на поднос',
+    phrase_url: '',
+    wait_time: 90,                               // Робот стоит N сек и уезжает безусловно
+    // phrase_fail — УДАЛЕНО (v1.6 J1): нет доступа к ИК-датчикам робота,
+    // робот не может определить, положил ли гость посуду.
+    // Решается тайм-аутом (wait_time): робот стоит и уезжает.
   },
 
   // --- Уборка посуды — авто (S4) --- // v1.3 (F5)

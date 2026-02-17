@@ -103,11 +103,10 @@ export interface ScenarioSettings {
   };
   cleanup: {
     mode: 'manual' | 'auto' | 'mixed';
-    phrase: string;                // v1.3: renamed from phrase_arrival (SPEC-003)
-    phrase_url: string;            // v1.3: renamed from phrase_arrival_url
+    phrase: string;
+    phrase_url: string;
     wait_time: number;
-    phrase_fail: string;           // v1.3: renamed from phrase_later
-    phrase_fail_url: string;       // v1.3: renamed from phrase_later_url
+    // phrase_fail — УДАЛЕНО (v1.6 J1): нет ИК-датчиков, решается тайм-аутом
   };
   cleanup_auto: {                  // v1.3 (F5): авто-уборка
     timer_after_delivery: number;
