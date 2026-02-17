@@ -22,13 +22,14 @@
 1. **Вся работа** ведётся в ветке `dev`
 2. Коммитим → пушим в `origin/dev`
 3. Проверяем локально (`npm run dev`)
-4. Когда готово → **Pull Request** `dev → master` на GitHub
-5. Мержим PR → автоматический деплой на view21.ru
+4. Когда готово → мержим `dev → master` (через промт «Опубликовать DEV в MASTER»)
+5. `git push origin master` → автоматический деплой на view21.ru
 
 ### Правила
 
-- **НИКОГДА** не коммитить напрямую в `master` (только через PR из `dev`)
-- Перед созданием PR — убедиться что `npm run build` проходит без ошибок
+- **Вся разработка** — только в ветке `dev`
+- Мерж в `master` — через автоматический промт (checkout master → merge dev → push)
+- Перед мержем — убедиться что `npm run build` проходит без ошибок
 - Можно накопить несколько изменений в `dev` и замержить разом
 
 ---
@@ -451,6 +452,10 @@ git push origin dev
 # Перед мержем — убедиться что всё собирается
 npm run build
 
-# Мерж делается через Pull Request на GitHub:
-# https://github.com/KirillTyurin21/prototypes/compare/master...dev
+# Мерж dev → master (автоматический, через промт #3 из PROMPTS.md):
+git checkout master
+git pull origin master
+git merge dev
+git push origin master
+git checkout dev
 ```

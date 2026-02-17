@@ -86,6 +86,16 @@
         "/^cmd /c \"cd /d D:\\\\1Документы\\\\Задачи iiko\\\\Прототипы && git add changelogs/pudu-admin\\.md src/app/prototypes/pudu-admin/ && git add \"\"materials/Pudu роботы/Промты/Админ Панель/Промт_прототипа_PUDU_Admin_панели_v1\\.5_патч\\.md\"\" && git status\"$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "git checkout": true,
+        "git merge": true,
+        "/^Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; cd \"d:\\\\1Документы\\\\Задачи iiko\\\\Прототипы\"; node node_modules/@angular/cli/bin/ng\\.js build 2>&1 \\| Out-String$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd \"d:\\\\1Документы\\\\Задачи iiko\\\\Прототипы\"; node node_modules/@angular/cli/bin/ng\\.js build --no-progress 2>&1 \\| Select-Object -Last 40$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }
