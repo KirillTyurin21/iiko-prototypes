@@ -21,16 +21,8 @@ interface SidebarItem {
       <!-- HEADER -->
       <header class="border-b border-gray-200 bg-white h-14 flex items-center gap-4 px-4 shrink-0 z-10">
         <div class="flex items-center gap-2">
-          <!-- Robot icon logo -->
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="text-[#546E7A]">
-            <rect x="3" y="8" width="18" height="12" rx="3" stroke="currentColor" stroke-width="1.8" fill="none"/>
-            <circle cx="8.5" cy="14" r="1.8" fill="currentColor"/>
-            <circle cx="15.5" cy="14" r="1.8" fill="currentColor"/>
-            <path d="M12 2v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <circle cx="12" cy="2" r="1.2" fill="currentColor"/>
-            <path d="M1 13v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M23 13v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
+          <!-- Robot face logo -->
+          <img src="assets/face.png" alt="PUDU Robot" width="32" height="32" class="object-contain" />
           <span class="text-sm font-semibold text-gray-700 tracking-wide">ADMIN PANEL</span>
         </div>
         <div class="ml-auto flex items-center gap-2">
