@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { PuduPosDialogComponent } from '../pos-dialog.component';
 import { IconsModule } from '@/shared/icons.module';
 import { AvailableRobot } from '../../types';
+import { displayRobotNameDual } from '../../utils/display-robot-name';
 
 /** М18: Быстрый просмотр статусов роботов (robot_status) — П7 */
 @Component({
@@ -33,10 +34,15 @@ import { AvailableRobot } from '../../types';
           <div *ngFor="let robot of sortedRobots"
                class="grid grid-cols-4 gap-2 px-4 py-3 border-b border-gray-600/30">
             <!-- Имя робота -->
-            <span class="text-sm font-medium"
-                  [ngClass]="robot.status === 'offline' ? 'text-gray-500' : 'text-white'">
-              {{ robot.robot_name }}
-            </span>
+            <div class="flex flex-col">
+              <span class="text-sm font-medium"
+                    [ngClass]="robot.status === 'offline' ? 'text-gray-500' : 'text-white'">
+                {{ dualName(robot).primary }}
+              </span>
+              <span *ngIf="dualName(robot).secondary" class="text-xs text-gray-400">
+                {{ dualName(robot).secondary }}
+              </span>
+            </div>
             <!-- ID (обрезанный) -->
             <span class="text-sm text-gray-400 truncate" [title]="robot.robot_id">
               {{ robot.robot_id.length > 12 ? (robot.robot_id | slice:0:12) + '...' : robot.robot_id }}
@@ -136,6 +142,10 @@ export class RobotStatusComponent {
   get sortedRobots(): AvailableRobot[] {
     const order: Record<string, number> = { free: 0, busy: 1, offline: 2 };
     return [...this.robots].sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
+  }
+
+  dualName(robot: AvailableRobot): { primary: string; secondary: string | null } {
+    return displayRobotNameDual(robot.ne_name, robot.alias, robot.robot_id);
   }
 
   formatPointName(raw: string): string {

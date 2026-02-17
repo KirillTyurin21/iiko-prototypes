@@ -5,7 +5,9 @@ export type PuduContextType = 'order' | 'main';
 
 export interface PuduRobot {
   robot_id: string;
-  robot_name: string;
+  robot_name: string;        // системное имя из NE / PUDU Cloud: "BellaBot-01"
+  ne_name: string;           // v1.5: системное имя NE (= robot_name). Для единообразия с AvailableRobot
+  alias: string | null;      // v1.5: пользовательский alias из iiko Web (ConfigManager). null если не задан
   status: 'idle' | 'busy' | 'offline';
   after_action: 'idle' | 'marketing';  // per-robot настройка (из Admin Panel)
 }
@@ -13,7 +15,9 @@ export interface PuduRobot {
 /** v1.4 (H7): Робот из GET /v1/robots/available */
 export interface AvailableRobot {
   robot_id: string;
-  robot_name: string;
+  robot_name: string;        // системное имя от NE API (GET /v1/robots/available)
+  ne_name: string;           // v1.5: = robot_name (из NE). Хранится отдельно для ясности
+  alias: string | null;      // v1.5: пользовательский alias из ConfigManager.Robots[]. null если не задан
   status: 'free' | 'busy' | 'offline';
   current_task: {
     task_id: string;
@@ -46,6 +50,8 @@ export interface CurrentOrder {
 export interface RobotTask {
   task_id: string;
   task_type: 'send_menu' | 'cleanup' | 'qr_payment' | 'send_dish' | 'marketing';
+  ne_name: string;           // v1.5: системное имя робота из NE
+  alias: string | null;      // v1.5: пользовательский alias из iiko Web
 
   // === Polling endpoint (подтверждён NE): ===
   // GET /v1/scenarios/scenario-status/{task_id}
@@ -70,7 +76,7 @@ export interface RobotTask {
   //       ↑ УДАЛЁН 'finished' — SPEC-003 v1.3: FINISHED маппится на 'completed'
 
   table_id: string;
-  robot_name: string;
+  robot_name: string;        // deprecated v1.5 → используйте displayRobotName(ne_name, alias)
   created_at: Date;
 }
 

@@ -476,6 +476,25 @@ const MODAL_CELLS: CatalogCell[] = [
     badge: 'v1.1',
     badgeColor: '#22c55e',
   },
+  // === Двустрочное имя робота (v1.5 I11) ===
+  {
+    id: 'modal-robot-select-dual-name',
+    label: 'М17: Двустрочное имя',
+    description: 'Двойное имя робота: alias основной + NE-имя мелким серым (Белла Зал 1 / BellaBot-1)',
+    icon: 'users',
+    iconColor: 'text-[#b8c959]',
+    category: 'modal',
+    modalType: 'robot_select',
+  },
+  {
+    id: 'modal-robot-status-dual-name',
+    label: 'М18: Двустрочное имя',
+    description: 'Двойное имя в таблице статусов роботов (alias + системное)',
+    icon: 'activity',
+    iconColor: 'text-[#b8c959]',
+    category: 'modal',
+    modalType: 'robot_status',
+  },
 ];
 
 // ═══════════════════════════════════════════════════
@@ -599,6 +618,25 @@ const NOTIFICATION_CELLS: CatalogCell[] = [
     category: 'notification',
     badge: 'v1.4',
     badgeColor: '#8b5cf6',
+  },
+  // === Dual-name уведомления (v1.5 I11) ===
+  {
+    id: 'notification-error-dual-name',
+    label: 'Ошибка: двойное имя',
+    description: 'Toast ошибки: «Робот Белла Зал 1 (BellaBot-1): АВАРИЙНАЯ ОСТАНОВКА...»',
+    icon: 'alert-circle',
+    iconColor: 'text-red-400',
+    category: 'notification',
+    scenario: 'notification-repeating-estop',
+  },
+  {
+    id: 'toast-dispatched-dual-name',
+    label: 'Dispatched: двойное имя',
+    description: 'Toast dispatched: «Доставка меню — Белла Зал 1 (BellaBot-01) — отправлено. Стол 5»',
+    icon: 'send',
+    iconColor: 'text-[#b8c959]',
+    category: 'notification',
+    scenario: 'fire-and-forget-full',
   },
 ];
 

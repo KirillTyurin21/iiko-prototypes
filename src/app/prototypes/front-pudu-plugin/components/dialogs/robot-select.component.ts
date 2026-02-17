@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { PuduPosDialogComponent } from '../pos-dialog.component';
 import { IconsModule } from '@/shared/icons.module';
 import { AvailableRobot } from '../../types';
+import { displayRobotName, displayRobotNameDual } from '../../utils/display-robot-name';
 
 /** М17: Выбор робота (robot_select) — П1 */
 @Component({
@@ -39,14 +40,19 @@ import { AvailableRobot } from '../../types';
                }"
                class="grid grid-cols-4 gap-2 px-4 py-3 border-b border-gray-600/30 transition-colors">
             <!-- Имя робота -->
-            <span class="text-sm font-medium"
-                  [ngClass]="{
-                    'text-gray-500': robot.status === 'offline',
-                    'text-gray-400': robot.status === 'busy',
-                    'text-white': robot.status === 'free'
-                  }">
-              {{ robot.robot_name }}
-            </span>
+            <div class="flex flex-col">
+              <span class="text-sm font-medium"
+                    [ngClass]="{
+                      'text-gray-500': robot.status === 'offline',
+                      'text-gray-400': robot.status === 'busy',
+                      'text-white': robot.status === 'free'
+                    }">
+                {{ dualName(robot).primary }}
+              </span>
+              <span *ngIf="dualName(robot).secondary" class="text-xs text-gray-400">
+                {{ dualName(robot).secondary }}
+              </span>
+            </div>
             <!-- ID (обрезанный) -->
             <span class="text-sm text-gray-400 truncate" [title]="robot.robot_id">
               {{ robot.robot_id.length > 12 ? (robot.robot_id | slice:0:12) + '...' : robot.robot_id }}
@@ -81,7 +87,7 @@ import { AvailableRobot } from '../../types';
 
         <!-- Индикатор выбранного робота -->
         <p *ngIf="selectedRobot" class="text-sm text-[#b8c959] text-center mb-4">
-          Выбрано: <span class="font-medium">{{ selectedRobot.robot_name }}</span>
+          Выбрано: <span class="font-medium">{{ displayName(selectedRobot!) }}</span>
         </p>
 
         <!-- Предупреждение: робот занят -->
@@ -166,6 +172,14 @@ export class RobotSelectComponent {
 
   get allRobotsOffline(): boolean {
     return this.robots.length > 0 && this.robots.every(r => r.status === 'offline');
+  }
+
+  displayName(robot: AvailableRobot): string {
+    return displayRobotName(robot.ne_name, robot.alias, robot.robot_id);
+  }
+
+  dualName(robot: AvailableRobot): { primary: string; secondary: string | null } {
+    return displayRobotNameDual(robot.ne_name, robot.alias, robot.robot_id);
   }
 
   selectRobot(robot: AvailableRobot): void {

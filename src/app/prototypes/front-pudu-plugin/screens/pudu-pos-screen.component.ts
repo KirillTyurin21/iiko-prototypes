@@ -19,6 +19,7 @@ import {
   splitDishesIntoTrips,
 } from '../data/mock-data';
 import { CurrentOrder, PuduNotification, OrderTable } from '../types';
+import { displayRobotName } from '../utils/display-robot-name';
 
 // Dialogs
 import { SendMenuConfirmComponent } from '../components/dialogs/send-menu-confirm.component';
@@ -244,11 +245,11 @@ import { RobotStatusComponent } from '../components/dialogs/robot-status.compone
             Уборка: {{ settings.cleanup.mode }}
           </button>
           <!-- v1.4 (H5): Демо repeating notifications -->
-          <button (click)="handleErrorNotification('PD2024060001', 'BellaBot-1', 'E_STOP')"
+          <button (click)="handleErrorNotification('PD2024060001', 'BellaBot-1', 'E_STOP', 'BellaBot-1', 'Белла Зал 1')"
                   class="text-xs text-red-400 hover:text-red-300 transition-colors">
             E-STOP (повтор)
           </button>
-          <button (click)="handleErrorNotification('PD2024060001', 'BellaBot-1', 'OBSTACLE')"
+          <button (click)="handleErrorNotification('PD2024060001', 'BellaBot-1', 'OBSTACLE', 'BellaBot-1', 'Белла Зал 1')"
                   class="text-xs text-red-400 hover:text-red-300 transition-colors">
             OBSTACLE (повтор)
           </button>
@@ -603,7 +604,7 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
     // Отправка меню → успех (v1.4 H14: fire-and-forget)
     'send-menu-ok': [
       { modal: 'send_menu_confirm', delay: 3000 },
-      { modal: null, toast: 'dispatched', toastText: 'Доставка меню — отправлено. Стол 5', delay: 2000 },
+      { modal: null, toast: 'dispatched', toastText: 'Доставка меню — Белла Зал 1 (BellaBot-01) — отправлено. Стол 5', delay: 2000 },
     ],
     // Отправка меню → ошибка
     'send-menu-err': [
@@ -631,16 +632,16 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
     // Полный цикл: подтверждение → fire-and-forget (v1.4 H14)
     'send-dish-full': [
       { modal: 'send_dish_confirm', delay: 3000 },
-      { modal: null, toast: 'dispatched', toastText: 'Доставка блюд — отправлено. Стол 7', delay: 2000 },
+      { modal: null, toast: 'dispatched', toastText: 'Доставка блюд — Белла Зал 1 (BellaBot-01) — отправлено. Стол 7', delay: 2000 },
     ],
     // Быстрый путь: fire-and-forget (v1.4 H14)
     'send-dish-quick': [
-      { modal: null, toast: 'dispatched', toastText: 'Доставка блюд — отправлено. Стол 7', delay: 2000 },
+      { modal: null, toast: 'dispatched', toastText: 'Доставка блюд — Белла Зал 1 (BellaBot-01) — отправлено. Стол 7', delay: 2000 },
     ],
     // Повторная отправка: fire-and-forget (v1.4 H14)
     'send-dish-repeat': [
       { modal: 'send_dish_repeat', delay: 3000 },
-      { modal: null, toast: 'dispatched', toastText: 'Доставка блюд — отправлено. Стол 7', delay: 2000 },
+      { modal: null, toast: 'dispatched', toastText: 'Доставка блюд — Белла Зал 1 (BellaBot-01) — отправлено. Стол 7', delay: 2000 },
     ],
     // Ошибка: стол не замаплен
     'send-dish-error-mapping': [
@@ -693,18 +694,19 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
 
     // === Lifecycle — v1.4 (H14) ===
     'task-completed-polling': [
-      { modal: null, toast: 'completed', toastText: 'Доставка меню — выполнено. Стол 5', delay: 0 },
+      { modal: null, toast: 'completed', toastText: 'Доставка меню — Белла Зал 1 (BellaBot-01) — выполнено. Стол 5', delay: 0 },
     ],
     'fire-and-forget-full': [
       { modal: 'send_menu_confirm', delay: 3000 },
-      { modal: null, toast: 'dispatched', toastText: 'Доставка меню — отправлено. Стол 5', delay: 5000 },
-      { modal: null, toast: 'completed', toastText: 'Доставка меню — выполнено. Стол 5', delay: 3000 },
+      { modal: null, toast: 'dispatched', toastText: 'Доставка меню — Белла Зал 1 (BellaBot-01) — отправлено. Стол 5', delay: 5000 },
+      { modal: null, toast: 'completed', toastText: 'Доставка меню — Белла Зал 1 (BellaBot-01) — выполнено. Стол 5', delay: 3000 },
     ],
   };
 
   /** Автоназначение робота */
   get assignedRobotName(): string {
-    return getAssignedRobot().robot_name;
+    const robot = getAssignedRobot();
+    return displayRobotName(robot.ne_name, robot.alias, robot.robot_id);
   }
 
   /** Подстановка номера стола в фразу при заборе */
@@ -997,17 +999,17 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
     if (robot.status === 'offline') return;
 
     if (robot.status === 'busy') {
-      this.infoToast = { title: `Робот ${robot.robot_name} занят. Задача будет в очереди` };
+      this.infoToast = { title: `Робот ${displayRobotName(robot.ne_name, robot.alias, robot.robot_id)} занят. Задача будет в очереди` };
     }
 
     this.marketingRobotId = robot.robot_id;
-    this.marketingRobotName = robot.robot_name;
+    this.marketingRobotName = displayRobotName(robot.ne_name, robot.alias, robot.robot_id);
     this.isCruiseActive = !this.isCruiseActive;
     this.activeModal = null;
     this.selectedRobot = null;
 
     // H11: Toast «Отправлено» для маркетинга
-    this.showDispatchedToast('marketing');
+    this.showDispatchedToast('marketing', undefined, displayRobotName(robot.ne_name, robot.alias, robot.robot_id));
   }
 
   onToggleMarketing(): void {
@@ -1049,7 +1051,8 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
       await this.simulateHttpRequest();
       // Успех: закрыть модалку + toast
       this.activeModal = null;
-      this.showDispatchedToast(this.currentTaskType, this.currentTableName);
+      const robot = getAssignedRobot();
+      this.showDispatchedToast(this.currentTaskType, this.currentTableName, displayRobotName(robot.ne_name, robot.alias, robot.robot_id));
     } catch {
       this.activeModal = 'error';
     } finally {
@@ -1198,7 +1201,7 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
   }
 
   /** v1.4 (H5): Обработка ошибки робота */
-  handleErrorNotification(robot_id: string, robot_name: string, error_code: string): void {
+  handleErrorNotification(robot_id: string, robot_name: string, error_code: string, ne_name?: string, alias?: string | null): void {
     const key = `${robot_id}:${error_code}`;
     const isRepeating = this.REPEATING_ERROR_CODES.includes(error_code);
 
@@ -1215,7 +1218,7 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
     const notif: PuduNotification = {
       id: key,
       type: 'error',
-      title: `Робот ${robot_name}: ${error_code}`,
+      title: `Робот ${displayRobotName(ne_name ?? robot_name, alias ?? null, robot_id)}: ${error_code}`,
       message: ERROR_MESSAGES[error_code] || `Неизвестная ошибка. Код: ${error_code}`,
       timestamp: new Date(),
       dismissed: false,
@@ -1231,19 +1234,23 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
 
   // ===== v1.4 (H11): Lifecycle toast'ы =====
 
-  showDispatchedToast(taskType: string, tableName?: string): void {
+  showDispatchedToast(taskType: string, tableName?: string, robotDisplayName?: string): void {
     const name = TASK_HUMAN_NAMES[taskType] || taskType;
     this.dispatchedToast = {
-      title: `${name} — отправлено`,
+      title: robotDisplayName
+        ? `${name} — ${robotDisplayName} — отправлено`
+        : `${name} — отправлено`,
       subtitle: tableName || undefined,
     };
   }
 
-  showCompletedToast(taskType: string, tableName?: string): void {
+  showCompletedToast(taskType: string, tableName?: string, robotDisplayName?: string): void {
     const name = TASK_HUMAN_NAMES[taskType] || taskType;
-    this.dispatchedToast = null; // fallback: закрыть dispatched
+    this.dispatchedToast = null;
     this.completedToast = {
-      title: `${name} — выполнено`,
+      title: robotDisplayName
+        ? `${name} — ${robotDisplayName} — выполнено`
+        : `${name} — выполнено`,
       subtitle: tableName || undefined,
     };
   }
