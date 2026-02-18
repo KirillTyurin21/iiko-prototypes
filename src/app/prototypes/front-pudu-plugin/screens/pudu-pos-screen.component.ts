@@ -165,9 +165,7 @@ import { RobotStatusComponent } from '../components/dialogs/robot-status.compone
               <span class="text-xs">Доставка блюд</span>
             </button>
             <button (click)="onSendDishRepeat()" aria-label="Повторить"
-              class="h-14 rounded flex flex-col items-center justify-center gap-1 transition-colors"
-              [ngClass]="sendDishCompleted ? 'bg-[#1a1a1a] text-white hover:bg-[#252525]' : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed'"
-              [disabled]="!sendDishCompleted">
+              class="h-14 rounded flex flex-col items-center justify-center gap-1 transition-colors bg-[#1a1a1a] text-white hover:bg-[#252525]">
               <lucide-icon name="repeat" [size]="20"></lucide-icon>
               <span class="text-xs">Повторить</span>
             </button>
@@ -640,9 +638,7 @@ import { RobotStatusComponent } from '../components/dialogs/robot-status.compone
                 <span class="text-center leading-tight px-1">Доставка блюд</span>
               </button>
               <button (click)="onOrderCommandRepeat()"
-                class="h-16 text-sm border border-gray-300 rounded font-medium transition-colors flex flex-col items-center justify-center gap-1"
-                [ngClass]="sendDishCompleted ? 'bg-white text-black hover:bg-gray-100' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
-                [disabled]="!sendDishCompleted">
+                class="h-16 text-sm bg-white text-black hover:bg-gray-100 border border-gray-300 rounded font-medium transition-colors flex flex-col items-center justify-center gap-1">
                 <span class="text-center leading-tight px-1">Повторить отправку</span>
               </button>
             </div>
@@ -1106,7 +1102,6 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
   }
 
   onSendDishRepeat(): void {
-    if (!this.sendDishCompleted) return;
     this.activeModal = 'send_dish_repeat';
   }
 
@@ -1267,7 +1262,6 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
   }
 
   onOrderCommandRepeat(): void {
-    if (!this.sendDishCompleted) return;
     this.activeModal = null;
     setTimeout(() => {
       this.activeModal = 'send_dish_repeat';
