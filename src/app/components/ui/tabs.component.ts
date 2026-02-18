@@ -7,6 +7,7 @@ export interface TabItem {
   label: string;
   iconName?: string;
   badge?: number;
+  title?: string;
 }
 
 @Component({
@@ -19,6 +20,7 @@ export interface TabItem {
         *ngFor="let tab of tabs"
         type="button"
         class="relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors outline-none whitespace-nowrap"
+        [attr.title]="tab.title || null"
         [ngClass]="tab.key === activeTab
           ? 'text-app-primary'
           : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'"

@@ -2,6 +2,24 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.9',
+    date: '2026-02-18',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Маркетинг',
+        pageRoute: '/prototype/pudu-admin/settings',
+        items: [
+          'Исправлен multi-select роботов: select сбрасывается на placeholder после выбора',
+          'Добавлено состояние «Все роботы добавлены» при пустом списке доступных',
+          'Добавлены tooltips на элементы формы, чекбоксы и warning-блок',
+          'Warning-блок: добавлен role="alert", текст обновлён на «iikoSignage»',
+          'Добавлен tooltip на вкладку «Маркетинг»',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.8',
     date: '2026-02-17',
     status: 'released',
