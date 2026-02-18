@@ -188,10 +188,23 @@ interface Toast {
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                   <tr *ngFor="let mapping of filteredMappings" class="hover:bg-gray-50/50">
-                    <!-- Стол iiko -->
+                    <!-- Стол iiko (v1.9: L4 бейдж, L5 удаление) -->
                     <td class="px-4 py-3 align-top">
-                      <div class="font-medium text-sm text-gray-900">{{ getTableName(mapping.table_id) }}</div>
-                      <div class="text-xs text-gray-500">{{ getTableSection(mapping.table_id) }}</div>
+                      <div class="flex items-center gap-2">
+                        <div>
+                          <span class="font-medium text-sm text-gray-900">{{ getTableName(mapping.table_id) }}</span>
+                          <span *ngIf="getTableSection(mapping.table_id)" class="ml-2 text-xs text-gray-400">{{ getTableSection(mapping.table_id) }}</span>
+                          <span *ngIf="isManualTable(mapping.table_id)" class="ml-2 text-xs text-gray-400 italic">(ручной)</span>
+                        </div>
+                        <button
+                          *ngIf="isManualTable(mapping.table_id)"
+                          class="ml-auto text-gray-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
+                          [attr.aria-label]="'Удалить ручной стол «' + getTableName(mapping.table_id) + '»'"
+                          (click)="confirmDeleteManualTable(mapping.table_id); $event.stopPropagation()"
+                        >
+                          <lucide-icon name="trash-2" [size]="16"></lucide-icon>
+                        </button>
+                      </div>
                     </td>
 
                     <!-- Привязанные точки -->
@@ -291,6 +304,46 @@ interface Toast {
           </div>
         </div>
 
+        <!-- v1.9 L3: Кнопка «+ Ручной стол» и inline-форма -->
+        <div class="mt-4 mb-2" *ngIf="mappingMode === 'tables-to-points'">
+          <button
+            *ngIf="!showManualTableForm"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            aria-label="Добавить ручной стол для фудкорта"
+            (click)="openManualTableForm()"
+          >
+            <lucide-icon name="plus" [size]="16"></lucide-icon>
+            Ручной стол
+          </button>
+          <div *ngIf="showManualTableForm" class="flex items-start gap-2 p-3 bg-white border border-gray-200 rounded-lg max-w-lg animate-fade-in">
+            <div class="flex-1 space-y-1">
+              <label for="manual-table-name" class="text-sm font-medium text-gray-700">Номер / название стола</label>
+              <input
+                id="manual-table-name"
+                type="text"
+                class="w-48 h-9 rounded-md border px-3 text-sm outline-none transition-colors"
+                [ngClass]="{
+                  'border-red-500 focus:ring-red-500 focus:border-red-500': manualTableError,
+                  'border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500': !manualTableError
+                }"
+                [(ngModel)]="manualTableName"
+                (ngModelChange)="manualTableError = ''"
+                (keydown.enter)="handleAddManualTable()"
+                (keydown.escape)="closeManualTableForm()"
+                placeholder="Номер / название стола"
+                maxlength="50"
+                aria-label="Номер или название ручного стола"
+              />
+              <p *ngIf="manualTableError" class="text-xs text-red-500">{{ manualTableError }}</p>
+              <p class="text-xs text-gray-400">Максимум 50 символов. Для фудкортов без столов в системе</p>
+            </div>
+            <div class="flex items-end gap-1.5 pt-6">
+              <ui-button size="sm" variant="primary" [disabled]="!manualTableName.trim() || !!manualTableError" (click)="handleAddManualTable()">Добавить</ui-button>
+              <ui-button size="sm" variant="ghost" (click)="closeManualTableForm()">Отмена</ui-button>
+            </div>
+          </div>
+        </div>
+
         <!-- ═══════════════════════════════════════════ -->
         <!-- MODE: POINTS → TABLES (v1.3)                -->
         <!-- ═══════════════════════════════════════════ -->
@@ -369,6 +422,17 @@ interface Toast {
       </div>
     </ng-container>
 
+    <!-- v1.9 L5: Диалог подтверждения удаления ручного стола -->
+    <ui-confirm-dialog
+      [open]="!!tableToDelete"
+      title="Удалить ручной стол?"
+      [message]="'Удалить ручной стол «' + (tableToDelete?.table_name || '') + '»? Привязанные точки будут освобождены.'"
+      confirmText="Удалить"
+      confirmVariant="danger"
+      (confirmed)="deleteManualTable()"
+      (cancelled)="tableToDelete = null"
+    ></ui-confirm-dialog>
+
     <!-- DROPDOWN BACKDROP -->
     <div *ngIf="openDropdownKey" class="fixed inset-0 z-40" (click)="closeDropdown()"></div>
 
@@ -432,10 +496,19 @@ export class MappingScreenComponent implements OnInit {
   toasts: Toast[] = [];
   private toastCounter = 0;
 
+  // v1.9 L3: Manual table form state
+  showManualTableForm = false;
+  manualTableName = '';
+  manualTableError = '';
+  manualIdCounter = 3; // next ID: manual-003
+
+  // v1.9 L5: Table to delete (manual only)
+  tableToDelete: DiningTable | null = null;
+
   ngOnInit(): void {
     setTimeout(() => {
       this.robots = this.storage.load('pudu-admin', 'robots', MOCK_ROBOTS);
-      this.tables = [...MOCK_TABLES];
+      this.tables = this.storage.load('pudu-admin', 'tables', [...MOCK_TABLES]);
       this.availablePoints = [...MOCK_POINTS];
       this.loadMappings();
       this.isLoading = false;
@@ -643,11 +716,11 @@ export class MappingScreenComponent implements OnInit {
    *  (NOT on every mapping mutation — that would recreate options and break <select> binding). */
   private rebuildCachedTableOptions(): void {
     const tablesToShow = this.selectedHall
-      ? this.tables.filter(t => t.section_name === this.selectedHall)
+      ? this.tables.filter(t => t.section_name === this.selectedHall || t.is_manual)
       : this.tables;
     this.cachedTableOptions = tablesToShow.map(t => ({
       value: t.table_id,
-      label: `${t.table_name} — ${t.section_name}`,
+      label: t.is_manual ? `${t.table_name} (ручной)` : `${t.table_name} — ${t.section_name}`,
     }));
   }
 
@@ -732,8 +805,9 @@ export class MappingScreenComponent implements OnInit {
       ).length;
     } else {
       // In points->tables mode, count tables (filtered by hall) that have NO point assigned
+      // v1.9 L8: Include manual tables in count regardless of hall filter
       const tablesToCheck = this.selectedHall
-        ? this.tables.filter(t => t.section_name === this.selectedHall)
+        ? this.tables.filter(t => t.section_name === this.selectedHall || t.is_manual)
         : this.tables;
       return tablesToCheck.filter(t => {
         const mapping = this.mappings.find(m => m.table_id === t.table_id);
@@ -760,15 +834,18 @@ export class MappingScreenComponent implements OnInit {
   saveMapping(): void {
     this.originalMappings = this.cloneMappings(this.mappings);
     this.storage.save('pudu-admin', 'mappings', this.mappings);
+    this.storage.save('pudu-admin', 'tables', this.tables);
     this.hasChanges = false;
     this.showToast('Маппинг сохранён');
   }
 
   resetMapping(): void {
     this.mappings = this.cloneMappings(this.originalMappings);
+    this.tables = this.storage.load('pudu-admin', 'tables', [...MOCK_TABLES]);
     this.hasChanges = false;
     this.openDropdownKey = null;
-    this.rebuildPointToTableMap();
+    this.rebuildPointToTableCache();
+    this.initHallOptions();
   }
 
   // ── Change tracking ────────────────────────────────────
@@ -795,6 +872,81 @@ export class MappingScreenComponent implements OnInit {
     this.router.navigate(['/prototype/pudu-admin']);
   }
 
+  // ── v1.9: Manual tables ────────────────────────────────
+
+  isManualTable(tableId: string): boolean {
+    return this.tables.find(t => t.table_id === tableId)?.is_manual === true;
+  }
+
+  openManualTableForm(): void {
+    this.showManualTableForm = true;
+    this.manualTableName = '';
+    this.manualTableError = '';
+  }
+
+  closeManualTableForm(): void {
+    this.showManualTableForm = false;
+    this.manualTableName = '';
+    this.manualTableError = '';
+  }
+
+  handleAddManualTable(): void {
+    const name = this.manualTableName.trim();
+
+    if (!name) {
+      this.manualTableError = 'Введите номер или название стола';
+      return;
+    }
+    if (name.length > 50) {
+      this.manualTableError = 'Максимум 50 символов';
+      return;
+    }
+    const isDuplicate = this.tables.some(
+      t => t.table_name.toLowerCase() === name.toLowerCase()
+    );
+    if (isDuplicate) {
+      this.manualTableError = `Стол «${name}» уже существует`;
+      return;
+    }
+
+    const newTable: DiningTable = {
+      table_id: `manual-${String(this.manualIdCounter).padStart(3, '0')}`,
+      table_name: name,
+      section_name: '',
+      is_manual: true,
+    };
+    this.manualIdCounter++;
+
+    this.tables = [...this.tables, newTable];
+    this.mappings = [...this.mappings, { table_id: newTable.table_id, points: [] }];
+    this.hasChanges = true;
+
+    this.closeManualTableForm();
+    this.rebuildPointToTableCache();
+    this.showToast(`Ручной стол «${name}» добавлен`);
+  }
+
+  confirmDeleteManualTable(tableId: string): void {
+    const table = this.tables.find(t => t.table_id === tableId);
+    if (table && table.is_manual) {
+      this.tableToDelete = table;
+    }
+  }
+
+  deleteManualTable(): void {
+    if (!this.tableToDelete) return;
+    const name = this.tableToDelete.table_name;
+    const id = this.tableToDelete.table_id;
+
+    this.tables = this.tables.filter(t => t.table_id !== id);
+    this.mappings = this.mappings.filter(m => m.table_id !== id);
+    this.hasChanges = true;
+    this.tableToDelete = null;
+
+    this.rebuildPointToTableCache();
+    this.showToast(`Ручной стол «${name}» удалён`);
+  }
+
   // ── v1.4: Hall filter ─────────────────────────────────
 
   initHallOptions(): void {
@@ -811,11 +963,28 @@ export class MappingScreenComponent implements OnInit {
   }
 
   get filteredMappings(): TableMapping[] {
-    if (!this.selectedHall) return this.mappings;
-    return this.mappings.filter(m => {
+    if (!this.selectedHall) return this.sortedMappings(this.mappings);
+    const filtered = this.mappings.filter(m => {
       const table = this.tables.find(t => t.table_id === m.table_id);
-      if (!table || !table.section_name) return true;
+      if (!table) return true;
+      // v1.9 L8: Manual tables always visible regardless of hall filter
+      if (table.is_manual) return true;
+      if (!table.section_name) return true;
       return table.section_name === this.selectedHall;
+    });
+    return this.sortedMappings(filtered);
+  }
+
+  /** v1.9 L8: Sort mappings — iiko tables first, manual tables at the end */
+  private sortedMappings(mappings: TableMapping[]): TableMapping[] {
+    return [...mappings].sort((a, b) => {
+      const tableA = this.tables.find(t => t.table_id === a.table_id);
+      const tableB = this.tables.find(t => t.table_id === b.table_id);
+      const aManual = tableA?.is_manual ?? false;
+      const bManual = tableB?.is_manual ?? false;
+      if (aManual && !bManual) return 1;
+      if (!aManual && bManual) return -1;
+      return (tableA?.table_name || '').localeCompare(tableB?.table_name || '', 'ru');
     });
   }
 

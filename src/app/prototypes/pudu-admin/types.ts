@@ -24,11 +24,12 @@ export interface RobotPoint {
   point_name: string;
 }
 
-// Стол системы
+// Стол системы (v1.9: добавлено is_manual)
 export interface DiningTable {
-  table_id: string;
-  table_name: string;
-  section_name: string;
+  table_id: string;         // "tbl-001" (iiko) или "manual-001" (ручной)
+  table_name: string;       // "Стол №1" или "42" (ручной ввод)
+  section_name: string;     // "Зал 1 этаж" или "" (пустая строка для ручных)
+  is_manual: boolean;       // true — ручной стол (фудкорт), false — стол из iiko
 }
 
 // Маппинг столов к точкам
