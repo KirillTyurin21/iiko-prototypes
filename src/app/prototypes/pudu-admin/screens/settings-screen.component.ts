@@ -608,6 +608,22 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
               </div>
             </div>
 
+            <!-- M2: Info-блок: взаимодействие after_action и маркетинга (v1.10) -->
+            <div class="border border-blue-200 bg-blue-50/50 rounded-lg p-4" role="note">
+              <div class="flex gap-3">
+                <lucide-icon name="info" [size]="18" class="text-blue-500 shrink-0 mt-0.5"></lucide-icon>
+                <div>
+                  <h4 class="text-sm font-semibold text-blue-800 mb-1">Взаимодействие с настройкой «Действие после задачи»</h4>
+                  <p class="text-xs text-blue-700 leading-relaxed">
+                    Роботы с настройкой «Действие после задачи = Маркетинг» (вкладка Роботы)
+                    автоматически включаются в список маркетинга и запускают круиз
+                    сразу после каждой рабочей задачи. Здесь настраивается дополнительный
+                    запуск при простое и по расписанию.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <!-- Роботы для маркетинга (Multi-Select) -->
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700">Роботы для маркетинга</label>
@@ -671,6 +687,29 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
               [(checked)]="settings.marketing.auto_cruise_on_idle"
               title="Автоматически запускать маркетинг, когда у выбранного робота нет активных задач"
             ></ui-checkbox>
+
+            <!-- M1: Таймаут простоя (idle_timeout_sec) — видно только при auto_cruise_on_idle (v1.10) -->
+            <div *ngIf="settings.marketing.auto_cruise_on_idle" class="animate-fade-in">
+              <label class="block text-sm font-medium text-gray-700 mb-1" for="idle_timeout_sec">Таймаут простоя (сек)</label>
+              <div class="flex items-center gap-3">
+                <input
+                  id="idle_timeout_sec"
+                  type="number"
+                  [(ngModel)]="settings.marketing.idle_timeout_sec"
+                  min="0"
+                  max="300"
+                  aria-label="Таймаут простоя в секундах"
+                  class="w-24 h-9 rounded border border-border bg-surface text-sm text-text-primary px-3 outline-none transition-colors hover:border-border-strong focus:border-border-focus focus:ring-2 focus:ring-app-primary/20"
+                />
+                <span class="text-sm text-gray-500">секунд</span>
+              </div>
+              <p class="text-xs text-gray-400 italic mt-1">
+                Через сколько секунд после парковки робот считается «в простое» и запускается маркетинг.
+                Рекомендуемое значение: 30 сек. При настройке «Действие после задачи = Маркетинг» круиз запускается немедленно (без этого таймаута).
+              </p>
+              <p *ngIf="settings.marketing.idle_timeout_sec < 0 || settings.marketing.idle_timeout_sec > 300"
+                 class="text-xs text-red-500 mt-1">Значение должно быть от 0 до 300</p>
+            </div>
 
             <!-- Запуск по таймеру -->
             <ui-checkbox

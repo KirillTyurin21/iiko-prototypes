@@ -2,6 +2,23 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.12',
+    date: '2026-02-18',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Настройки роботов — Маркетинг',
+        pageRoute: '/prototype/pudu-admin/settings',
+        items: [
+          'Добавлено поле «Таймаут простоя (сек)» — видимо только при включённом «Автозапуске круиза при простое», диапазон 0–300, по умолчанию 30',
+          'Добавлен info-блок с объяснением взаимодействия настройки «Действие после задачи» (вкладка Роботы) и маркетинга',
+          'Обновлены mock-данные: добавлено поле idle_timeout_sec: 30',
+          'Обновлён TypeScript-интерфейс ScenarioSettings.marketing: добавлено поле idle_timeout_sec',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.11',
     date: '2026-02-18',
     status: 'released',

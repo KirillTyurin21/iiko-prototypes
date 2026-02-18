@@ -84,6 +84,7 @@ export interface ScenarioSettings {
   marketing: {
     robot_ids: string[];           // массив ID роботов для маркетинга (пустой = не выбраны)
     auto_cruise_on_idle: boolean;
+    idle_timeout_sec: number;      // v1.10: таймаут простоя перед запуском маркетинга (сек)
     timer_enabled: boolean;
     timer_start: string;
     timer_end: string;

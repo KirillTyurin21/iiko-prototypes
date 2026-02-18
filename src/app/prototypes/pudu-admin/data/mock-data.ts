@@ -142,6 +142,7 @@ export function getInitialSettings(): ScenarioSettings {
     marketing: {
       robot_ids: ['PD2024060001'],    // BellaBot-01 назначен на маркетинг
       auto_cruise_on_idle: false,
+      idle_timeout_sec: 30,           // v1.10: таймаут простоя (сек), по умолчанию 30
       timer_enabled: false,
       timer_start: '11:00',
       timer_end: '14:00',
