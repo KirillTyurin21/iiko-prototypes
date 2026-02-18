@@ -311,7 +311,7 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
             <!-- Radio Group: 3 режима (H4 v1.6) -->
             <div class="space-y-0">
               <!-- Ручной режим -->
-              <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100" title="Уборка запускается вручную из iikoFront">
+              <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100" title="Уборка запускается вручную из Front">
                 <input
                   type="radio"
                   name="cleanupMode"
@@ -321,12 +321,12 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
                 />
                 <div>
                   <span class="text-sm font-medium text-gray-900">Ручной режим</span>
-                  <p class="text-xs text-gray-500 mt-0.5">Официант вручную отправляет робота для уборки конкретного стола через iikoFront</p>
+                  <p class="text-xs text-gray-500 mt-0.5">Официант вручную отправляет робота для уборки конкретного стола через Front</p>
                 </div>
               </label>
 
               <!-- Автоматический режим -->
-              <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100" title="Уборка по таймеру. Кнопка «Уборка» в iikoFront скрыта">
+              <label class="flex items-start gap-3 py-3 cursor-pointer border-b border-gray-100" title="Уборка по таймеру. Кнопка «Уборка» в Front скрыта">
                 <input
                   type="radio"
                   name="cleanupMode"
@@ -336,7 +336,7 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
                 />
                 <div>
                   <span class="text-sm font-medium text-gray-900">Автоматический режим</span>
-                  <p class="text-xs text-gray-500 mt-0.5">Робот автоматически приезжает для уборки по таймерам: после доставки блюда или закрытия чека. Кнопка «Уборка» в iikoFront скрыта</p>
+                  <p class="text-xs text-gray-500 mt-0.5">Робот автоматически приезжает для уборки по таймерам: после доставки блюда или закрытия чека. Кнопка «Уборка» в Front скрыта</p>
                 </div>
               </label>
 
@@ -351,7 +351,7 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
                 />
                 <div>
                   <span class="text-sm font-medium text-gray-900">Смешанный режим</span>
-                  <p class="text-xs text-gray-500 mt-0.5">Ручной запуск уборки через iikoFront всегда доступен, авто-триггеры (таймеры) работают параллельно в фоне. Дублирование задач на один стол исключается автоматически</p>
+                  <p class="text-xs text-gray-500 mt-0.5">Ручной запуск уборки через Front всегда доступен, авто-триггеры (таймеры) работают параллельно в фоне. Дублирование задач на один стол исключается автоматически</p>
                 </div>
               </label>
             </div>
@@ -602,7 +602,7 @@ import { PuduPrototypeComponent } from '../pudu-prototype.component';
                   <h4 class="text-sm font-semibold text-gray-900 mb-1">Загрузка рекламных материалов</h4>
                   <p class="text-sm text-gray-600 leading-relaxed">
                     Загрузка рекламных материалов (видео, изображения, аудио) производится через приложение PuduLink.
-                    Обратитесь к инженеру NE для настройки контента. В будущем функция будет доступна через iikoSignage.
+                    Обратитесь к инженеру NE для настройки контента. В будущем функция будет доступна через Signage.
                   </p>
                 </div>
               </div>

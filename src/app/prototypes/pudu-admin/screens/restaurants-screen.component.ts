@@ -135,7 +135,7 @@ type NeConnectionStatus = 'connected' | 'not_configured' | 'error';
               <thead>
                 <tr class="bg-gray-50">
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      title="Название ресторана (торгового предприятия) из платформы iiko">
+                      title="Название ресторана (торгового предприятия)">
                     Название ресторана
                   </th>
                   <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"

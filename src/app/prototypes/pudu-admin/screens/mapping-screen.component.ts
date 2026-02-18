@@ -181,7 +181,7 @@ interface Toast {
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48" title="Название стола из конфигурации залов iiko. Для ручных столов — введённый пользователем номер">Стол iiko</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48" title="Название стола из конфигурации залов. Для ручных столов — введённый пользователем номер">Стол</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Точки на карте робота, привязанные к этому столу. Один стол может иметь несколько точек подъезда (1:N)">Привязанные точки</th>
                     <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20" title="Индикатор наличия привязки точек к столу. Зелёный — стол замаплен, серый — нет привязки">Статус</th>
                   </tr>
@@ -479,7 +479,7 @@ interface Toast {
                 <thead class="bg-gray-50">
                   <tr>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48" title="Название точки на карте робота">Точка робота</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Стол iiko, привязанный к этой точке робота">Привязанный стол</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Стол, привязанный к этой точке робота">Привязанный стол</th>
                     <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20" title="Индикатор наличия привязки стола к точке">Статус</th>
                   </tr>
                 </thead>
