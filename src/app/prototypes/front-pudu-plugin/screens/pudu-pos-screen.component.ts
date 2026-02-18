@@ -1056,9 +1056,12 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
     this.robotStatusSubtitle = 'Выберите свободного робота для выполнения уборки';
     this.robotStatusProceedLabel = 'Выбрать столы для уборки →';
     this.pendingAfterRobotStatus = 'cleanup_multi_select';
-    this.activeModal = 'robot_status';
-    this.loadRobots();
+    // Немедленно заполняем роботов из mock-данных (без задержки)
+    this.availableRobots = [...MOCK_AVAILABLE_ROBOTS];
     this.lastRobotRefresh = new Date();
+    this.robotsLoading = false;
+    this.robotsError = false;
+    this.activeModal = 'robot_status';
   }
 
   // Сбросить свойства окна к значениям по умолчанию

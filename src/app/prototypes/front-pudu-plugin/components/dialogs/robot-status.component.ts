@@ -45,7 +45,7 @@ import { displayRobotNameDual } from '../../utils/display-robot-name';
                  'cursor-not-allowed opacity-50': proceedLabel && robot.status === 'offline',
                  'bg-[#b8c959]/10 border-l-2 border-l-[#b8c959]': isSelected(robot)
                }"
-               (click)="proceedLabel && robot.status !== 'offline' ? selectRobot(robot) : null">
+               (click)="onRowClick(robot)">
             <!-- Выбор (галочка) — только в режиме выбора -->
             <div class="flex items-center gap-2">
               <span *ngIf="proceedLabel"
@@ -180,6 +180,12 @@ export class RobotStatusComponent {
 
   selectRobot(robot: AvailableRobot): void {
     this.selectedRobotId = this.selectedRobotId === robot.robot_id ? null : robot.robot_id;
+  }
+
+  onRowClick(robot: AvailableRobot): void {
+    if (!this.proceedLabel) return;
+    if (robot.status === 'offline') return;
+    this.selectRobot(robot);
   }
 
   isSelected(robot: AvailableRobot): boolean {
