@@ -15,8 +15,8 @@ import { displayRobotNameDual } from '../../utils/display-robot-name';
       <div class="space-y-4">
         <!-- Header -->
         <div>
-          <h2 class="text-2xl font-normal text-[#b8c959] text-center mb-2">Статус роботов</h2>
-          <p class="text-base text-center text-gray-300 mb-6">Текущее состояние всех роботов ресторана</p>
+          <h2 class="text-2xl font-normal text-[#b8c959] text-center mb-2">{{ title }}</h2>
+          <p class="text-base text-center text-gray-300 mb-6">{{ subtitle }}</p>
         </div>
 
         <!-- Таблица роботов (read-only) -->
@@ -120,12 +120,20 @@ import { displayRobotNameDual } from '../../utils/display-robot-name';
           </button>
         </div>
 
-        <!-- Footer: кнопка закрытия -->
-        <button (click)="onClose.emit()"
-          class="w-full h-14 bg-[#1a1a1a] text-white hover:bg-[#252525] border-none rounded font-medium transition-colors"
-          aria-label="Закрыть окно статусов роботов">
-          Закрыть
-        </button>
+        <!-- Footer: кнопки -->
+        <div class="space-y-2">
+          <!-- Кнопка «Продолжить» (только в режиме выбора робота) -->
+          <button *ngIf="proceedLabel" (click)="onProceed.emit()"
+            class="w-full h-14 bg-[#b8c959] text-black hover:bg-[#c8d96a] border-none rounded font-medium transition-colors"
+            [attr.aria-label]="proceedLabel">
+            {{ proceedLabel }}
+          </button>
+          <button (click)="onClose.emit()"
+            class="w-full h-14 bg-[#1a1a1a] text-white hover:bg-[#252525] border-none rounded font-medium transition-colors"
+            aria-label="Закрыть окно статусов роботов">
+            Закрыть
+          </button>
+        </div>
       </div>
     </pudu-pos-dialog>
   `,
@@ -136,8 +144,12 @@ export class RobotStatusComponent {
   @Input() loading = false;
   @Input() error = false;
   @Input() lastRefresh: Date = new Date();
+  @Input() title: string = 'Статус роботов';
+  @Input() subtitle: string = 'Текущее состояние всех роботов ресторана';
+  @Input() proceedLabel: string | null = null;
   @Output() onClose = new EventEmitter<void>();
   @Output() onRefresh = new EventEmitter<void>();
+  @Output() onProceed = new EventEmitter<void>();
 
   get sortedRobots(): AvailableRobot[] {
     const order: Record<string, number> = { free: 0, busy: 1, offline: 2 };

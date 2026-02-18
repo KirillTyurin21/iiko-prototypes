@@ -492,8 +492,12 @@ import { RobotStatusComponent } from '../components/dialogs/robot-status.compone
         [loading]="robotsLoading"
         [error]="robotsError"
         [lastRefresh]="lastRobotRefresh"
-        (onClose)="closeDialog()"
+        [title]="robotStatusTitle"
+        [subtitle]="robotStatusSubtitle"
+        [proceedLabel]="robotStatusProceedLabel"
+        (onClose)="onRobotStatusClose()"
         (onRefresh)="loadRobots()"
+        (onProceed)="onRobotStatusProceed()"
       ></pudu-robot-status>
 
       <!-- v1.8: Окно «Плагины» -->
@@ -610,6 +614,11 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
   marketingRobotId: string | null = null;
   marketingRobotName: string | null = null;
   robotSelectPurpose: 'marketing' | null = null;
+  // Режим окна «Статус роботов» (в зависимости от контекста вызова)
+  robotStatusTitle: string = 'Статус роботов';
+  robotStatusSubtitle: string = 'Текущее состояние всех роботов ресторана';
+  robotStatusProceedLabel: string | null = null;
+  pendingAfterRobotStatus: PuduModalType | null = null;
 
   // H6: Смешанная уборка
   infoToast: { title: string } | null = null;
@@ -786,7 +795,12 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
 
       // 2. Открыть конкретную модалку
       if (params['modal']) {
-        this.activeModal = params['modal'] as PuduModalType;
+        // Для уборки со главного экрана — сначала показываем «Выбор робота»
+        if (params['modal'] === 'cleanup_multi_select') {
+          this.openRobotStatusForCleanup();
+        } else {
+          this.activeModal = params['modal'] as PuduModalType;
+        }
       }
 
       // 3. Запустить сценарий (автоцепочку)
@@ -1030,9 +1044,45 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
 
   // v1.4 (H3): Просмотр статусов роботов
   openRobotStatus(): void {
+    this.resetRobotStatusProps();
     this.activeModal = 'robot_status';
     this.loadRobots();
     this.lastRobotRefresh = new Date();
+  }
+
+  // Открыть «Статус роботов» в режиме «Выбор робота» (для флоу уборки)
+  openRobotStatusForCleanup(): void {
+    this.robotStatusTitle = 'Выбор робота';
+    this.robotStatusSubtitle = 'Выберите свободного робота для выполнения уборки';
+    this.robotStatusProceedLabel = 'Выбрать столы для уборки →';
+    this.pendingAfterRobotStatus = 'cleanup_multi_select';
+    this.activeModal = 'robot_status';
+    this.loadRobots();
+    this.lastRobotRefresh = new Date();
+  }
+
+  // Сбросить свойства окна к значениям по умолчанию
+  resetRobotStatusProps(): void {
+    this.robotStatusTitle = 'Статус роботов';
+    this.robotStatusSubtitle = 'Текущее состояние всех роботов ресторана';
+    this.robotStatusProceedLabel = null;
+    this.pendingAfterRobotStatus = null;
+  }
+
+  // Закрыть окно статусов роботов
+  onRobotStatusClose(): void {
+    this.resetRobotStatusProps();
+    this.closeDialog();
+  }
+
+  // Продолжить из окна статусов роботов к следующему модальному окну
+  onRobotStatusProceed(): void {
+    const next = this.pendingAfterRobotStatus;
+    this.resetRobotStatusProps();
+    this.activeModal = null;
+    if (next) {
+      setTimeout(() => { this.activeModal = next; }, 100);
+    }
   }
 
   // v1.8: Открыть меню «Дополнения» → «Плагины»
@@ -1050,10 +1100,10 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
     this.activeModal = 'pudu_commands';
   }
 
-  // v1.8: Из «Команды роботам» → «Уборка (Столы)»
+  // v1.8: Из «Команды роботам» → «Уборка (Столы)»: сначала показываем «Выбор робота»
   onCommandCleanup(): void {
     this.activeModal = null;
-    setTimeout(() => this.onCleanupMulti(), 100);
+    setTimeout(() => this.openRobotStatusForCleanup(), 100);
   }
 
   // v1.8: Из «Команды роботам» → «Маркетинг»
