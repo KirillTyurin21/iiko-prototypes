@@ -190,15 +190,17 @@ interface Toast {
                   <tr *ngFor="let mapping of filteredMappings" class="hover:bg-gray-50/50">
                     <!-- Стол iiko (v1.9: L4 бейдж, L5 удаление) -->
                     <td class="px-4 py-3 align-top">
-                      <div class="flex items-center gap-2">
-                        <div>
-                          <span class="font-medium text-sm text-gray-900">{{ getTableName(mapping.table_id) }}</span>
-                          <span *ngIf="getTableSection(mapping.table_id)" class="ml-2 text-xs text-gray-400">{{ getTableSection(mapping.table_id) }}</span>
-                          <span *ngIf="isManualTable(mapping.table_id)" class="ml-2 text-xs text-gray-400 italic">(ручной)</span>
+                      <div class="flex items-start gap-2">
+                        <div class="flex-1">
+                          <div class="font-medium text-sm text-gray-900">
+                            {{ getTableName(mapping.table_id) }}
+                            <span *ngIf="isManualTable(mapping.table_id)" class="ml-1 text-xs text-gray-400 italic font-normal">(ручной)</span>
+                          </div>
+                          <div *ngIf="getTableSection(mapping.table_id)" class="text-xs text-gray-500">{{ getTableSection(mapping.table_id) }}</div>
                         </div>
                         <button
                           *ngIf="isManualTable(mapping.table_id)"
-                          class="ml-auto text-gray-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
+                          class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50 shrink-0"
                           [attr.aria-label]="'Удалить ручной стол «' + getTableName(mapping.table_id) + '»'"
                           (click)="confirmDeleteManualTable(mapping.table_id); $event.stopPropagation()"
                         >
