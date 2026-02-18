@@ -89,6 +89,8 @@ import {
   ScrollText,
   // Rename / confirm inline edit
   Check,
+  // PUDU v1.8: plugins menu
+  Terminal,
 } from 'lucide-angular';
 
 /**
@@ -186,6 +188,8 @@ const icons = {
   ScrollText,
   // Rename / confirm inline edit
   Check,
+  // PUDU v1.8: plugins menu
+  Terminal,
 };
 
 @NgModule({

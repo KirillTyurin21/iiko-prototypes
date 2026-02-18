@@ -187,25 +187,12 @@ import { RobotStatusComponent } from '../components/dialogs/robot-status.compone
           </div>
         </div>
 
-        <!-- Панель кнопок PUDU — контекст «Главный экран»: 3 кнопки v1.4 (H4) -->
-        <div class="grid grid-cols-3 gap-3 p-4 border-t border-gray-600">
-          <!-- Маркетинг: теперь через П1 (выбор робота) -->
-          <button (click)="openRobotSelectForMarketing()" aria-label="Запуск маркетингового круиза"
+        <!-- Панель кнопок PUDU — контекст «Главный экран»: 1 кнопка «Дополнения» v1.8 -->
+        <div class="grid grid-cols-1 gap-3 p-4 border-t border-gray-600">
+          <button (click)="openPluginsMenu()" aria-label="Дополнения"
             class="h-14 bg-[#1a1a1a] text-white hover:bg-[#252525] rounded flex flex-col items-center justify-center gap-1 transition-colors">
-            <lucide-icon name="radio" [size]="20"></lucide-icon>
-            <span class="text-xs">Маркетинг</span>
-          </button>
-          <!-- Уборка: мультивыбор столов -->
-          <button (click)="onCleanupMulti()" aria-label="Уборка посуды с выбором столов"
-            class="h-14 bg-[#1a1a1a] text-white hover:bg-[#252525] rounded flex flex-col items-center justify-center gap-1 transition-colors">
-            <lucide-icon name="trash-2" [size]="20"></lucide-icon>
-            <span class="text-xs">Уборка (столы)</span>
-          </button>
-          <!-- Статус роботов: NEW v1.4 (H4) -->
-          <button (click)="openRobotStatus()" aria-label="Просмотр статусов роботов"
-            class="h-14 bg-[#1a1a1a] text-white hover:bg-[#252525] rounded flex flex-col items-center justify-center gap-1 transition-colors">
-            <lucide-icon name="bot" [size]="20"></lucide-icon>
-            <span class="text-xs">Статус роботов</span>
+            <lucide-icon name="puzzle" [size]="20"></lucide-icon>
+            <span class="text-xs">Дополнения</span>
           </button>
         </div>
       </ng-container>
@@ -508,6 +495,72 @@ import { RobotStatusComponent } from '../components/dialogs/robot-status.compone
         (onClose)="closeDialog()"
         (onRefresh)="loadRobots()"
       ></pudu-robot-status>
+
+      <!-- v1.8: Окно «Плагины» -->
+      <div *ngIf="activeModal === 'plugins_menu'"
+           class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+           (click)="closeDialog()">
+        <div class="bg-[#3a3a3a] rounded-lg w-full max-w-md mx-4 overflow-hidden animate-slide-up"
+             (click)="$event.stopPropagation()">
+          <!-- Заголовок -->
+          <div class="flex items-center justify-between px-5 py-4 border-b border-gray-600">
+            <h2 class="text-lg font-semibold text-white">Плагины</h2>
+            <button (click)="closeDialog()" class="text-gray-400 hover:text-white transition-colors">
+              <lucide-icon name="x" [size]="20"></lucide-icon>
+            </button>
+          </div>
+          <!-- Сетка кнопок плагинов (3 в ряд, 6 рядов) -->
+          <div class="p-4">
+            <div class="grid grid-cols-3 gap-2" style="grid-template-rows: repeat(6, 1fr);">
+              <button (click)="onPluginRobotStatus()"
+                class="h-16 text-sm bg-white text-black hover:bg-gray-100 border border-gray-300 rounded font-medium transition-colors flex flex-col items-center justify-center gap-1">
+                <span class="text-center leading-tight px-1">Pudu: Статус роботов</span>
+              </button>
+              <button (click)="onPluginPuduCommands()"
+                class="h-16 text-sm bg-white text-black hover:bg-gray-100 border border-gray-300 rounded font-medium transition-colors flex flex-col items-center justify-center gap-1">
+                <span class="text-center leading-tight px-1">Pudu: Команды</span>
+              </button>
+              <!-- Пустые плейсхолдеры для визуализации сетки 3×6 -->
+              <div *ngFor="let i of pluginPlaceholders"
+                   class="h-16 bg-[#2d2d2d] border border-gray-600/30 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- v1.8: Окно «Команды роботам» -->
+      <div *ngIf="activeModal === 'pudu_commands'"
+           class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+           (click)="closeDialog()">
+        <div class="bg-[#3a3a3a] rounded-lg w-full max-w-md mx-4 overflow-hidden animate-slide-up"
+             (click)="$event.stopPropagation()">
+          <!-- Заголовок -->
+          <div class="flex items-center justify-between px-5 py-4 border-b border-gray-600">
+            <div class="flex items-center gap-2">
+              <button (click)="activeModal = 'plugins_menu'" class="text-gray-400 hover:text-white transition-colors">
+                <lucide-icon name="arrow-left" [size]="18"></lucide-icon>
+              </button>
+              <h2 class="text-lg font-semibold text-white">Команды роботам</h2>
+            </div>
+            <button (click)="closeDialog()" class="text-gray-400 hover:text-white transition-colors">
+              <lucide-icon name="x" [size]="20"></lucide-icon>
+            </button>
+          </div>
+          <!-- Кнопки команд -->
+          <div class="p-4">
+            <div class="grid grid-cols-3 gap-2">
+              <button (click)="onCommandCleanup()"
+                class="h-16 text-sm bg-white text-black hover:bg-gray-100 border border-gray-300 rounded font-medium transition-colors flex flex-col items-center justify-center gap-1">
+                <span class="text-center leading-tight px-1">Уборка (Столы)</span>
+              </button>
+              <button (click)="onCommandMarketing()"
+                class="h-16 text-sm bg-white text-black hover:bg-gray-100 border border-gray-300 rounded font-medium transition-colors flex flex-col items-center justify-center gap-1">
+                <span class="text-center leading-tight px-1">Маркетинг</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   `,
 })
@@ -575,6 +628,9 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
   // H5: Repeating notifications
   private readonly REPEATING_ERROR_CODES = ['E_STOP', 'MANUAL_MODE', 'OBSTACLE', 'LOW_BATTERY'];
   dismissedErrors: Map<string, { robot_id: string; error_code: string; dismissed_at: Date }> = new Map();
+
+  // v1.8: Плейсхолдеры для сетки плагинов (3 колонки × 6 рядов = 18, минус 2 реальные кнопки = 16)
+  pluginPlaceholders = Array.from({ length: 16 }, (_, i) => i);
 
   get totalTrips(): number {
     return Math.ceil(this.orderDishes.length / this.settings.send_dish.max_dishes_per_trip) || 1;
@@ -977,6 +1033,33 @@ export class PuduPosScreenComponent implements OnInit, OnDestroy {
     this.activeModal = 'robot_status';
     this.loadRobots();
     this.lastRobotRefresh = new Date();
+  }
+
+  // v1.8: Открыть меню «Дополнения» → «Плагины»
+  openPluginsMenu(): void {
+    this.activeModal = 'plugins_menu';
+  }
+
+  // v1.8: Из «Плагины» → «Pudu: Статус роботов»
+  onPluginRobotStatus(): void {
+    this.openRobotStatus();
+  }
+
+  // v1.8: Из «Плагины» → «Pudu: Команды»
+  onPluginPuduCommands(): void {
+    this.activeModal = 'pudu_commands';
+  }
+
+  // v1.8: Из «Команды роботам» → «Уборка (Столы)»
+  onCommandCleanup(): void {
+    this.activeModal = null;
+    setTimeout(() => this.onCleanupMulti(), 100);
+  }
+
+  // v1.8: Из «Команды роботам» → «Маркетинг»
+  onCommandMarketing(): void {
+    this.activeModal = null;
+    setTimeout(() => this.openRobotSelectForMarketing(), 100);
   }
 
   // v1.4 (H2): Загрузка роботов

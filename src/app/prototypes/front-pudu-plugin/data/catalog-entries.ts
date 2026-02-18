@@ -57,6 +57,30 @@ const CONTEXT_ORDER_CELLS: CatalogCell[] = [
 
 const CONTEXT_MAIN_CELLS: CatalogCell[] = [
   {
+    id: 'ctx-main-plugins-menu',
+    label: 'Дополнения → Плагины',
+    description: 'Кнопка «Дополнения» → окно «Плагины» с кнопками Pudu: Статус роботов и Pudu: Команды',
+    icon: 'puzzle',
+    iconColor: '#b8c959',
+    category: 'context-main',
+    modalType: 'plugins_menu',
+    context: 'main',
+    badge: 'v1.8',
+    badgeColor: '#8b5cf6',
+  },
+  {
+    id: 'ctx-main-pudu-commands',
+    label: 'Команды роботам',
+    description: 'Окно «Команды роботам» с кнопками «Уборка (Столы)» и «Маркетинг»',
+    icon: 'terminal',
+    iconColor: '#3b82f6',
+    category: 'context-main',
+    modalType: 'pudu_commands',
+    context: 'main',
+    badge: 'v1.8',
+    badgeColor: '#8b5cf6',
+  },
+  {
     id: 'ctx-main-cleanup-multi',
     label: 'Уборка посуды (мультивыбор)',
     description: 'Выбор нескольких столов одновременно для уборки с главного экрана',
@@ -646,18 +670,18 @@ const NOTIFICATION_CELLS: CatalogCell[] = [
 
 export const CATALOG_SECTIONS: CatalogSection[] = [
   {
-    title: 'Контекст: Из заказа',
-    icon: 'receipt',
-    description: 'Действия, вызванные из экрана заказа iikoFront (стол известен)',
-    category: 'context-order',
-    cells: CONTEXT_ORDER_CELLS,
-  },
-  {
     title: 'Контекст: Главный экран',
     icon: 'monitor',
     description: 'Действия с главного экрана iikoFront (нет контекста стола)',
     category: 'context-main',
     cells: CONTEXT_MAIN_CELLS,
+  },
+  {
+    title: 'Контекст: Из заказа',
+    icon: 'receipt',
+    description: 'Действия, вызванные из экрана заказа iikoFront (стол известен)',
+    category: 'context-order',
+    cells: CONTEXT_ORDER_CELLS,
   },
   {
     title: 'Сценарии (цепочки переходов)',
