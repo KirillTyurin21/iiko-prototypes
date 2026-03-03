@@ -38,6 +38,9 @@ ACCESS_CODES.md
 SECURITY_PLAN.md
 files/
 
+# === Cloud Function (серверная безопасность) ===
+cloud-function/
+
 # === Internal docs (local only) ===
 PROMPTS.md
 PROTOTYPES.md
