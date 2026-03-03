@@ -131,6 +131,8 @@ export class ChangelogButtonComponent {
         return import('../../prototypes/pudu-admin/changelog.data');
       case 'front-pudu-plugin':
         return import('../../prototypes/front-pudu-plugin/changelog.data');
+      case 'mgs-casino':
+        return import('../../prototypes/mgs-casino/changelog.data');
       default:
         return Promise.reject('Unknown prototype');
     }

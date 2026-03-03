@@ -106,6 +106,23 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: 'prototype/mgs-casino',
+        canActivate: [accessGuard],
+        loadComponent: () =>
+          import('./components/layout/protected-prototype.component').then(
+            m => m.ProtectedPrototypeComponent
+          ),
+        children: [
+          {
+            path: '',
+            loadChildren: () =>
+              import('./prototypes/mgs-casino/mgs-casino.routes').then(
+                m => m.MGS_CASINO_ROUTES
+              ),
+          },
+        ],
+      },
       // Добавляй новые прототипы здесь
 
       // Wildcard — перенаправление на главную для несуществующих URL

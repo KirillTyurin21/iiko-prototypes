@@ -84,5 +84,9 @@ export const ACCESS_CONFIG: AccessConfig = {
       codeHash: '5561baf88a1aa7b12e64dc103ff2e1274d51998331ea3dc892a21b36f326017f',
       ttlDays: 7,
     },
+    'mgs-casino': {
+      codeHash: 'e9a41f981cb92678b62ac7aeb2287677ee2241d2b19e0f98d932beb8f44a4a88',
+      ttlDays: 7,
+    },
   },
 };

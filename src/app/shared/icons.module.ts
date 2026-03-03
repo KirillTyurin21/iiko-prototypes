@@ -94,6 +94,11 @@ import {
   Terminal,
   // PUDU v1.10: registration
   TimerOff,
+  // MGS Casino
+  ScanLine,
+  Star,
+  Gift,
+  Users,
 } from 'lucide-angular';
 
 /**
@@ -196,6 +201,11 @@ const icons = {
   Terminal,
   // PUDU v1.10: registration
   TimerOff,
+  // MGS Casino
+  ScanLine,
+  Star,
+  Gift,
+  Users,
 };
 
 @NgModule({

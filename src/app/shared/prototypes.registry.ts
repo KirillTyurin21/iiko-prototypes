@@ -40,5 +40,11 @@ export const PROTOTYPES: PrototypeEntry[] = [
     icon: 'bot',
     description: 'Плагин POS-терминала: управление роботами PUDU, отправка меню, уборка, QR-оплата',
   },
+  {
+    path: '/prototype/mgs-casino',
+    label: 'MGS Casino',
+    icon: 'scan-line',
+    description: 'Плагин интеграции Front с системой управления гостями казино MGS',
+  },
   // === Добавляй новые прототипы ВЫШЕ этой строки ===
 ];
