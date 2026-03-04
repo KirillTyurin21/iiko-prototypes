@@ -85,6 +85,17 @@ import { SessionService } from '@/shared/session.service';
           ></lucide-icon>
         </button>
 
+        <!-- Кнопка «Добавить код» (только для авторизованных не-мастеров) -->
+        <button
+          *ngIf="showAddCodeButton"
+          (click)="addCode()"
+          class="flex items-center justify-center gap-2 w-full h-9 text-xs text-sidebar-text-muted hover:text-indigo-300 hover:bg-sidebar-hover transition-colors"
+          [title]="collapsed ? 'Добавить код' : ''"
+        >
+          <lucide-icon name="key-round" [size]="14"></lucide-icon>
+          <span *ngIf="!collapsed">Добавить код</span>
+        </button>
+
         <!-- Кнопка выхода -->
         <button
           (click)="logout()"
@@ -112,8 +123,19 @@ export class SidebarComponent {
     });
   }
 
+  /** Показывать кнопку «Добавить код» только авторизованным не-мастерам */
+  get showAddCodeButton(): boolean {
+    return this.session.isAuthenticated() && !this.session.isMaster();
+  }
+
   isActive(path: string): boolean {
     return this.router.url.startsWith(path);
+  }
+
+  /** Переход на серверную страницу добавления кода */
+  addCode(): void {
+    const returnTo = window.location.pathname;
+    window.location.href = `/__add_code?return_to=${encodeURIComponent(returnTo)}`;
   }
 
   logout(): void {
