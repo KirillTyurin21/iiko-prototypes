@@ -97,6 +97,13 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "1..9": true
+        "1..9": true,
+        "/^cd \"d:\\\\1Документы\\\\Задачи iiko\\\\Прототипы\"; node -e \"console\\.log\\(require\\('crypto'\\)\\.randomBytes\\(32\\)\\.toString\\('hex'\\)\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "yc": true,
+        "nslookup": true,
+        "8.8.8.8": true
     }
 }

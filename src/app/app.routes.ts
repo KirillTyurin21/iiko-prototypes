@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { accessGuard } from './shared/access.guard';
 
 /**
  * Главные маршруты приложения.
@@ -7,9 +6,8 @@ import { accessGuard } from './shared/access.guard';
  * Для добавления нового прототипа:
  * 1. Создай папку в src/app/prototypes/<имя>/
  * 2. Создай файл маршрутов (demo.routes.ts)
- * 3. Добавь loadChildren ниже (обёрнутый в protected-prototype)
+ * 3. Добавь loadChildren ниже
  * 4. Добавь запись в prototypes.registry.ts
- * 5. Добавь код в access-codes.ts
  */
 export const routes: Routes = [
   {
@@ -22,106 +20,46 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/home.component').then(m => m.HomeComponent),
       },
-      // === ПРОТОТИПЫ (защищены кодом доступа) ===
+      // === ПРОТОТИПЫ ===
       {
         path: 'prototype/demo',
-        canActivate: [accessGuard],
-        loadComponent: () =>
-          import('./components/layout/protected-prototype.component').then(
-            m => m.ProtectedPrototypeComponent
-          ),
-        children: [
-          {
-            path: '',
-            loadChildren: () =>
-              import('./prototypes/demo/demo.routes').then(m => m.DEMO_ROUTES),
-          },
-        ],
+        loadChildren: () =>
+          import('./prototypes/demo/demo.routes').then(m => m.DEMO_ROUTES),
       },
       {
         path: 'prototype/web-screens',
-        canActivate: [accessGuard],
-        loadComponent: () =>
-          import('./components/layout/protected-prototype.component').then(
-            m => m.ProtectedPrototypeComponent
+        loadChildren: () =>
+          import('./prototypes/web-screens/web-screens.routes').then(
+            m => m.WEB_SCREENS_ROUTES
           ),
-        children: [
-          {
-            path: '',
-            loadChildren: () =>
-              import('./prototypes/web-screens/web-screens.routes').then(
-                m => m.WEB_SCREENS_ROUTES
-              ),
-          },
-        ],
       },
       {
         path: 'prototype/front-plugins',
-        canActivate: [accessGuard],
-        loadComponent: () =>
-          import('./components/layout/protected-prototype.component').then(
-            m => m.ProtectedPrototypeComponent
+        loadChildren: () =>
+          import('./prototypes/front-plugins/front-plugins.routes').then(
+            m => m.FRONT_PLUGINS_ROUTES
           ),
-        children: [
-          {
-            path: '',
-            loadChildren: () =>
-              import('./prototypes/front-plugins/front-plugins.routes').then(
-                m => m.FRONT_PLUGINS_ROUTES
-              ),
-          },
-        ],
       },
       {
         path: 'prototype/pudu-admin',
-        canActivate: [accessGuard],
-        loadComponent: () =>
-          import('./components/layout/protected-prototype.component').then(
-            m => m.ProtectedPrototypeComponent
+        loadChildren: () =>
+          import('./prototypes/pudu-admin/pudu-admin.routes').then(
+            m => m.PUDU_ADMIN_ROUTES
           ),
-        children: [
-          {
-            path: '',
-            loadChildren: () =>
-              import('./prototypes/pudu-admin/pudu-admin.routes').then(
-                m => m.PUDU_ADMIN_ROUTES
-              ),
-          },
-        ],
       },
       {
         path: 'prototype/front-pudu-plugin',
-        canActivate: [accessGuard],
-        loadComponent: () =>
-          import('./components/layout/protected-prototype.component').then(
-            m => m.ProtectedPrototypeComponent
+        loadChildren: () =>
+          import('./prototypes/front-pudu-plugin/pudu-plugin.routes').then(
+            m => m.PUDU_PLUGIN_ROUTES
           ),
-        children: [
-          {
-            path: '',
-            loadChildren: () =>
-              import('./prototypes/front-pudu-plugin/pudu-plugin.routes').then(
-                m => m.PUDU_PLUGIN_ROUTES
-              ),
-          },
-        ],
       },
       {
         path: 'prototype/mgs-casino',
-        canActivate: [accessGuard],
-        loadComponent: () =>
-          import('./components/layout/protected-prototype.component').then(
-            m => m.ProtectedPrototypeComponent
+        loadChildren: () =>
+          import('./prototypes/mgs-casino/mgs-casino.routes').then(
+            m => m.MGS_CASINO_ROUTES
           ),
-        children: [
-          {
-            path: '',
-            loadChildren: () =>
-              import('./prototypes/mgs-casino/mgs-casino.routes').then(
-                m => m.MGS_CASINO_ROUTES
-              ),
-          },
-        ],
       },
       // Добавляй новые прототипы здесь
 
