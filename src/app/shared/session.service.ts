@@ -40,6 +40,16 @@ export class SessionService {
       this.parseToken(urlToken);
       // Сохраняем для F5 на глубоких маршрутах
       try { localStorage.setItem(TOKEN_STORAGE_KEY, urlToken); } catch {}
+
+      // Мгновенно очищаем ?_s= из адресной строки —
+      // токен не должен быть виден пользователю и попадать в историю
+      try {
+        params.delete('_s');
+        const cleanSearch = params.toString();
+        const cleanUrl = window.location.pathname + (cleanSearch ? '?' + cleanSearch : '');
+        window.history.replaceState(null, '', cleanUrl);
+      } catch {}
+
       return;
     }
 

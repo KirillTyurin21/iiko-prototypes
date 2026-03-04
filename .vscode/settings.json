@@ -104,6 +104,14 @@
         },
         "yc": true,
         "nslookup": true,
-        "8.8.8.8": true
+        "8.8.8.8": true,
+        "/^node -e \"console\\.log\\(require\\('crypto'\\)\\.randomBytes\\(32\\)\\.toString\\('hex'\\)\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        ".\\deploy.ps1": true,
+        "where.exe": true,
+        "Test-Path": true,
+        "ConvertFrom-Json": true
     }
 }
