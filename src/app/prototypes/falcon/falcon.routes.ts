@@ -11,14 +11,14 @@ export const FALCON_ROUTES: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./screens/Falcon-catalog-screen.component').then(
+          import('./screens/falcon-catalog-screen.component').then(
             m => m.FalconCatalogScreenComponent
           ),
       },
       {
         path: 'pos',
         loadComponent: () =>
-          import('./screens/Falcon-pos-screen.component').then(
+          import('./screens/falcon-pos-screen.component').then(
             m => m.FalconPosScreenComponent
           ),
       },
