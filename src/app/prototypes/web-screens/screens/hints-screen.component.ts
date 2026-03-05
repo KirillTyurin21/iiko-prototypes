@@ -310,7 +310,9 @@ import { CS_CONTROLS, DISCOUNTS, PRODUCT_TREE } from '../data/cs-mock-data';
                   <input
                     type="number"
                     class="discount-input"
+                    [class.no-suffix]="drawerHint.discountType !== 'percent'"
                     [(ngModel)]="drawerHint.discountValue"
+                    (input)="onDiscountValueChange($event)"
                     min="0"
                     step="0.01"
                   />
@@ -562,6 +564,9 @@ import { CS_CONTROLS, DISCOUNTS, PRODUCT_TREE } from '../data/cs-mock-data';
       width: 100%; height: 36px; border: 1px solid #e0e0e0; border-radius: 4px;
       padding: 0 32px 0 10px; font-size: 13px; font-family: Roboto, sans-serif; color: #424242;
       outline: none; transition: border-color 0.15s; background: #fff;
+    }
+    .discount-input.no-suffix {
+      padding-right: 10px;
     }
     .discount-input:focus { border-color: #448aff; }
     .discount-suffix {
@@ -867,8 +872,14 @@ export class HintsScreenComponent implements OnInit {
 
   onDiscountValueChange(event: Event): void {
     if (!this.drawerHint) return;
-    const val = (event.target as HTMLInputElement).valueAsNumber;
-    this.drawerHint.discountValue = isNaN(val) ? 0 : Math.round(val * 100) / 100;
+    const input = event.target as HTMLInputElement;
+    const raw = input.value;
+    // Ограничиваем до 2 знаков после точки
+    const match = raw.match(/^(\d*\.\d{2})\d+$/);
+    if (match) {
+      input.value = match[1];
+      this.drawerHint.discountValue = parseFloat(match[1]);
+    }
   }
 
   // ─── Toast ─────────────────────────────────
