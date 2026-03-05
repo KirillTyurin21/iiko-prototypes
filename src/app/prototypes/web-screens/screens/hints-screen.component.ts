@@ -321,12 +321,16 @@ import { CS_CONTROLS, DISCOUNTS, PRODUCT_TREE } from '../data/cs-mock-data';
               </div>
               <div class="field-row">
                 <label class="field-label">Скидка</label>
-                <ui-select
-                  [value]="drawerHint.discount || ''"
-                  (valueChange)="drawerHint.discount = $event || null"
-                  [options]="discountOptions"
-                  placeholder="Выберите скидку..."
-                ></ui-select>
+                <select
+                  class="native-select"
+                  [ngModel]="drawerHint.discount || ''"
+                  (ngModelChange)="drawerHint.discount = $event || null"
+                >
+                  <option value="" disabled>Выберите скидку...</option>
+                  <option *ngFor="let d of discountsList" [value]="d.name">
+                    {{ d.name }} ({{ d.type === 'percent' ? d.value + '%' : d.value }})
+                  </option>
+                </select>
               </div>
             </div>
           </div>
@@ -573,6 +577,12 @@ import { CS_CONTROLS, DISCOUNTS, PRODUCT_TREE } from '../data/cs-mock-data';
       position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
       font-size: 13px; color: #9e9e9e; pointer-events: none;
     }
+    .native-select {
+      width: 100%; height: 36px; border: 1px solid #e0e0e0; border-radius: 4px;
+      padding: 0 10px; font-size: 13px; font-family: Roboto, sans-serif; color: #424242;
+      outline: none; transition: border-color 0.15s; background: #fff; cursor: pointer;
+    }
+    .native-select:focus { border-color: #448aff; }
   `],
 })
 export class HintsScreenComponent implements OnInit {
@@ -608,10 +618,7 @@ export class HintsScreenComponent implements OnInit {
   productTree = PRODUCT_TREE;
 
   // Options
-  discountOptions: SelectOption[] = DISCOUNTS.map(d => ({
-    value: d.name,
-    label: `${d.name} (${d.type === 'percent' ? d.value + '%' : d.value})`,
-  }));
+  discountsList = DISCOUNTS;
 
   hintControlOptions: SelectOption[] = [];
 
