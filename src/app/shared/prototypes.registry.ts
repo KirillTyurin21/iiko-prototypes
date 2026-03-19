@@ -53,10 +53,10 @@ export const PROTOTYPES: PrototypeEntry[] = [
     description: 'Сравнение 4 подходов к автоматической демонстрации User Stories',
   },
   {
-    path: '/prototype/yandex-pay',
-    label: 'QR код для Яндекс.Пэй',
+    path: '/prototype/comet',
+    label: 'Comet — Панель интеграций',
     icon: 'qr-code',
-    description: 'Панель управления QR-табличками и ключами Яндекс.Пэй для ресторанов',
+    description: 'Панель управления QR-табличками и ключами платёжной системы',
   },
   // === Добавляй новые прототипы ВЫШЕ этой строки ===
 ];

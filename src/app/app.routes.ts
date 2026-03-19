@@ -69,10 +69,10 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'prototype/yandex-pay',
+        path: 'prototype/comet',
         loadChildren: () =>
-          import('./prototypes/yandex-pay/yandex-pay.routes').then(
-            m => m.YANDEX_PAY_ROUTES
+          import('./prototypes/comet/comet.routes').then(
+            m => m.COMET_ROUTES
           ),
       },
       // Добавляй новые прототипы здесь

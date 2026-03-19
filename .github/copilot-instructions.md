@@ -32,6 +32,7 @@
 | `falcon` | *(см. files/ACCESS_CODES.md)* |
 | `eagle` | *(см. files/ACCESS_CODES.md)* |
 | `neptune` | *(см. files/ACCESS_CODES.md)* |
+| `comet` | *(см. files/ACCESS_CODES.md)* |
 
 ### Не клиентские прототипы (кодовое имя НЕ нужно)
 

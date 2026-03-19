@@ -32,7 +32,7 @@ import {
 } from '../data/mock-data';
 
 @Component({
-  selector: 'app-yandex-pay-main-screen',
+  selector: 'app-comet-main-screen',
   standalone: true,
   imports: [
     CommonModule,
@@ -401,7 +401,7 @@ import {
     ></ui-confirm-dialog>
   `,
 })
-export class YandexPayMainScreenComponent implements OnInit {
+export class CometMainScreenComponent implements OnInit {
   private storage = inject(StorageService);
 
   organizations: Organization[] = [];
@@ -428,7 +428,7 @@ export class YandexPayMainScreenComponent implements OnInit {
   private debouncedSearchQuery = '';
 
   ngOnInit(): void {
-    this.organizations = this.storage.load('yandex-pay', 'organizations', MOCK_ORGANIZATIONS);
+    this.organizations = this.storage.load('comet', 'organizations', MOCK_ORGANIZATIONS);
   }
 
   // --- Search ---
@@ -666,7 +666,7 @@ export class YandexPayMainScreenComponent implements OnInit {
   }
 
   private persistOrganizations(): void {
-    this.storage.save('yandex-pay', 'organizations', this.organizations);
+    this.storage.save('comet', 'organizations', this.organizations);
   }
 
   private showToast(message: string, description?: string): void {
