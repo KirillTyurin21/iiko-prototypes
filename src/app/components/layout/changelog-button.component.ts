@@ -135,6 +135,8 @@ export class ChangelogButtonComponent {
         return import('../../prototypes/neptune/changelog.data');
       case 'demo-wizard':
         return import('../../prototypes/demo-wizard/changelog.data');
+      case 'yandex-pay':
+        return import('../../prototypes/yandex-pay/changelog.data');
       default:
         return Promise.reject('Unknown prototype');
     }

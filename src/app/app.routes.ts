@@ -68,6 +68,13 @@ export const routes: Routes = [
             m => m.DEMO_WIZARD_ROUTES
           ),
       },
+      {
+        path: 'prototype/yandex-pay',
+        loadChildren: () =>
+          import('./prototypes/yandex-pay/yandex-pay.routes').then(
+            m => m.YANDEX_PAY_ROUTES
+          ),
+      },
       // Добавляй новые прототипы здесь
 
       // Wildcard — перенаправление на главную для несуществующих URL

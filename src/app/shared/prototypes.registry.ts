@@ -52,5 +52,11 @@ export const PROTOTYPES: PrototypeEntry[] = [
     icon: 'wand-2',
     description: 'Сравнение 4 подходов к автоматической демонстрации User Stories',
   },
+  {
+    path: '/prototype/yandex-pay',
+    label: 'QR код для Яндекс.Пэй',
+    icon: 'qr-code',
+    description: 'Панель управления QR-табличками и ключами Яндекс.Пэй для ресторанов',
+  },
   // === Добавляй новые прототипы ВЫШЕ этой строки ===
 ];

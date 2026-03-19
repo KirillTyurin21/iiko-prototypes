@@ -1,0 +1,685 @@
+import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IconsModule } from '@/shared/icons.module';
+import { StorageService } from '@/shared/storage.service';
+import {
+  UiButtonComponent,
+  UiCardComponent,
+  UiCardHeaderComponent,
+  UiCardTitleComponent,
+  UiCardContentComponent,
+  UiInputComponent,
+  UiSelectComponent,
+  UiConfirmDialogComponent,
+  UiAlertComponent,
+  UiBadgeComponent,
+  UiDividerComponent,
+  SelectOption,
+} from '@/components/ui';
+import {
+  Organization,
+  Store,
+  KeyDetails,
+  YpTerminal,
+  Account,
+} from '../types';
+import {
+  MOCK_ORGANIZATIONS,
+  MOCK_ACCOUNTS,
+  getMockTerminals,
+  getMockDefaultAccountKey,
+} from '../data/mock-data';
+
+@Component({
+  selector: 'app-yandex-pay-main-screen',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    IconsModule,
+    UiButtonComponent,
+    UiCardComponent,
+    UiCardHeaderComponent,
+    UiCardTitleComponent,
+    UiCardContentComponent,
+    UiInputComponent,
+    UiSelectComponent,
+    UiConfirmDialogComponent,
+    UiAlertComponent,
+    UiBadgeComponent,
+    UiDividerComponent,
+  ],
+  template: `
+    <!-- Header -->
+    <header class="border-b border-border bg-white">
+      <div class="flex h-14 items-center gap-4 px-4">
+        <div class="flex items-center gap-2">
+          <svg width="60" height="24" viewBox="0 0 60 24" fill="none" class="text-[#E94B35]">
+            <path d="M0 0H8V24H0V0Z" fill="currentColor" />
+            <path d="M12 0H20V24H12V0Z" fill="currentColor" />
+            <path d="M28 7L32 0H40L36 7H44V17H36L40 24H32L28 17V7Z" fill="currentColor" />
+            <path
+              d="M52 0C56.4183 0 60 3.58172 60 8V16C60 20.4183 56.4183 24 52 24C47.5817 24 44 20.4183 44 16V8C44 3.58172 47.5817 0 52 0Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+        <div class="ml-auto flex items-center gap-2">
+          <button class="p-2 rounded hover:bg-gray-100 transition-colors">
+            <lucide-icon name="search" [size]="20" class="text-gray-500"></lucide-icon>
+          </button>
+          <button class="flex items-center gap-2 px-3 py-1.5 rounded hover:bg-gray-100 transition-colors text-sm text-gray-700">
+            <lucide-icon name="user" [size]="16"></lucide-icon>
+            <span>user</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex" style="height: calc(100vh - 3.5rem)">
+      <!-- Sidebar Navigation -->
+      <aside class="w-52 border-r border-gray-200 bg-gray-50/70 shrink-0">
+        <nav class="p-2">
+          <div class="bg-gray-200/80 text-gray-800 rounded px-3 py-2 text-sm font-medium">
+            Интеграции
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <!-- Page Header -->
+        <div class="border-b border-gray-200 bg-white px-6 py-4 shrink-0">
+          <div class="flex items-center justify-between gap-4">
+            <h1 class="text-2xl font-semibold text-gray-900">Яндекс.Пэй</h1>
+            <div class="relative w-80">
+              <lucide-icon
+                name="search"
+                [size]="16"
+                class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"
+              ></lucide-icon>
+              <input
+                type="text"
+                placeholder="Поиск по ресторанам..."
+                [ngModel]="searchQuery"
+                (ngModelChange)="onSearchChange($event)"
+                class="w-full h-9 pl-9 pr-3 text-sm border border-gray-300 rounded-md bg-white
+                       placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400
+                       transition-all"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Split Panel: Tree + Detail -->
+        <div class="flex flex-1 min-h-0">
+          <!-- Organization Tree -->
+          <div class="w-96 border-r border-gray-200 overflow-y-auto shrink-0">
+            <div class="p-4">
+              <h2 class="mb-4 text-sm font-semibold text-gray-500">Структура торговых предприятий</h2>
+
+              <div *ngIf="filteredOrganizations.length === 0" class="py-8 text-center text-sm text-gray-400">
+                Ничего не найдено
+              </div>
+
+              <div class="space-y-1">
+                <div *ngFor="let org of filteredOrganizations">
+                  <!-- Organization Row -->
+                  <button
+                    (click)="toggleOrganization(org.organizationId)"
+                    class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <lucide-icon
+                      [name]="isExpanded(org.organizationId) ? 'chevron-down' : 'chevron-right'"
+                      [size]="16"
+                      class="shrink-0 text-gray-400"
+                    ></lucide-icon>
+                    <span class="flex-1 text-left font-medium">{{ org.organizationName }}</span>
+                  </button>
+
+                  <!-- Stores -->
+                  <div *ngIf="isExpanded(org.organizationId)" class="ml-4 space-y-0.5 border-l border-gray-200 pl-2">
+                    <button
+                      *ngFor="let store of org.stores"
+                      (click)="selectStore(store)"
+                      class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm transition-colors"
+                      [class.bg-gray-200]="selectedStore?.storeId === store.storeId"
+                      [class.hover:bg-gray-100]="selectedStore?.storeId !== store.storeId"
+                    >
+                      <span class="flex-1 text-left text-gray-700">{{ store.storeName }}</span>
+                      <!-- Status Icon -->
+                      <lucide-icon
+                        *ngIf="store.terminalsConfigured === 'full' && store.hasYandexPayKey"
+                        name="check-circle-2"
+                        [size]="16"
+                        class="shrink-0 text-green-600"
+                      ></lucide-icon>
+                      <lucide-icon
+                        *ngIf="store.terminalsConfigured === 'partial' && store.hasYandexPayKey"
+                        name="alert-circle"
+                        [size]="16"
+                        class="shrink-0 text-orange-500"
+                      ></lucide-icon>
+                      <lucide-icon
+                        *ngIf="!store.hasYandexPayKey || store.terminalsConfigured === 'none'"
+                        name="circle"
+                        [size]="16"
+                        class="shrink-0 text-gray-300"
+                      ></lucide-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detail Panel -->
+          <div class="flex-1 overflow-y-auto bg-white">
+            <!-- No store selected -->
+            <div
+              *ngIf="!selectedStore && !isLoadingStore"
+              class="flex h-full items-center justify-center text-gray-400 text-sm"
+            >
+              Выберите ресторан в дереве слева, чтобы настроить ключ Яндекс.Пэй.
+            </div>
+
+            <!-- Loading -->
+            <div *ngIf="isLoadingStore" class="flex h-full items-center justify-center">
+              <lucide-icon name="loader-2" [size]="32" class="animate-spin text-gray-400"></lucide-icon>
+            </div>
+
+            <!-- Store Detail -->
+            <div *ngIf="selectedStore && !isLoadingStore" class="p-6 animate-fade-in">
+              <div class="max-w-2xl space-y-6">
+                <!-- Title -->
+                <div>
+                  <h2 class="text-xl font-semibold text-gray-900">Настройки Яндекс.Пэй</h2>
+                  <p class="text-sm text-gray-500 mt-1">Ресторан: {{ selectedStore.storeName }}</p>
+                </div>
+
+                <!-- API Key Section -->
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700">Ключ Яндекс.Пэй</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="keyValue"
+                    placeholder="Введите ключ Яндекс.Пэй (например: yk_test_...)"
+                    class="w-full h-9 px-3 text-sm font-mono border border-gray-300 rounded-md bg-white
+                           placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400
+                           transition-all"
+                  />
+                  <p *ngIf="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
+                  <p *ngIf="keyDetails" class="text-xs text-gray-400">
+                    {{ keyDetails.lastUpdatedUtc
+                      ? 'Обновлён: ' + formatDate(keyDetails.lastUpdatedUtc) + ', ' + keyDetails.updatedByUserName
+                      : 'Ключ ещё не настроен'
+                    }}
+                  </p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                  <button
+                    (click)="handleSave()"
+                    [disabled]="isSaveDisabled"
+                    class="h-9 px-4 text-sm font-medium rounded-md transition-colors
+                           bg-gray-900 text-white hover:bg-gray-800
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Сохранить
+                  </button>
+                  <button
+                    (click)="showDeleteDialog = true"
+                    [disabled]="!keyDetails?.yandexPayKey"
+                    class="h-9 px-4 text-sm font-medium rounded-md transition-colors
+                           border border-gray-300 bg-white text-gray-700 hover:bg-gray-50
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Очистить ключ
+                  </button>
+                </div>
+
+                <!-- Toast / Success Message -->
+                <div
+                  *ngIf="toastMessage"
+                  class="fixed bottom-6 right-6 z-50 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 max-w-sm animate-slide-up"
+                >
+                  <p class="text-sm font-medium text-gray-900">{{ toastMessage }}</p>
+                  <p *ngIf="toastDescription" class="text-sm text-gray-500 mt-0.5">{{ toastDescription }}</p>
+                </div>
+
+                <!-- Terminals & QR Tables Section (only when key exists) -->
+                <ng-container *ngIf="selectedStore.hasYandexPayKey">
+                  <div class="border-t border-gray-200 my-6"></div>
+
+                  <!-- No terminals yet -->
+                  <div *ngIf="terminals.length === 0" class="space-y-6">
+                    <div class="flex items-center justify-between">
+                      <h3 class="text-lg font-semibold text-gray-900">QR-таблички и терминалы</h3>
+                      <button
+                        (click)="handleRefreshAccounts()"
+                        [disabled]="isLoadingAccounts"
+                        class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 rounded-md hover:bg-gray-100 transition-colors
+                               disabled:opacity-50"
+                      >
+                        <lucide-icon
+                          name="refresh-cw"
+                          [size]="16"
+                          [class.animate-spin]="isLoadingAccounts"
+                        ></lucide-icon>
+                        Обновить таблички
+                      </button>
+                    </div>
+
+                    <!-- Default Account selector (no terminals) -->
+                    <div *ngIf="accounts.length > 0" class="space-y-2">
+                      <label class="block text-sm font-medium text-gray-700">Табличка по умолчанию для ресторана</label>
+                      <select
+                        [ngModel]="defaultAccountKey || 'none'"
+                        (ngModelChange)="onDefaultAccountChange($event)"
+                        class="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white
+                               focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all"
+                      >
+                        <option value="none" class="italic text-gray-400">Не назначена</option>
+                        <option *ngFor="let acc of accounts" [value]="acc.key">{{ acc.name }}</option>
+                      </select>
+                      <p class="text-xs text-gray-400">
+                        При регистрации новых терминалов им автоматически будет назначена эта табличка
+                      </p>
+                    </div>
+
+                    <!-- Warning Card -->
+                    <div class="rounded-xl border border-orange-200 bg-orange-50/50 p-6">
+                      <div class="flex gap-3">
+                        <lucide-icon name="alert-triangle" [size]="20" class="text-orange-500 shrink-0 mt-0.5"></lucide-icon>
+                        <div class="space-y-3 flex-1">
+                          <div>
+                            <h4 class="font-semibold text-base text-gray-900 mb-1">Терминалы ещё не зарегистрированы</h4>
+                            <p class="text-sm text-gray-500">
+                              Они появятся автоматически после установки и запуска плагина на кассах.
+                            </p>
+                          </div>
+                          <div *ngIf="accounts.length > 0" class="space-y-2">
+                            <p class="text-sm font-medium text-gray-700">Доступные QR-таблички:</p>
+                            <ul class="space-y-1 text-sm text-gray-500 ml-4">
+                              <li *ngFor="let acc of accounts" class="list-disc">{{ acc.name }}</li>
+                            </ul>
+                          </div>
+                          <p *ngIf="accounts.length === 0" class="text-sm text-gray-500">
+                            Список QR-табличек пуст.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Terminals exist -->
+                  <div *ngIf="terminals.length > 0" class="space-y-4">
+                    <div class="flex items-center justify-between">
+                      <h3 class="text-lg font-semibold text-gray-900">QR-таблички и терминалы</h3>
+                      <button
+                        (click)="handleRefreshAccounts()"
+                        [disabled]="isLoadingAccounts"
+                        class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 rounded-md hover:bg-gray-100 transition-colors
+                               disabled:opacity-50"
+                      >
+                        <lucide-icon
+                          name="refresh-cw"
+                          [size]="16"
+                          [class.animate-spin]="isLoadingAccounts"
+                        ></lucide-icon>
+                        Обновить таблички
+                      </button>
+                    </div>
+
+                    <!-- Default Account selector (with terminals) -->
+                    <div class="space-y-2">
+                      <label class="block text-sm font-medium text-gray-700">Табличка по умолчанию для ресторана</label>
+                      <select
+                        [ngModel]="defaultAccountKey || 'none'"
+                        (ngModelChange)="onDefaultAccountChange($event)"
+                        class="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white
+                               focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all"
+                      >
+                        <option value="none" class="italic text-gray-400">Не назначена</option>
+                        <option *ngFor="let acc of accounts" [value]="acc.key">{{ acc.name }}</option>
+                      </select>
+                      <p class="text-xs text-gray-400">
+                        При регистрации новых терминалов им автоматически будет назначена эта табличка
+                      </p>
+                    </div>
+
+                    <div class="border-t border-gray-200 my-4"></div>
+
+                    <h4 class="text-base font-medium text-gray-900">Назначение на терминалы</h4>
+
+                    <!-- Terminal Cards -->
+                    <div class="space-y-3">
+                      <div
+                        *ngFor="let terminal of terminals"
+                        class="rounded-xl border border-gray-200 bg-white shadow-sm"
+                      >
+                        <div class="px-6 py-4">
+                          <h5 class="text-base font-medium text-gray-900 mb-3">{{ terminal.terminalName }}</h5>
+                          <select
+                            [ngModel]="terminal.accountKey || 'none'"
+                            (ngModelChange)="handleAccountAssignment(terminal.terminalId, $event)"
+                            class="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white
+                                   focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all"
+                          >
+                            <option value="none" class="italic text-gray-400">Не назначена</option>
+                            <option *ngFor="let acc of accounts" [value]="acc.key">
+                              {{ acc.name }}{{ getAccountUsageLabel(acc.key, terminal.terminalId) }}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p class="text-sm text-gray-500">
+                      Назначено табличек: {{ assignedTerminalsCount }} из {{ terminals.length }}
+                    </p>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <ui-confirm-dialog
+      [open]="showDeleteDialog"
+      title="Очистить ключ Яндекс.Пэй?"
+      [message]="'Очистить ключ Яндекс.Пэй для ресторана «' + (selectedStore?.storeName || '') + '»? Все привязки терминалов и табличка по умолчанию будут удалены.'"
+      confirmText="Очистить"
+      cancelText="Отмена"
+      (confirmed)="handleClearKey()"
+      (cancelled)="showDeleteDialog = false"
+    ></ui-confirm-dialog>
+  `,
+})
+export class YandexPayMainScreenComponent implements OnInit {
+  private storage = inject(StorageService);
+
+  organizations: Organization[] = [];
+  expandedOrgs = new Set<string>();
+  selectedStore: Store | null = null;
+  keyDetails: KeyDetails | null = null;
+  keyValue = '';
+  originalKeyValue = '';
+  errorMessage = '';
+  searchQuery = '';
+  terminals: YpTerminal[] = [];
+  accounts: Account[] = [];
+  isLoadingAccounts = false;
+  isLoadingStore = false;
+  defaultAccountKey: string | null = null;
+  originalDefaultAccountKey: string | null = null;
+  showDeleteDialog = false;
+
+  toastMessage = '';
+  toastDescription = '';
+  private toastTimeout: any = null;
+
+  private searchTimeout: any = null;
+  private debouncedSearchQuery = '';
+
+  ngOnInit(): void {
+    this.organizations = this.storage.load('yandex-pay', 'organizations', MOCK_ORGANIZATIONS);
+  }
+
+  // --- Search ---
+
+  onSearchChange(value: string): void {
+    this.searchQuery = value;
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.debouncedSearchQuery = value;
+      if (value.trim()) {
+        this.filteredOrganizations.forEach(org => this.expandedOrgs.add(org.organizationId));
+      }
+    }, 300);
+  }
+
+  get filteredOrganizations(): Organization[] {
+    const query = (this.debouncedSearchQuery || this.searchQuery).toLowerCase().trim();
+    if (!query) return this.organizations;
+
+    return this.organizations
+      .map(org => {
+        const matchingStores = org.stores.filter(s => s.storeName.toLowerCase().includes(query));
+        return matchingStores.length > 0 ? { ...org, stores: matchingStores } : null;
+      })
+      .filter((org): org is Organization => org !== null);
+  }
+
+  // --- Tree ---
+
+  toggleOrganization(orgId: string): void {
+    if (this.expandedOrgs.has(orgId)) {
+      this.expandedOrgs.delete(orgId);
+    } else {
+      this.expandedOrgs.add(orgId);
+    }
+  }
+
+  isExpanded(orgId: string): boolean {
+    return this.expandedOrgs.has(orgId);
+  }
+
+  // --- Store Selection ---
+
+  async selectStore(store: Store): Promise<void> {
+    this.isLoadingStore = true;
+    this.selectedStore = store;
+    this.errorMessage = '';
+
+    await this.delay(300);
+
+    const mockKeyDetails: KeyDetails = store.hasYandexPayKey
+      ? {
+          yandexPayKey: 'yk_test_1234567890abcdef',
+          lastUpdatedUtc: '2025-11-18T10:32:00Z',
+          updatedByUserName: 'Администратор Иванов',
+        }
+      : {
+          yandexPayKey: null,
+          lastUpdatedUtc: null,
+          updatedByUserName: null,
+        };
+
+    this.keyDetails = mockKeyDetails;
+    this.keyValue = mockKeyDetails.yandexPayKey || '';
+    this.originalKeyValue = mockKeyDetails.yandexPayKey || '';
+
+    if (store.hasYandexPayKey) {
+      this.loadTerminalsAndAccounts(store.storeId);
+    } else {
+      this.terminals = [];
+      this.accounts = [];
+      this.defaultAccountKey = null;
+      this.originalDefaultAccountKey = null;
+    }
+
+    this.isLoadingStore = false;
+  }
+
+  private loadTerminalsAndAccounts(storeId: string): void {
+    this.terminals = getMockTerminals(storeId);
+    this.accounts = [...MOCK_ACCOUNTS];
+    this.defaultAccountKey = getMockDefaultAccountKey(storeId);
+    this.originalDefaultAccountKey = this.defaultAccountKey;
+  }
+
+  // --- Key Management ---
+
+  get isSaveDisabled(): boolean {
+    return (
+      (this.keyValue === this.originalKeyValue && this.defaultAccountKey === this.originalDefaultAccountKey) ||
+      this.keyValue.trim() === ''
+    );
+  }
+
+  async handleSave(): Promise<void> {
+    if (!this.selectedStore) return;
+    this.errorMessage = '';
+
+    const keyChanged = this.keyValue !== this.originalKeyValue;
+
+    if (keyChanged && this.originalKeyValue) {
+      this.terminals = this.terminals.map(t => ({ ...t, accountKey: null, accountName: null }));
+      this.defaultAccountKey = null;
+      this.originalDefaultAccountKey = null;
+      this.showToast('Ключ изменён', 'Все привязки терминалов сброшены. Список табличек обновлён.');
+    }
+
+    const now = new Date().toISOString();
+    this.keyDetails = {
+      yandexPayKey: this.keyValue,
+      lastUpdatedUtc: now,
+      updatedByUserName: 'Администратор Петров',
+    };
+    this.originalKeyValue = this.keyValue;
+    this.originalDefaultAccountKey = this.defaultAccountKey;
+
+    this.loadTerminalsAndAccounts(this.selectedStore.storeId);
+
+    this.updateStoreInOrgs(this.selectedStore.storeId, { hasYandexPayKey: true, terminalsConfigured: 'partial' });
+    this.selectedStore = { ...this.selectedStore, hasYandexPayKey: true, terminalsConfigured: 'partial' };
+
+    if (!keyChanged) {
+      this.showToast('Изменения сохранены');
+    }
+
+    this.persistOrganizations();
+  }
+
+  async handleClearKey(): Promise<void> {
+    if (!this.selectedStore) return;
+    this.errorMessage = '';
+
+    this.keyValue = '';
+    this.originalKeyValue = '';
+    this.keyDetails = { yandexPayKey: null, lastUpdatedUtc: null, updatedByUserName: null };
+    this.terminals = [];
+    this.accounts = [];
+    this.defaultAccountKey = null;
+    this.originalDefaultAccountKey = null;
+
+    this.updateStoreInOrgs(this.selectedStore.storeId, { hasYandexPayKey: false, terminalsConfigured: 'none' });
+    this.selectedStore = { ...this.selectedStore, hasYandexPayKey: false, terminalsConfigured: 'none' };
+
+    this.showToast('Ключ Яндекс.Пэй очищен', 'Все привязки терминалов удалены');
+    this.showDeleteDialog = false;
+    this.persistOrganizations();
+  }
+
+  // --- Terminal Assignment ---
+
+  handleAccountAssignment(terminalId: string, value: string): void {
+    if (!this.selectedStore) return;
+    const accountKey = value === 'none' ? null : value;
+
+    const terminal = this.terminals.find(t => t.terminalId === terminalId);
+    if (!terminal) return;
+
+    let toastMsg: string;
+    if (accountKey === null) {
+      toastMsg = `Привязка снята с ${terminal.terminalName}`;
+    } else {
+      const account = this.accounts.find(a => a.key === accountKey);
+      toastMsg = `${account?.name || 'Табличка'} назначена на ${terminal.terminalName}`;
+    }
+
+    this.terminals = this.terminals.map(t => {
+      if (t.terminalId === terminalId) {
+        const account = this.accounts.find(a => a.key === accountKey);
+        return { ...t, accountKey, accountName: account?.name || null };
+      }
+      return t;
+    });
+
+    const newStatus = this.calculateTerminalsConfigured(this.terminals, this.selectedStore.hasYandexPayKey);
+    this.updateStoreInOrgs(this.selectedStore.storeId, { terminalsConfigured: newStatus });
+    this.selectedStore = { ...this.selectedStore, terminalsConfigured: newStatus };
+
+    this.showToast(toastMsg);
+    this.persistOrganizations();
+  }
+
+  onDefaultAccountChange(value: string): void {
+    this.defaultAccountKey = value === 'none' ? null : value;
+  }
+
+  get assignedTerminalsCount(): number {
+    return this.terminals.filter(t => t.accountKey !== null).length;
+  }
+
+  getAccountUsageLabel(accountKey: string, excludeTerminalId: string): string {
+    const count = this.terminals.filter(t => t.accountKey === accountKey && t.terminalId !== excludeTerminalId).length;
+    if (count === 0) return '';
+    return ` (на ${count} ${count === 1 ? 'терминале' : 'терминалах'})`;
+  }
+
+  // --- Refresh ---
+
+  async handleRefreshAccounts(): Promise<void> {
+    this.isLoadingAccounts = true;
+    await this.delay(1000);
+    this.isLoadingAccounts = false;
+    this.showToast('Список табличек обновлён');
+  }
+
+  // --- Helpers ---
+
+  formatDate(utcString: string | null): string {
+    if (!utcString) return '';
+    const date = new Date(utcString);
+    return date.toLocaleString('ru-RU', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  private calculateTerminalsConfigured(
+    terminals: YpTerminal[],
+    hasKey: boolean,
+  ): 'none' | 'partial' | 'full' {
+    if (terminals.length === 0) return hasKey ? 'partial' : 'none';
+    const assignedCount = terminals.filter(t => t.accountKey !== null).length;
+    if (assignedCount === 0) return hasKey ? 'partial' : 'none';
+    if (assignedCount === terminals.length) return 'full';
+    return 'partial';
+  }
+
+  private updateStoreInOrgs(storeId: string, patch: Partial<Store>): void {
+    this.organizations = this.organizations.map(org => ({
+      ...org,
+      stores: org.stores.map(s => (s.storeId === storeId ? { ...s, ...patch } : s)),
+    }));
+  }
+
+  private persistOrganizations(): void {
+    this.storage.save('yandex-pay', 'organizations', this.organizations);
+  }
+
+  private showToast(message: string, description?: string): void {
+    if (this.toastTimeout) clearTimeout(this.toastTimeout);
+    this.toastMessage = message;
+    this.toastDescription = description || '';
+    this.toastTimeout = setTimeout(() => {
+      this.toastMessage = '';
+      this.toastDescription = '';
+    }, 3000);
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
