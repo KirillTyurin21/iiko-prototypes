@@ -23,12 +23,24 @@ import {
   KeyDetails,
   YpTerminal,
   Account,
+  OAuthState,
+  Partner,
+  MerchantInfo,
+  MerchantStatus,
+  UserTokenInfo,
+  MccCode,
+  MerchantRegistrationRequest,
+  RegistrationData,
+  ContactInfo,
 } from '../types';
 import {
   MOCK_ORGANIZATIONS,
   MOCK_ACCOUNTS,
   getMockTerminals,
   getMockDefaultAccountKey,
+  MOCK_PARTNERS,
+  MOCK_MERCHANTS,
+  MOCK_MCC_CODES,
 } from '../data/mock-data';
 
 @Component({
@@ -80,15 +92,27 @@ import {
     <div class="flex" style="height: calc(100vh - 3.5rem)">
       <!-- Sidebar Navigation -->
       <aside class="w-52 border-r border-gray-200 bg-gray-50/70 shrink-0">
-        <nav class="p-2">
-          <div class="bg-gray-200/80 text-gray-800 rounded px-3 py-2 text-sm font-medium">
+        <nav class="p-2 space-y-0.5">
+          <button
+            (click)="activeSection = 'integrations'"
+            class="w-full text-left rounded px-3 py-2 text-sm font-medium transition-colors"
+            [ngClass]="activeSection === 'integrations' ? 'bg-gray-200 text-gray-800' : 'text-gray-600 hover:bg-gray-100'"
+          >
             Интеграции
-          </div>
+          </button>
+          <button
+            (click)="activeSection = 'onboarding'"
+            class="w-full flex items-center gap-2 text-left rounded px-3 py-2 text-sm font-medium transition-colors"
+            [ngClass]="activeSection === 'onboarding' ? 'bg-gray-200 text-gray-800' : 'text-gray-600 hover:bg-gray-100'"
+          >
+            <lucide-icon name="log-in" [size]="16"></lucide-icon>
+            Онбординг
+          </button>
         </nav>
       </aside>
 
-      <!-- Main Content -->
-      <div class="flex-1 flex flex-col min-w-0">
+      <!-- Main Content: Интеграции -->
+      <div *ngIf="activeSection === 'integrations'" class="flex-1 flex flex-col min-w-0">
         <!-- Page Header -->
         <div class="border-b border-gray-200 bg-white px-6 py-4 shrink-0">
           <div class="flex items-center justify-between gap-4">
@@ -387,6 +411,259 @@ import {
           </div>
         </div>
       </div>
+
+      <!-- OAuth-онбординг секция -->
+      <div *ngIf="activeSection === 'onboarding'" class="flex-1 p-6 overflow-y-auto">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Онбординг Яндекс.Пэй</h2>
+
+        <!-- Блок авторизации (не авторизован) -->
+        <div *ngIf="!oauthState.isAuthorized" class="bg-white rounded-lg border border-gray-200 p-8 text-center">
+          <lucide-icon name="log-in" [size]="48" class="text-gray-300 mx-auto mb-4"></lucide-icon>
+          <p class="text-gray-500 mb-6">Для управления организациями и заявками необходимо авторизоваться через Яндекс ID</p>
+          <button (click)="startOAuth()"
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
+            <lucide-icon name="log-in" [size]="18"></lucide-icon>
+            Войти с Яндекс ID
+          </button>
+        </div>
+
+        <!-- Основная панель (авторизован) -->
+        <div *ngIf="oauthState.isAuthorized">
+          <!-- Шапка авторизации -->
+          <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-4 py-3 mb-6">
+            <div class="flex items-center gap-2">
+              <lucide-icon name="check-circle-2" [size]="16" class="text-green-600"></lucide-icon>
+              <span class="text-green-700 text-sm font-medium">Авторизовано: {{ oauthState.userName }}</span>
+            </div>
+            <button (click)="logoutOAuth()" class="text-sm text-red-600 hover:text-red-800">Выйти</button>
+          </div>
+
+          <!-- Вкладки -->
+          <div class="flex gap-1 mb-6 border-b border-gray-200">
+            <button (click)="oauthSection = 'partners'"
+                    [class]="oauthSection === 'partners' ? 'px-4 py-2 text-sm font-medium border-b-2 border-gray-900 text-gray-900' : 'px-4 py-2 text-sm text-gray-500 hover:text-gray-700'">
+              <span class="flex items-center gap-1.5"><lucide-icon name="building-2" [size]="14"></lucide-icon> Организации</span>
+            </button>
+            <button (click)="oauthSection = 'merchants'"
+                    [class]="oauthSection === 'merchants' ? 'px-4 py-2 text-sm font-medium border-b-2 border-gray-900 text-gray-900' : 'px-4 py-2 text-sm text-gray-500 hover:text-gray-700'">
+              <span class="flex items-center gap-1.5"><lucide-icon name="file-check" [size]="14"></lucide-icon> Заявки</span>
+            </button>
+            <button (click)="oauthSection = 'tokens'"
+                    [class]="oauthSection === 'tokens' ? 'px-4 py-2 text-sm font-medium border-b-2 border-gray-900 text-gray-900' : 'px-4 py-2 text-sm text-gray-500 hover:text-gray-700'">
+              <span class="flex items-center gap-1.5"><lucide-icon name="key" [size]="14"></lucide-icon> Токены</span>
+            </button>
+          </div>
+
+          <!-- Вкладка: Организации -->
+          <div *ngIf="oauthSection === 'partners'">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-medium text-gray-900">Организации-партнеры</h3>
+              <button (click)="showPartnerForm = !showPartnerForm"
+                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors">
+                <lucide-icon name="plus" [size]="16"></lucide-icon>
+                Добавить организацию
+              </button>
+            </div>
+
+            <!-- Форма создания партнера -->
+            <div *ngIf="showPartnerForm" class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 animate-fade-in">
+              <h4 class="font-medium text-gray-900 mb-3">Новая организация</h4>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">Название *</label>
+                  <input [(ngModel)]="newPartnerName" type="text" placeholder="ООО Ромашка"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">ИНН</label>
+                  <input [(ngModel)]="newPartnerInn" type="text" placeholder="7707083893"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">ОГРН</label>
+                  <input [(ngModel)]="newPartnerOgrn" type="text" placeholder="1027700132195"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">КПП</label>
+                  <input [(ngModel)]="newPartnerKpp" type="text" placeholder="770701001"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                </div>
+                <div class="col-span-2">
+                  <label class="block text-sm text-gray-600 mb-1">Полное наименование</label>
+                  <input [(ngModel)]="newPartnerFullName" type="text" placeholder="Общество с ограниченной ответственностью Ромашка"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                </div>
+                <div class="col-span-2">
+                  <label class="block text-sm text-gray-600 mb-1">Юридический адрес</label>
+                  <input [(ngModel)]="newPartnerLegalAddress" type="text" placeholder="119021, г. Москва, ул. Льва Толстого, д. 16"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">ФИО генерального директора</label>
+                  <input [(ngModel)]="newPartnerCeo" type="text" placeholder="Иванов Иван Иванович"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">Сайт</label>
+                  <input [(ngModel)]="newPartnerUrl" type="text" placeholder="http://romashka.ru"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">Email</label>
+                  <input [(ngModel)]="newPartnerEmail" type="email" placeholder="merchant@romashka.ru"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">Телефон</label>
+                  <input [(ngModel)]="newPartnerPhone" type="tel" placeholder="+79001234567"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                </div>
+              </div>
+              <div class="flex gap-2 mt-4">
+                <button (click)="createPartner()" class="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors">Создать</button>
+                <button (click)="showPartnerForm = false" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors">Отмена</button>
+              </div>
+            </div>
+
+            <!-- Список партнеров -->
+            <div *ngIf="partners.length === 0" class="text-center text-gray-400 py-12">
+              Нет организаций. Нажмите «Добавить организацию» для начала.
+            </div>
+            <div *ngFor="let p of partners" (click)="selectPartner(p)"
+                 class="flex items-center justify-between bg-white border rounded-lg px-4 py-3 mb-2 cursor-pointer hover:bg-gray-50 transition-colors"
+                 [class.border-gray-900]="selectedPartner?.partner_id === p.partner_id"
+                 [class.border-gray-200]="selectedPartner?.partner_id !== p.partner_id">
+              <div>
+                <div class="font-medium text-gray-900">{{ p.name }}</div>
+                <div class="text-sm text-gray-500">ИНН: {{ p.registration_data.tax_ref_number }}</div>
+              </div>
+              <span class="text-xs text-gray-400">{{ p.partner_id | slice:0:8 }}...</span>
+            </div>
+          </div>
+
+          <!-- Вкладка: Заявки (мерчанты) -->
+          <div *ngIf="oauthSection === 'merchants'">
+            <div *ngIf="!selectedPartner" class="text-center text-gray-400 py-12">
+              Выберите организацию на вкладке «Организации»
+            </div>
+            <div *ngIf="selectedPartner">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Заявки: {{ selectedPartner.name }}</h3>
+                <button (click)="showMerchantForm = !showMerchantForm"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors">
+                  <lucide-icon name="plus" [size]="16"></lucide-icon>
+                  Подать заявку
+                </button>
+              </div>
+
+              <!-- Форма заявки -->
+              <div *ngIf="showMerchantForm" class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 animate-fade-in">
+                <h4 class="font-medium text-gray-900 mb-3">Регистрация торговой точки</h4>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1">Название точки *</label>
+                    <input [(ngModel)]="newMerchantName" type="text" placeholder="Ресторан на Тверской"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1">MCC-код</label>
+                    <select [(ngModel)]="newMerchantMcc"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                      <option value="">Выберите категорию</option>
+                      <option *ngFor="let mcc of mccCodes" [value]="mcc.mcc">{{ mcc.mcc }} - {{ mcc.name }}</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1">Сайт</label>
+                    <input [(ngModel)]="newMerchantUrl" type="text" placeholder="http://restaurant.ru"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1">Кол-во точек продаж</label>
+                    <input [(ngModel)]="newMerchantPosesCount" type="number" placeholder="1" min="1"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1">Расчётный счёт</label>
+                    <input [(ngModel)]="newMerchantSettlementAccount" type="text" placeholder="40702810000000000001"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1">БИК</label>
+                    <input [(ngModel)]="newMerchantBik" type="text" placeholder="044525225"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                  </div>
+                  <div class="col-span-2">
+                    <label class="block text-sm text-gray-600 mb-1">Корреспондентский счёт</label>
+                    <input [(ngModel)]="newMerchantCorrAccount" type="text" placeholder="30101810400000000225"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                  </div>
+                </div>
+                <div class="flex gap-2 mt-4">
+                  <button (click)="submitMerchantApplication()" class="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors">Подать заявку</button>
+                  <button (click)="showMerchantForm = false" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors">Отмена</button>
+                </div>
+              </div>
+
+              <!-- Таблица заявок -->
+              <div *ngIf="merchants.length === 0" class="text-center text-gray-400 py-12">
+                Нет заявок. Нажмите «Подать заявку» для регистрации торговой точки.
+              </div>
+              <table *ngIf="merchants.length > 0" class="w-full text-sm">
+                <thead>
+                  <tr class="bg-gray-50 text-left">
+                    <th class="px-4 py-2 font-medium text-gray-600">Название</th>
+                    <th class="px-4 py-2 font-medium text-gray-600">Статус</th>
+                    <th class="px-4 py-2 font-medium text-gray-600">Дата подачи</th>
+                    <th class="px-4 py-2 font-medium text-gray-600">Действия</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let m of merchants" class="border-b border-gray-100">
+                    <td class="px-4 py-3 text-gray-900">{{ m.name }}</td>
+                    <td class="px-4 py-3">
+                      <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusColor(m.registration_status)">
+                        {{ getStatusLabel(m.registration_status) }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-gray-500">{{ m.created | date:'dd.MM.yyyy' }}</td>
+                    <td class="px-4 py-3">
+                      <button *ngIf="m.registration_status === 'active'" (click)="generateMerchantToken(m.merchant_id)"
+                              class="text-sm text-gray-900 hover:underline">Создать токен</button>
+                      <span *ngIf="m.registration_status !== 'active'" class="text-gray-400 text-xs">—</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Вкладка: Токены -->
+          <div *ngIf="oauthSection === 'tokens'">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">User Token</h3>
+            <div *ngIf="merchants.length === 0" class="text-center text-gray-400 py-12">
+              Нет активных мерчантов
+            </div>
+            <div *ngFor="let m of merchants">
+              <div *ngIf="m.registration_status === 'active'" class="mb-4">
+                <h4 class="font-medium text-gray-700 mb-2">{{ m.name }}</h4>
+                <div *ngIf="getMerchantTokens(m.merchant_id).length === 0" class="text-sm text-gray-400 mb-2 ml-2">
+                  Нет токенов. Перейдите на вкладку «Заявки» → «Создать токен».
+                </div>
+                <div *ngFor="let t of getMerchantTokens(m.merchant_id)" class="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-2 mb-1">
+                  <div>
+                    <span class="font-mono text-sm text-gray-900">****{{ t.last_four }}</span>
+                    <span class="text-xs text-gray-400 ml-2">{{ t.token_format }}</span>
+                    <span *ngIf="t.token_value" class="ml-3 px-2 py-0.5 bg-green-50 text-green-700 text-xs rounded font-mono">{{ t.token_value }}</span>
+                  </div>
+                  <span class="text-xs text-gray-400">{{ t.created_at | date:'dd.MM.yyyy HH:mm' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Delete Confirmation Dialog -->
@@ -427,8 +704,50 @@ export class CometMainScreenComponent implements OnInit {
   private searchTimeout: any = null;
   private debouncedSearchQuery = '';
 
+  // --- OAuth-онбординг ---
+  activeSection: 'integrations' | 'onboarding' = 'integrations';
+  oauthState: OAuthState = { isAuthorized: false, accessToken: null, expiresAt: null, userName: null };
+  partners: Partner[] = [];
+  selectedPartner: Partner | null = null;
+  merchants: MerchantInfo[] = [];
+  merchantStatuses: Map<string, MerchantStatus> = new Map();
+  userTokens: Map<string, UserTokenInfo[]> = new Map();
+  mccCodes: MccCode[] = [];
+  showPartnerForm = false;
+  showMerchantForm = false;
+  oauthSection: 'partners' | 'merchants' | 'tokens' = 'partners';
+
+  // Поля формы партнера
+  newPartnerName = '';
+  newPartnerInn = '';
+  newPartnerOgrn = '';
+  newPartnerKpp = '';
+  newPartnerFullName = '';
+  newPartnerLegalAddress = '';
+  newPartnerCeo = '';
+  newPartnerUrl = '';
+  newPartnerEmail = '';
+  newPartnerPhone = '';
+
+  // Поля формы мерчанта
+  newMerchantName = '';
+  newMerchantMcc = '';
+  newMerchantUrl = '';
+  newMerchantPosesCount = 1;
+  newMerchantSettlementAccount = '';
+  newMerchantBik = '';
+  newMerchantCorrAccount = '';
+
   ngOnInit(): void {
     this.organizations = this.storage.load('comet', 'organizations', MOCK_ORGANIZATIONS);
+
+    // Восстановить OAuth-состояние
+    const savedOAuth = this.storage.load<OAuthState | null>('comet', 'oauth_state', null);
+    if (savedOAuth?.isAuthorized) {
+      this.oauthState = savedOAuth;
+      this.loadPartners();
+      this.loadMccCodes();
+    }
   }
 
   // --- Search ---
@@ -677,6 +996,170 @@ export class CometMainScreenComponent implements OnInit {
       this.toastMessage = '';
       this.toastDescription = '';
     }, 3000);
+  }
+
+  // --- OAuth ---
+
+  startOAuth(): void {
+    this.oauthState = {
+      isAuthorized: true,
+      accessToken: 'mock_oauth_token_abc123',
+      expiresAt: new Date(Date.now() + 3600000).toISOString(),
+      userName: 'Иванов Иван',
+    };
+    this.storage.save('comet', 'oauth_state', this.oauthState);
+    this.loadPartners();
+    this.loadMccCodes();
+    this.showToast('Авторизация успешна', 'Вы вошли через Яндекс ID');
+  }
+
+  logoutOAuth(): void {
+    this.oauthState = { isAuthorized: false, accessToken: null, expiresAt: null, userName: null };
+    this.storage.save('comet', 'oauth_state', this.oauthState);
+    this.partners = [];
+    this.merchants = [];
+    this.selectedPartner = null;
+    this.userTokens = new Map();
+  }
+
+  loadPartners(): void {
+    this.partners = this.storage.load<Partner[]>('comet', 'partners', MOCK_PARTNERS);
+  }
+
+  loadMccCodes(): void {
+    this.mccCodes = MOCK_MCC_CODES;
+  }
+
+  selectPartner(partner: Partner): void {
+    this.selectedPartner = partner;
+    this.loadMerchants(partner.partner_id);
+  }
+
+  loadMerchants(partnerId: string): void {
+    const all = this.storage.load<MerchantInfo[]>('comet', 'merchants', MOCK_MERCHANTS);
+    this.merchants = all.filter(m => m.partner_id === partnerId);
+  }
+
+  createPartner(): void {
+    if (!this.newPartnerName.trim()) return;
+    const partner: Partner = {
+      partner_id: this.generateId(),
+      name: this.newPartnerName,
+      registration_data: {
+        tax_ref_number: this.newPartnerInn,
+        ogrn: this.newPartnerOgrn,
+        kpp: this.newPartnerKpp,
+        legal_address: this.newPartnerLegalAddress,
+        postal_address: this.newPartnerLegalAddress,
+        postal_code: '',
+        full_company_name: this.newPartnerFullName || this.newPartnerName,
+        ceo_name: this.newPartnerCeo,
+        url: this.newPartnerUrl,
+      },
+      contact: {
+        email: this.newPartnerEmail,
+        phone: this.newPartnerPhone,
+        first_name: '',
+        last_name: '',
+        middle_name: '',
+      },
+    };
+    this.partners.push(partner);
+    this.storage.save('comet', 'partners', this.partners);
+    this.showPartnerForm = false;
+    this.resetPartnerForm();
+    this.showToast('Организация создана', partner.name);
+  }
+
+  submitMerchantApplication(): void {
+    if (!this.selectedPartner || !this.newMerchantName.trim()) return;
+    const merchant: MerchantInfo = {
+      merchant_id: this.generateId(),
+      partner_id: this.selectedPartner.partner_id,
+      name: this.newMerchantName,
+      is_offline: true,
+      enabled: true,
+      registration_status: 'processing',
+      created: new Date().toISOString(),
+      updated: new Date().toISOString(),
+    };
+    const allMerchants = this.storage.load<MerchantInfo[]>('comet', 'merchants', MOCK_MERCHANTS);
+    allMerchants.push(merchant);
+    this.storage.save('comet', 'merchants', allMerchants);
+    this.merchants = allMerchants.filter(m => m.partner_id === this.selectedPartner!.partner_id);
+    this.showMerchantForm = false;
+    this.resetMerchantForm();
+    this.showToast('Заявка подана', merchant.name);
+  }
+
+  generateMerchantToken(merchantId: string): void {
+    const lastFour = Math.random().toString(36).substring(2, 6);
+    const token: UserTokenInfo = {
+      id: this.generateId(),
+      merchant_id: merchantId,
+      partner_id: this.selectedPartner?.partner_id || '',
+      last_four: lastFour,
+      token_format: 'YANDEX_PAY',
+      created_at: new Date().toISOString(),
+      token_value: 'ut_' + Math.random().toString(36).substring(2, 18),
+    };
+    const existing = this.userTokens.get(merchantId) || [];
+    existing.push(token);
+    this.userTokens.set(merchantId, [...existing]);
+    this.showToast('Токен создан', `****${lastFour}`);
+  }
+
+  getMerchantTokens(merchantId: string): UserTokenInfo[] {
+    return this.userTokens.get(merchantId) || [];
+  }
+
+  getStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      processing: 'На рассмотрении',
+      active: 'Активен',
+      failed: 'Отклонен',
+    };
+    return labels[status] || status;
+  }
+
+  getStatusColor(status: string): string {
+    const colors: Record<string, string> = {
+      processing: 'text-yellow-600 bg-yellow-50',
+      active: 'text-green-600 bg-green-50',
+      failed: 'text-red-600 bg-red-50',
+    };
+    return colors[status] || 'text-gray-600 bg-gray-50';
+  }
+
+  private resetPartnerForm(): void {
+    this.newPartnerName = '';
+    this.newPartnerInn = '';
+    this.newPartnerOgrn = '';
+    this.newPartnerKpp = '';
+    this.newPartnerFullName = '';
+    this.newPartnerLegalAddress = '';
+    this.newPartnerCeo = '';
+    this.newPartnerUrl = '';
+    this.newPartnerEmail = '';
+    this.newPartnerPhone = '';
+  }
+
+  private resetMerchantForm(): void {
+    this.newMerchantName = '';
+    this.newMerchantMcc = '';
+    this.newMerchantUrl = '';
+    this.newMerchantPosesCount = 1;
+    this.newMerchantSettlementAccount = '';
+    this.newMerchantBik = '';
+    this.newMerchantCorrAccount = '';
+  }
+
+  private generateId(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 
   private delay(ms: number): Promise<void> {

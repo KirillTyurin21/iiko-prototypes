@@ -103,6 +103,12 @@ import {
   Wand2,
   Camera,
   Upload,
+  // Comet OAuth onboarding
+  LogIn,
+  UserPlus,
+  Building2,
+  FileCheck,
+  Key,
 } from 'lucide-angular';
 
 /**
@@ -214,6 +220,12 @@ const icons = {
   Wand2,
   Camera,
   Upload,
+  // Comet OAuth onboarding
+  LogIn,
+  UserPlus,
+  Building2,
+  FileCheck,
+  Key,
 };
 
 @NgModule({
