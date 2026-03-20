@@ -250,12 +250,19 @@ import {
                     <ng-container *ngIf="currentMerchant">
                       <!-- Processing -->
                       <div *ngIf="currentMerchant.registration_status === 'processing'"
-                           class="flex items-center gap-3 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2.5">
-                        <lucide-icon name="loader-2" [size]="16" class="text-yellow-600 animate-spin shrink-0"></lucide-icon>
-                        <div>
-                          <span class="text-sm font-medium text-yellow-700">На рассмотрении</span>
-                          <p class="text-xs text-yellow-600">Ожидание решения Яндекс</p>
+                           class="flex items-center justify-between gap-3 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2.5">
+                        <div class="flex items-center gap-3">
+                          <lucide-icon name="loader-2" [size]="16" class="text-yellow-600 animate-spin shrink-0"></lucide-icon>
+                          <div>
+                            <span class="text-sm font-medium text-yellow-700">На рассмотрении</span>
+                            <p class="text-xs text-yellow-600">Ожидание решения Яндекс</p>
+                          </div>
                         </div>
+                        <button (click)="approveMerchant()"
+                                class="shrink-0 px-2.5 py-1 text-xs font-medium rounded border border-dashed border-green-400 text-green-700 bg-green-50 hover:bg-green-100 transition-colors"
+                                title="Служебная кнопка: имитация одобрения заявки">
+                          ✓ Одобрить
+                        </button>
                       </div>
                       <!-- Active -->
                       <div *ngIf="currentMerchant.registration_status === 'active'"
@@ -1139,7 +1146,6 @@ export class CometMainScreenComponent implements OnInit {
 
   resubmitMerchant(): void {
     if (!this.currentMerchant) return;
-    // Change status from failed → processing
     this.allMerchants = this.allMerchants.map(m =>
       m.merchant_id === this.currentMerchant!.merchant_id
         ? { ...m, registration_status: 'processing' as const, updated: new Date().toISOString() }
@@ -1147,6 +1153,22 @@ export class CometMainScreenComponent implements OnInit {
     );
     this.storage.save('comet', 'merchants', this.allMerchants);
     this.showToast('Заявка подана повторно', this.currentMerchant.name);
+  }
+
+  approveMerchant(): void {
+    if (!this.currentMerchant) return;
+    const name = this.currentMerchant.name;
+    this.allMerchants = this.allMerchants.map(m =>
+      m.merchant_id === this.currentMerchant!.merchant_id
+        ? { ...m, registration_status: 'active' as const, updated: new Date().toISOString() }
+        : m
+    );
+    this.storage.save('comet', 'merchants', this.allMerchants);
+    // Re-select store to trigger auto-fill key
+    if (this.selectedStore) {
+      this.selectStore(this.selectedStore);
+    }
+    this.showToast('Заявка одобрена', name);
   }
 
   createPartnerForCurrentOrg(): void {
