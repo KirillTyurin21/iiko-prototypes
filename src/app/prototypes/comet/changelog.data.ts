@@ -4,7 +4,7 @@ export const CHANGELOG: ChangelogRelease[] = [
   {
     version: '1.2',
     date: '2026-03-20',
-    status: 'unreleased',
+    status: 'released',
     changes: [
       {
         page: 'Настройки Яндекс.Пэй',
@@ -29,7 +29,7 @@ export const CHANGELOG: ChangelogRelease[] = [
   {
     version: '1.1',
     date: '2026-03-20',
-    status: 'unreleased',
+    status: 'released',
     changes: [
       {
         page: 'Онбординг Яндекс.Пэй',
@@ -54,8 +54,8 @@ export const CHANGELOG: ChangelogRelease[] = [
   },
   {
     version: '1.0',
-    date: '2026-03-19',
-    status: 'unreleased',
+    date: '2026-03-20',
+    status: 'released',
     changes: [
       {
         items: [
