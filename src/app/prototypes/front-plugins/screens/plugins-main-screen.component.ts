@@ -100,7 +100,7 @@ export class PluginsMainScreenComponent {
   plugins = MOCK_PLUGINS;
   pluginTags = [
     'Поиск клиента', 'Оплата', 'Бонусы', 'Регистрация',
-    'Ошибки', 'Загрузка', 'Успех',
+    'Ошибки', 'Загрузка', 'Успех', 'Подсказки',
   ];
 
   goToPlugin(plugin: typeof MOCK_PLUGINS[0]): void {

@@ -18,6 +18,15 @@ export const MOCK_PLUGINS: PluginEntry[] = [
     dialogCount: 11,
     link: '/prototype/front-pudu-plugin',
   },
+  {
+    id: 'hints',
+    name: 'Digital Signage — Подсказки',
+    description:
+      'Модальное окно подсказки для кассира: допродажа блюд, слоган, картинка, скидка. 3 варианта дизайна для сравнения.',
+    icon: 'lightbulb',
+    dialogCount: 3,
+    link: '/prototype/front-plugins/hints',
+  },
 ];
 
 export const MOCK_DIALOGS: Record<string, DialogEntry[]> = {
