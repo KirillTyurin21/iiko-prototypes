@@ -82,3 +82,65 @@ export const HINT_VARIANT_C: HintData = {
 
 /** Все варианты подсказок для сравнения */
 export const ALL_HINTS: HintData[] = [HINT_VARIANT_A, HINT_VARIANT_B, HINT_VARIANT_C];
+
+/**
+ * Подсказки, привязанные к конкретным блюдам меню.
+ * Ключ — название блюда из MOCK_MENU_ITEMS.
+ * У каждого блюда своя уникальная рекомендация.
+ */
+export const HINTS_BY_DISH: Record<string, HintData> = {
+  'Чай Nesty': {
+    id: 'hint-tea',
+    title: 'Идеальная пара к чаю',
+    slogan: 'К чаю отлично подойдёт свежий круассан со скидкой!',
+    description: 'Вы добавили Чай Nesty. Рекомендуем: Круассан с шоколадом — тёплый, хрустящий.',
+    imageUrl: 'https://placehold.co/200x200/2d2d2d/b8c959?text=🥐',
+    recommendation: {
+      id: 'rec-tea',
+      name: 'Круассан с шоколадом',
+      price: 179,
+      oldPrice: 179,
+      discountedPrice: 139,
+      discountName: 'Скидка к чаю',
+      discountAmount: 40,
+      attributes: ['85 г', '320 ккал', 'Глютен'],
+    },
+  },
+  'Шоколадный батончик': {
+    id: 'hint-choco',
+    title: 'Подсказка для кассира',
+    slogan: 'Предложите клиенту горячий напиток к десерту!',
+    description: 'Вы добавили Шоколадный батончик. Рекомендуем: Капучино — классика!',
+    imageUrl: 'https://placehold.co/200x200/2d2d2d/b8c959?text=☕',
+    recommendation: {
+      id: 'rec-choco',
+      name: 'Капучино',
+      price: 250,
+      oldPrice: null,
+      discountedPrice: null,
+      discountName: null,
+      discountAmount: null,
+      attributes: ['200 мл', 'Содержит молоко'],
+    },
+  },
+  'Кока Кола': {
+    id: 'hint-cola',
+    title: 'Акция дня',
+    slogan: 'Комбо: Кола + Наггетсы = выгода 15%!',
+    description: 'Вы добавили Кока Колу. При добавлении Наггетсов действует скидка 15%.',
+    imageUrl: 'https://placehold.co/200x200/2d2d2d/b8c959?text=🍗',
+    recommendation: {
+      id: 'rec-cola',
+      name: 'Наггетсы 9 шт.',
+      price: 289,
+      oldPrice: 289,
+      discountedPrice: 245,
+      discountName: 'Комбо -15%',
+      discountAmount: 44,
+      attributes: ['180 г', '410 ккал'],
+    },
+  },
+};
+
+/** Подсказка по умолчанию для блюд, не имеющих индивидуальной привязки */
+export const HINT_DEFAULT = HINT_VARIANT_A;

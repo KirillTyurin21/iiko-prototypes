@@ -5,7 +5,7 @@ import { IconsModule } from '@/shared/icons.module';
 import { UiBreadcrumbsComponent } from '@/components/ui';
 import { HintCardDialogComponent } from '../components/hint-card-dialog.component';
 import { HintData, OrderDish } from '../data/hint-types';
-import { MOCK_ORDER_DISHES, MOCK_MENU_ITEMS, MOCK_QUICK_MENU, HINT_VARIANT_A } from '../data/hint-mock-data';
+import { MOCK_ORDER_DISHES, MOCK_MENU_ITEMS, MOCK_QUICK_MENU, HINTS_BY_DISH, HINT_DEFAULT } from '../data/hint-mock-data';
 
 /**
  * Вариант A: Имитация экрана редактирования заказа Front.
@@ -211,7 +211,7 @@ export class HintDemoScreenComponent {
   orderDishes = [...MOCK_ORDER_DISHES];
   menuItems = MOCK_MENU_ITEMS;
   quickMenu = MOCK_QUICK_MENU;
-  currentHint: HintData = HINT_VARIANT_A;
+  currentHint: HintData = HINT_DEFAULT;
   showHint = false;
   addedMessage = '';
 
@@ -225,14 +225,33 @@ export class HintDemoScreenComponent {
 
   onMenuItemClick(item: OrderDish): void {
     if (item.isCategory) return;
-    this.triggerHint();
+    this.addDishToOrder(item.name, item.price);
+    this.triggerHint(item.name);
   }
 
   onQuickMenuClick(name: string): void {
-    this.triggerHint();
+    const item = this.menuItems.find(m => m.name === name);
+    this.addDishToOrder(name, item?.price ?? 0);
+    this.triggerHint(name);
   }
 
-  private triggerHint(): void {
+  private addDishToOrder(name: string, price: number): void {
+    const existing = this.orderDishes.find(d => d.name === name);
+    if (existing) {
+      existing.qty++;
+    } else {
+      this.orderDishes.push({
+        id: 'menu-' + Date.now(),
+        name,
+        price,
+        qty: 1,
+        category: '',
+      });
+    }
+  }
+
+  private triggerHint(dishName: string): void {
+    this.currentHint = HINTS_BY_DISH[dishName] || HINT_DEFAULT;
     this.showHint = true;
   }
 

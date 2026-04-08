@@ -2,6 +2,21 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.2',
+    date: '2026-04-08',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Подсказки — Демо',
+        pageRoute: '/prototype/front-plugins/hints/demo',
+        items: [
+          'Каждое блюдо в меню теперь показывает свою уникальную подсказку с индивидуальной рекомендацией',
+          'При нажатии на блюдо оно сразу добавляется в чек заказа',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.1',
     date: '2026-04-08',
     status: 'released',
