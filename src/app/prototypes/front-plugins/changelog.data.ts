@@ -2,6 +2,22 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.3',
+    date: '2026-04-09',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Подсказки — Сравнение вариантов',
+        pageRoute: '/prototype/front-plugins/hints/variants',
+        items: [
+          'Добавлен вариант 3: «Иконка-кнопка» — квадратная кнопка с иконкой корзины справа от контента, «Отказаться» на всю ширину',
+          'Добавлен вариант 4: «Два квадрата» — два больших квадрата внизу: «Отказаться» слева, «Добавить» справа с иконками',
+          'Таблица сравнения расширена до 5 вариантов',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.2',
     date: '2026-04-08',
     status: 'released',

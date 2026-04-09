@@ -16,7 +16,7 @@ import {
   HINT_BIG_DISCOUNT,
 } from '../data/hint-mock-data';
 
-type DesignType = 'card-add-first' | 'card-vertical' | 'pos';
+type DesignType = 'card-add-first' | 'card-vertical' | 'card-icon-right' | 'card-two-squares' | 'pos';
 type DataVariant = '1' | '2' | '3' | '4' | '5' | '6';
 
 /**
@@ -68,8 +68,8 @@ type DataVariant = '1' | '2' | '3' | '4' | '5' | '6';
         <p class="text-xs text-text-disabled mt-2">{{ currentDataDescription }}</p>
       </div>
 
-      <!-- 3 варианта дизайна -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+      <!-- 5 вариантов дизайна -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
 
         <!-- Вариант 1: Кнопки горизонтально, Добавить слева -->
         <div (click)="toggleExpanded('card-add-first')"
@@ -88,11 +88,9 @@ type DataVariant = '1' | '2' | '3' | '4' | '5' | '6';
                 Вариант 1: Кнопки в ряд
               </h3>
             </div>
-            <!-- Мини-превью -->
             <div class="bg-[#2d2d2d] rounded-lg p-3 mb-3">
               <div class="flex gap-2">
-                <div class="w-10 h-10 bg-[#3a3a3a] border border-white/10 flex items-center justify-center text-xs"
-                     style="border-radius: 0;">🍎</div>
+                <div class="w-10 h-10 bg-[#3a3a3a] border border-white/10 flex items-center justify-center text-xs" style="border-radius: 0;">🍎</div>
                 <div class="flex-1">
                   <div class="h-2 w-20 bg-white/20 mb-1" style="border-radius: 0;"></div>
                   <div class="h-1.5 w-16 bg-white/10 mb-1" style="border-radius: 0;"></div>
@@ -131,11 +129,9 @@ type DataVariant = '1' | '2' | '3' | '4' | '5' | '6';
                 Вариант 2: Кнопки столбцом
               </h3>
             </div>
-            <!-- Мини-превью -->
             <div class="bg-[#2d2d2d] rounded-lg p-3 mb-3">
               <div class="flex gap-2">
-                <div class="w-10 h-10 bg-[#3a3a3a] border border-white/10 flex items-center justify-center text-xs"
-                     style="border-radius: 0;">🍎</div>
+                <div class="w-10 h-10 bg-[#3a3a3a] border border-white/10 flex items-center justify-center text-xs" style="border-radius: 0;">🍎</div>
                 <div class="flex-1">
                   <div class="h-2 w-20 bg-white/20 mb-1" style="border-radius: 0;"></div>
                   <div class="h-1.5 w-16 bg-white/10 mb-1" style="border-radius: 0;"></div>
@@ -157,7 +153,97 @@ type DataVariant = '1' | '2' | '3' | '4' | '5' | '6';
           </div>
         </div>
 
-        <!-- Дизайн 3: POS -->
+        <!-- Вариант 3: Иконка-кнопка справа (Руслан) -->
+        <div (click)="toggleExpanded('card-icon-right')"
+             class="group bg-surface rounded-xl border-2 transition-all duration-200 cursor-pointer overflow-hidden"
+             [ngClass]="{
+               'border-app-primary shadow-card-hover': expandedDesign === 'card-icon-right',
+               'border-border hover:border-app-primary/40 hover:shadow-card-hover': expandedDesign !== 'card-icon-right'
+             }">
+          <div class="h-1.5" [ngClass]="{'bg-app-primary': expandedDesign === 'card-icon-right', 'bg-[#2d2d2d]': expandedDesign !== 'card-icon-right'}"></div>
+          <div class="p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#2d2d2d] flex items-center justify-center">
+                <lucide-icon name="shopping-cart" [size]="16" class="text-[#c9a84c]"></lucide-icon>
+              </div>
+              <h3 class="text-sm font-semibold text-text-primary group-hover:text-app-primary transition-colors">
+                Вариант 3: Иконка-кнопка
+              </h3>
+            </div>
+            <!-- Мини-превью: контент + квадратная кнопка справа -->
+            <div class="bg-[#2d2d2d] rounded-lg p-3 mb-3">
+              <div class="flex gap-2">
+                <div class="w-10 h-10 bg-[#3a3a3a] border border-white/10 flex items-center justify-center text-xs" style="border-radius: 0;">🍎</div>
+                <div class="flex-1">
+                  <div class="h-2 w-20 bg-white/20 mb-1" style="border-radius: 0;"></div>
+                  <div class="h-1.5 w-16 bg-white/10 mb-1" style="border-radius: 0;"></div>
+                  <div class="h-2 w-12 bg-[#c9a84c]/40" style="border-radius: 0;"></div>
+                </div>
+                <div class="w-10 h-10 bg-[#c9a84c]/40 flex items-center justify-center" style="border-radius: 0;">
+                  <span class="text-[8px] text-white/80">🛒</span>
+                </div>
+              </div>
+              <div class="mt-2 border-t border-white/10 pt-1">
+                <div class="h-5 bg-white/10" style="border-radius: 0;"></div>
+              </div>
+            </div>
+            <p class="text-xs text-text-secondary leading-relaxed">
+              Квадратная иконка-кнопка «Добавить» справа от контента. «Отказаться» на всю ширину внизу.
+            </p>
+            <div class="flex flex-wrap gap-1 mt-2">
+              <ui-badge variant="info">Новый</ui-badge>
+              <ui-badge variant="default">Тач-френдли</ui-badge>
+            </div>
+          </div>
+        </div>
+
+        <!-- Вариант 4: Два квадрата (Кирилл) -->
+        <div (click)="toggleExpanded('card-two-squares')"
+             class="group bg-surface rounded-xl border-2 transition-all duration-200 cursor-pointer overflow-hidden"
+             [ngClass]="{
+               'border-app-primary shadow-card-hover': expandedDesign === 'card-two-squares',
+               'border-border hover:border-app-primary/40 hover:shadow-card-hover': expandedDesign !== 'card-two-squares'
+             }">
+          <div class="h-1.5" [ngClass]="{'bg-app-primary': expandedDesign === 'card-two-squares', 'bg-[#2d2d2d]': expandedDesign !== 'card-two-squares'}"></div>
+          <div class="p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-[#2d2d2d] flex items-center justify-center">
+                <lucide-icon name="layout-grid" [size]="16" class="text-[#c9a84c]"></lucide-icon>
+              </div>
+              <h3 class="text-sm font-semibold text-text-primary group-hover:text-app-primary transition-colors">
+                Вариант 4: Два квадрата
+              </h3>
+            </div>
+            <!-- Мини-превью: контент + два квадрата снизу -->
+            <div class="bg-[#2d2d2d] rounded-lg p-3 mb-3">
+              <div class="flex gap-2">
+                <div class="w-10 h-10 bg-[#3a3a3a] border border-white/10 flex items-center justify-center text-xs" style="border-radius: 0;">🍎</div>
+                <div class="flex-1">
+                  <div class="h-2 w-20 bg-white/20 mb-1" style="border-radius: 0;"></div>
+                  <div class="h-1.5 w-16 bg-white/10 mb-1" style="border-radius: 0;"></div>
+                  <div class="h-2 w-12 bg-[#c9a84c]/40" style="border-radius: 0;"></div>
+                </div>
+              </div>
+              <div class="flex gap-0 mt-2 border-t border-white/10 pt-1">
+                <div class="flex-1 h-10 bg-white/10 border-r border-white/10 flex items-center justify-center" style="border-radius: 0;">
+                  <span class="text-[8px] text-white/40">✕</span>
+                </div>
+                <div class="flex-1 h-10 bg-[#c9a84c]/20 flex items-center justify-center" style="border-radius: 0;">
+                  <span class="text-[8px] text-white/60">🛒</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-xs text-text-secondary leading-relaxed">
+              Два больших квадрата: «Отказаться» слева, «Добавить» справа. Максимально простой выбор.
+            </p>
+            <div class="flex flex-wrap gap-1 mt-2">
+              <ui-badge variant="info">Новый</ui-badge>
+              <ui-badge variant="default">Квадраты</ui-badge>
+            </div>
+          </div>
+        </div>
+
+        <!-- Вариант 5: POS -->
         <div (click)="toggleExpanded('pos')"
              class="group bg-surface rounded-xl border-2 transition-all duration-200 cursor-pointer overflow-hidden"
              [ngClass]="{
@@ -171,7 +257,7 @@ type DataVariant = '1' | '2' | '3' | '4' | '5' | '6';
                 <lucide-icon name="monitor" [size]="16" class="text-[#c9a84c]"></lucide-icon>
               </div>
               <h3 class="text-sm font-semibold text-text-primary group-hover:text-app-primary transition-colors">
-                Вариант 3: «Компактный POS»
+                Вариант 5: «Компактный POS»
               </h3>
             </div>
             <!-- Мини-превью -->
@@ -223,17 +309,21 @@ type DataVariant = '1' | '2' | '3' | '4' | '5' | '6';
             <thead>
               <tr class="border-b border-border">
                 <th class="text-left px-5 py-3 text-text-secondary font-medium">Критерий</th>
-                <th class="text-center px-4 py-3 text-text-secondary font-medium">Кнопки в ряд</th>
-                <th class="text-center px-4 py-3 text-text-secondary font-medium">Кнопки столбцом</th>
-                <th class="text-center px-4 py-3 text-text-secondary font-medium">POS</th>
+                <th class="text-center px-3 py-3 text-text-secondary font-medium text-xs">В ряд</th>
+                <th class="text-center px-3 py-3 text-text-secondary font-medium text-xs">Столбцом</th>
+                <th class="text-center px-3 py-3 text-text-secondary font-medium text-xs">Иконка</th>
+                <th class="text-center px-3 py-3 text-text-secondary font-medium text-xs">Квадраты</th>
+                <th class="text-center px-3 py-3 text-text-secondary font-medium text-xs">POS</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let row of comparisonData" class="border-b border-border/60">
                 <td class="px-5 py-2.5 text-text-primary">{{ row.label }}</td>
-                <td class="text-center px-4 py-2.5">{{ row.addFirst }}</td>
-                <td class="text-center px-4 py-2.5">{{ row.vertical }}</td>
-                <td class="text-center px-4 py-2.5">{{ row.pos }}</td>
+                <td class="text-center px-3 py-2.5">{{ row.addFirst }}</td>
+                <td class="text-center px-3 py-2.5">{{ row.vertical }}</td>
+                <td class="text-center px-3 py-2.5">{{ row.iconRight }}</td>
+                <td class="text-center px-3 py-2.5">{{ row.twoSquares }}</td>
+                <td class="text-center px-3 py-2.5">{{ row.pos }}</td>
               </tr>
             </tbody>
           </table>
@@ -253,6 +343,22 @@ type DataVariant = '1' | '2' | '3' | '4' | '5' | '6';
         [open]="activeModal === 'card-vertical'"
         [hint]="activeHint"
         buttonLayout="vertical"
+        (add)="closeModal()"
+        (decline)="closeModal()">
+      </hint-card-dialog>
+
+      <hint-card-dialog
+        [open]="activeModal === 'card-icon-right'"
+        [hint]="activeHint"
+        buttonLayout="icon-right"
+        (add)="closeModal()"
+        (decline)="closeModal()">
+      </hint-card-dialog>
+
+      <hint-card-dialog
+        [open]="activeModal === 'card-two-squares'"
+        [hint]="activeHint"
+        buttonLayout="two-squares"
         (add)="closeModal()"
         (decline)="closeModal()">
       </hint-card-dialog>
@@ -290,12 +396,12 @@ export class HintVariantsScreenComponent {
   ];
 
   comparisonData = [
-    { label: 'Скорость выбора', addFirst: '⭐⭐⭐', vertical: '⭐⭐', pos: '⭐⭐⭐' },
-    { label: 'Удобство для тач', addFirst: '⭐⭐', vertical: '⭐⭐⭐', pos: '⭐⭐' },
-    { label: 'Заметность «Добавить»', addFirst: '⭐⭐⭐', vertical: '⭐⭐⭐', pos: '⭐⭐' },
-    { label: 'Заметность «Отказаться»', addFirst: '⭐⭐⭐', vertical: '⭐⭐', pos: '⭐⭐⭐' },
-    { label: 'Консистентность с Front', addFirst: '⭐⭐⭐', vertical: '⭐⭐', pos: '⭐⭐⭐' },
-    { label: 'Компактность', addFirst: '⭐⭐⭐', vertical: '⭐⭐', pos: '⭐⭐⭐' },
+    { label: 'Скорость выбора', addFirst: '⭐⭐⭐', vertical: '⭐⭐', iconRight: '⭐⭐⭐', twoSquares: '⭐⭐⭐', pos: '⭐⭐⭐' },
+    { label: 'Удобство для тач', addFirst: '⭐⭐', vertical: '⭐⭐⭐', iconRight: '⭐⭐⭐', twoSquares: '⭐⭐⭐', pos: '⭐⭐' },
+    { label: 'Заметность «Добавить»', addFirst: '⭐⭐⭐', vertical: '⭐⭐⭐', iconRight: '⭐⭐⭐', twoSquares: '⭐⭐', pos: '⭐⭐' },
+    { label: 'Заметность «Отказаться»', addFirst: '⭐⭐⭐', vertical: '⭐⭐', iconRight: '⭐⭐⭐', twoSquares: '⭐⭐⭐', pos: '⭐⭐⭐' },
+    { label: 'Консистентность с Front', addFirst: '⭐⭐⭐', vertical: '⭐⭐', iconRight: '⭐⭐', twoSquares: '⭐⭐', pos: '⭐⭐⭐' },
+    { label: 'Компактность', addFirst: '⭐⭐⭐', vertical: '⭐⭐', iconRight: '⭐⭐', twoSquares: '⭐⭐', pos: '⭐⭐⭐' },
   ];
 
   private hintMap: Record<DataVariant, HintData> = {

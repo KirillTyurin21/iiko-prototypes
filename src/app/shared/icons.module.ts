@@ -114,6 +114,8 @@ import {
   BookOpen,
   Columns,
   Rows,
+  // Hints button variants
+  ShoppingCart,
 } from 'lucide-angular';
 
 /**
@@ -236,6 +238,8 @@ const icons = {
   BookOpen,
   Columns,
   Rows,
+  // Hints button variants
+  ShoppingCart,
 };
 
 @NgModule({

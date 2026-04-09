@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, HostListener, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IconsModule } from '@/shared/icons.module';
 import { HintData } from '../data/hint-types';
 
 /**
@@ -7,14 +8,16 @@ import { HintData } from '../data/hint-types';
  * Тёмный фон, прямые углы, жёлтые акценты, чёрные кнопки.
  *
  * buttonLayout:
- *  - 'default':   [Отказаться | Добавить] горизонтально
- *  - 'add-first': [Добавить | Отказаться] горизонтально (свап)
- *  - 'vertical':  Добавить сверху, Отказаться снизу
+ *  - 'default':      [Отказаться | Добавить] горизонтально
+ *  - 'add-first':    [Добавить | Отказаться] горизонтально (свап)
+ *  - 'vertical':     Добавить сверху, Отказаться снизу
+ *  - 'icon-right':   Иконка-кнопка «Добавить» справа от контента + «Отказаться» на всю ширину снизу
+ *  - 'two-squares':  Два больших квадрата: «Отказаться» слева, «Добавить» справа
  */
 @Component({
   selector: 'hint-card-dialog',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconsModule],
   template: `
     <div *ngIf="open" class="fixed inset-0 z-50 flex items-center justify-center animate-fade-in">
       <!-- Overlay (НЕ кликабельный — закрытие только по кнопкам) -->
@@ -42,9 +45,9 @@ import { HintData } from '../data/hint-types';
         <!-- Разделитель -->
         <div class="border-t border-white/10 mx-5"></div>
 
-        <!-- Контент: картинка + информация -->
-        <div class="px-5 py-4">
-          <div class="flex gap-4">
+        <!-- Контент: картинка + информация (+ иконка-кнопка для icon-right) -->
+        <div class="px-5 py-4" [ngClass]="{'pr-0': buttonLayout === 'icon-right'}">
+          <div class="flex gap-4 items-stretch">
             <!-- Картинка -->
             <div *ngIf="hint.imageUrl" class="flex-shrink-0">
               <div class="w-[110px] h-[110px] overflow-hidden bg-[#2d2d2d] border border-white/10"
@@ -84,11 +87,22 @@ import { HintData } from '../data/hint-types';
                 </span>
               </div>
             </div>
+
+            <!-- Кнопка-иконка «Добавить» справа (icon-right layout) -->
+            <button *ngIf="buttonLayout === 'icon-right'"
+                    (click)="onAdd()"
+                    class="flex-shrink-0 w-[90px] bg-[#c9a84c] hover:bg-[#b89a3c] active:bg-[#a88f35]
+                           flex flex-col items-center justify-center text-[#2a2a2a] transition-colors
+                           border-l border-white/10"
+                    style="border-radius: 0;">
+              <lucide-icon name="shopping-cart" [size]="32"></lucide-icon>
+              <span class="text-xs font-bold mt-1.5">Добавить</span>
+            </button>
           </div>
         </div>
 
         <!-- Кнопки: горизонтальные (default или add-first) -->
-        <div *ngIf="buttonLayout !== 'vertical'" class="border-t border-white/10">
+        <div *ngIf="buttonLayout === 'default' || buttonLayout === 'add-first'" class="border-t border-white/10">
           <div class="flex">
             <!-- add-first: Добавить слева, Отказаться справа -->
             <ng-container *ngIf="buttonLayout === 'add-first'">
@@ -108,7 +122,7 @@ import { HintData } from '../data/hint-types';
               </button>
             </ng-container>
             <!-- default: Отказаться слева, Добавить справа -->
-            <ng-container *ngIf="buttonLayout !== 'add-first'">
+            <ng-container *ngIf="buttonLayout === 'default'">
               <button (click)="onDecline()"
                       class="flex-1 py-4 text-center text-white/70 font-bold text-base
                              bg-[#2a2a2a] hover:bg-[#333] active:bg-[#222] transition-colors
@@ -144,6 +158,38 @@ import { HintData } from '../data/hint-types';
             Отказаться
           </button>
         </div>
+
+        <!-- Кнопка «Отказаться» на всю ширину (icon-right) -->
+        <div *ngIf="buttonLayout === 'icon-right'" class="border-t border-white/10">
+          <button (click)="onDecline()"
+                  class="w-full py-5 text-center text-white/70 font-bold text-base
+                         bg-[#2a2a2a] hover:bg-[#333] active:bg-[#222] transition-colors"
+                  style="border-radius: 0;">
+            Отказаться
+          </button>
+        </div>
+
+        <!-- Два квадрата: Отказаться слева, Добавить справа (two-squares) -->
+        <div *ngIf="buttonLayout === 'two-squares'" class="border-t border-white/10">
+          <div class="flex">
+            <button (click)="onDecline()"
+                    class="flex-1 py-7 flex flex-col items-center justify-center gap-2
+                           bg-[#2a2a2a] hover:bg-[#333] active:bg-[#222] transition-colors
+                           border-r border-white/10"
+                    style="border-radius: 0;">
+              <lucide-icon name="x" [size]="28" class="text-white/50"></lucide-icon>
+              <span class="text-white/70 font-bold text-sm">Отказаться</span>
+            </button>
+            <button (click)="onAdd()"
+                    class="flex-1 py-7 flex flex-col items-center justify-center gap-2
+                           bg-[#2a2a2a] hover:bg-[#333] active:bg-[#222] transition-colors"
+                    style="border-radius: 0;">
+              <lucide-icon name="shopping-cart" [size]="28" class="text-[#c9a84c]"></lucide-icon>
+              <span class="text-[#c9a84c] font-bold text-sm">Добавить</span>
+              <span *ngIf="displayPrice" class="text-[#c9a84c]/70 text-xs">{{ displayPrice }} ₽</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -151,7 +197,7 @@ import { HintData } from '../data/hint-types';
 export class HintCardDialogComponent implements OnChanges {
   @Input() open = false;
   @Input() hint!: HintData;
-  @Input() buttonLayout: 'default' | 'add-first' | 'vertical' = 'default';
+  @Input() buttonLayout: 'default' | 'add-first' | 'vertical' | 'icon-right' | 'two-squares' = 'default';
   @Output() add = new EventEmitter<void>();
   @Output() decline = new EventEmitter<void>();
 

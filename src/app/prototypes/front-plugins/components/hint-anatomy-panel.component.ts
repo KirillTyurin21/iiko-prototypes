@@ -10,7 +10,7 @@ interface AnnotationItem {
   color: string;
 }
 
-type DesignType = 'card-add-first' | 'card-vertical' | 'pos';
+type DesignType = 'card-add-first' | 'card-vertical' | 'card-icon-right' | 'card-two-squares' | 'pos';
 
 /**
  * Панель «Анатомия карточки» — inline-рендер окна подсказки
@@ -86,8 +86,8 @@ type DesignType = 'card-add-first' | 'card-vertical' | 'pos';
             <div class="border-t border-white/10 mx-5"></div>
 
             <!-- Контент: картинка + информация -->
-            <div class="px-5 py-4">
-              <div class="flex gap-4">
+            <div class="px-5 py-4" [ngClass]="{'pr-0': designType === 'card-icon-right'}">
+              <div class="flex gap-4" [ngClass]="{'items-stretch': designType === 'card-icon-right'}">
                 <!-- ④ Картинка -->
                 <div *ngIf="hint.imageUrl" class="flex-shrink-0 relative">
                   <div class="w-[110px] h-[110px] overflow-hidden bg-[#2d2d2d] border border-white/10"
@@ -154,6 +154,17 @@ type DesignType = 'card-add-first' | 'card-vertical' | 'pos';
                     </span>
                   </div>
                 </div>
+
+                <!-- ⑩ Кнопка-иконка «Добавить» справа (icon-right) -->
+                <div *ngIf="designType === 'card-icon-right'"
+                     class="flex-shrink-0 w-[90px] bg-[#c9a84c] flex flex-col items-center justify-center text-[#2a2a2a] border-l border-white/10 relative"
+                     style="border-radius: 0;">
+                  <lucide-icon name="shopping-cart" [size]="28"></lucide-icon>
+                  <span class="text-xs font-bold mt-1.5">Добавить</span>
+                  <span *ngIf="showAnnotations"
+                        class="absolute top-1 right-1 min-w-[20px] h-5 px-0.5 rounded-full text-white text-[10px] flex items-center justify-center font-bold shadow-lg z-10"
+                        style="background-color: #f97316;">10</span>
+                </div>
               </div>
             </div>
 
@@ -188,6 +199,36 @@ type DesignType = 'card-add-first' | 'card-vertical' | 'pos';
               <div class="w-full py-4 text-center text-white/70 font-bold text-base bg-[#2a2a2a]"
                    style="border-radius: 0;">
                 Отказаться
+              </div>
+            </div>
+
+            <!-- Кнопка «Отказаться» на всю ширину (icon-right) — кнопка «Добавить» уже в контенте -->
+            <div *ngIf="designType === 'card-icon-right'" class="border-t border-white/10">
+              <div class="w-full py-5 text-center text-white/70 font-bold text-base bg-[#2a2a2a]"
+                   style="border-radius: 0;">
+                Отказаться
+              </div>
+            </div>
+
+            <!-- ⑩ Два квадрата: Отказаться слева, Добавить справа (two-squares) -->
+            <div *ngIf="designType === 'card-two-squares'" class="border-t border-white/10">
+              <div class="flex">
+                <div class="flex-1 py-7 flex flex-col items-center justify-center gap-2
+                            bg-[#2a2a2a] border-r border-white/10"
+                     style="border-radius: 0;">
+                  <lucide-icon name="x" [size]="28" class="text-white/50"></lucide-icon>
+                  <span class="text-white/70 font-bold text-sm">Отказаться</span>
+                </div>
+                <div class="flex-1 py-7 flex flex-col items-center justify-center gap-2
+                            bg-[#2a2a2a] relative"
+                     style="border-radius: 0;">
+                  <lucide-icon name="shopping-cart" [size]="28" class="text-[#c9a84c]"></lucide-icon>
+                  <span class="text-[#c9a84c] font-bold text-sm">Добавить</span>
+                  <span *ngIf="displayPrice" class="text-[#c9a84c]/70 text-xs">{{ displayPrice }} ₽</span>
+                  <span *ngIf="showAnnotations"
+                        class="absolute top-1 right-1 min-w-[20px] h-5 px-0.5 rounded-full text-white text-[10px] flex items-center justify-center font-bold shadow-lg z-10"
+                        style="background-color: #f97316;">10</span>
+                </div>
               </div>
             </div>
           </div>
@@ -377,6 +418,8 @@ export class HintAnatomyPanelComponent {
     const labels: Record<DesignType, string> = {
       'card-add-first': 'Кнопки в ряд',
       'card-vertical': 'Кнопки столбцом',
+      'card-icon-right': 'Иконка-кнопка справа',
+      'card-two-squares': 'Два квадрата',
       'pos': 'Компактный POS',
     };
     return labels[this.designType];
