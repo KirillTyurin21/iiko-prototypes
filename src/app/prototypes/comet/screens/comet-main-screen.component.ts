@@ -730,7 +730,7 @@ import {
                           [disabled]="!isMerchantFormValid"
                           [title]="!isMerchantFormValid ? 'Заполните все обязательные поля и выберите терминалы для каждой точки' : ''"
                           class="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                    Подать заявку ({{ merchantEntries.length }} {{ merchantEntries.length === 1 ? 'точка' : merchantEntries.length < 5 ? 'точки' : 'точек' }})
+                    Отправить заявку ({{ merchantEntries.length }} {{ merchantEntries.length === 1 ? 'точка' : merchantEntries.length < 5 ? 'точки' : 'точек' }})
                   </button>
                   <button (click)="addMerchantEntry()"
                           class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors inline-flex items-center gap-1.5">
