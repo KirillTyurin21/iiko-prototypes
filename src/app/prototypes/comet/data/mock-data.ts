@@ -1,4 +1,4 @@
-import { Organization, Account, YpTerminal, Partner, MerchantInfo, MerchantStatus, UserTokenInfo, MccCode, OAuthState, AvailableTerminal } from '../types';
+import { Organization, Account, YpTerminal, Partner, MerchantInfo, MerchantStatus, UserTokenInfo, MccCode, OAuthState, AvailableTerminal, StoreTerminals } from '../types';
 
 export const MOCK_ORGANIZATIONS: Organization[] = [
   {
@@ -166,4 +166,64 @@ export const MOCK_AVAILABLE_TERMINALS: AvailableTerminal[] = [
   { terminalId: 'avail-t2', terminalName: 'Касса 2 (зал)' },
   { terminalId: 'avail-t3', terminalName: 'Касса 3 (терраса)' },
   { terminalId: 'avail-t4', terminalName: 'Касса 4 (самовывоз)' },
+];
+
+/** Терминалы по торговым точкам (для формы заявки) */
+export const MOCK_STORE_TERMINALS: StoreTerminals[] = [
+  {
+    storeId: '101', storeName: 'Ресторан "Премьер"',
+    terminals: [
+      { terminalId: 'st101-t1', terminalName: 'Касса 1 (бар)' },
+      { terminalId: 'st101-t2', terminalName: 'Касса 2 (зал)' },
+      { terminalId: 'st101-t3', terminalName: 'Касса 3 (терраса)' },
+    ],
+  },
+  {
+    storeId: '102', storeName: 'Кафе "Уют"',
+    terminals: [
+      { terminalId: 'st102-t1', terminalName: 'Касса 1' },
+      { terminalId: 'st102-t2', terminalName: 'Касса 2' },
+    ],
+  },
+  {
+    storeId: '103', storeName: 'Бар "Огонёк"',
+    terminals: [
+      { terminalId: 'st103-t1', terminalName: 'Касса 1 (барная)' },
+    ],
+  },
+  {
+    storeId: '201', storeName: 'Пиццерия "Капричоза"',
+    terminals: [
+      { terminalId: 'st201-t1', terminalName: 'Касса 1' },
+      { terminalId: 'st201-t2', terminalName: 'Касса 2 (доставка)' },
+    ],
+  },
+  {
+    storeId: '202', storeName: 'Суши-бар "Токио"',
+    terminals: [
+      { terminalId: 'st202-t1', terminalName: 'Касса 1 (зал)' },
+      { terminalId: 'st202-t2', terminalName: 'Касса 2 (самовывоз)' },
+    ],
+  },
+  {
+    storeId: '301', storeName: 'Бургерная №1',
+    terminals: [
+      { terminalId: 'st301-t1', terminalName: 'Касса 1' },
+    ],
+  },
+  {
+    storeId: '302', storeName: 'Бургерная №2',
+    terminals: [
+      { terminalId: 'st302-t1', terminalName: 'Касса 1' },
+      { terminalId: 'st302-t2', terminalName: 'Касса 2' },
+    ],
+  },
+  {
+    storeId: '303', storeName: 'Бургерная №3',
+    terminals: [
+      { terminalId: 'st303-t1', terminalName: 'Касса 1' },
+      { terminalId: 'st303-t2', terminalName: 'Касса 2 (летняя)' },
+      { terminalId: 'st303-t3', terminalName: 'Касса 3 (фудкорт)' },
+    ],
+  },
 ];

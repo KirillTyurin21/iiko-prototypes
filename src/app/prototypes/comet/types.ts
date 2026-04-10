@@ -127,4 +127,19 @@ export interface AvailableTerminal {
   terminalName: string;
 }
 
+export interface StoreTerminals {
+  storeId: string;
+  storeName: string;
+  terminals: AvailableTerminal[];
+}
+
+/** Запись одной торговой точки в мульти-заявке */
+export interface MerchantEntry {
+  storeId: string;
+  name: string;
+  mcc: string;
+  address: string;
+  selectedTerminalIds: Set<string>;
+}
+
 export type MerchantTokenStatus = 'none' | 'pending' | 'received' | 'error' | 'retrying';

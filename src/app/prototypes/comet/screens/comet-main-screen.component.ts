@@ -34,6 +34,8 @@ import {
   ContactInfo,
   AvailableTerminal,
   MerchantTokenStatus,
+  StoreTerminals,
+  MerchantEntry,
 } from '../types';
 import {
   MOCK_ORGANIZATIONS,
@@ -44,6 +46,7 @@ import {
   MOCK_MERCHANTS,
   MOCK_MCC_CODES,
   MOCK_AVAILABLE_TERMINALS,
+  MOCK_STORE_TERMINALS,
 } from '../data/mock-data';
 
 @Component({
@@ -584,7 +587,7 @@ import {
               <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-medium text-gray-900">Заявки: {{ selectedPartner.name }}</h3>
                 <div class="flex items-center gap-2">
-                  <button (click)="showMerchantForm = !showMerchantForm"
+                  <button (click)="openMerchantForm()"
                           class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors">
                     <lucide-icon name="plus" [size]="16"></lucide-icon>
                     Подать заявку
@@ -592,52 +595,86 @@ import {
                 </div>
               </div>
 
-              <!-- Форма заявки (полностью переработана) -->
+              <!-- Форма заявки (мульти-точки) -->
               <div *ngIf="showMerchantForm" class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 animate-fade-in">
-                <h4 class="font-medium text-gray-900 mb-3">Регистрация торговой точки</h4>
-                <p class="text-xs text-gray-400 mb-3">Одна заявка = один ресторан. Все поля обязательны.</p>
+                <h4 class="font-medium text-gray-900 mb-1">Регистрация торговых точек</h4>
+                <p class="text-xs text-gray-400 mb-3">Добавьте одну или несколько торговых точек в заявку. Банковские реквизиты и контактные данные — общие.</p>
 
-                <!-- Основные данные -->
-                <p class="text-sm font-medium text-gray-700 mb-2 mt-2">Основные данные</p>
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">Название точки <span class="text-red-500">*</span></label>
-                    <input [(ngModel)]="newMerchantName" type="text" placeholder="Ресторан на Тверской"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                <!-- Блоки торговых точек -->
+                <div *ngFor="let entry of merchantEntries; let idx = index; let last = last"
+                     class="bg-white border border-gray-200 rounded-lg p-4 mb-3 relative">
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm font-medium text-gray-700">Торговая точка {{ idx + 1 }}</p>
+                    <button *ngIf="merchantEntries.length > 1"
+                            (click)="removeMerchantEntry(idx)"
+                            class="text-xs text-red-500 hover:text-red-700 flex items-center gap-1">
+                      <lucide-icon name="x" [size]="14"></lucide-icon> Удалить
+                    </button>
                   </div>
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">MCC-код <span class="text-red-500">*</span></label>
-                    <select [(ngModel)]="newMerchantMcc"
+
+                  <!-- Селектор торговой точки -->
+                  <div class="mb-3">
+                    <label class="block text-sm text-gray-600 mb-1">Торговая точка <span class="text-red-500">*</span></label>
+                    <select [ngModel]="entry.storeId"
+                            (ngModelChange)="onStoreSelected(idx, $event)"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                      <option value="">Выберите категорию</option>
-                      <option *ngFor="let mcc of mccCodes" [value]="mcc.mcc">{{ mcc.mcc }} - {{ mcc.name }}</option>
+                      <option value="">Выберите торговую точку</option>
+                      <option *ngFor="let st of getAvailableStores(idx)" [value]="st.storeId">{{ st.storeName }}</option>
                     </select>
                   </div>
-                  <div class="col-span-2">
-                    <label class="block text-sm text-gray-600 mb-1">Физический адрес <span class="text-red-500">*</span></label>
-                    <input [(ngModel)]="newMerchantAddress" type="text" placeholder="г. Москва, ул. Тверская, д. 12"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm text-gray-600 mb-1">Название <span class="text-red-500">*</span></label>
+                      <input [(ngModel)]="entry.name" type="text" placeholder="Ресторан на Тверской"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    </div>
+                    <div>
+                      <label class="block text-sm text-gray-600 mb-1">MCC-код <span class="text-red-500">*</span></label>
+                      <select [(ngModel)]="entry.mcc"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                        <option value="">Выберите категорию</option>
+                        <option *ngFor="let mcc of mccCodes" [value]="mcc.mcc">{{ mcc.mcc }} - {{ mcc.name }}</option>
+                      </select>
+                    </div>
+                    <div class="col-span-2">
+                      <label class="block text-sm text-gray-600 mb-1">Физический адрес <span class="text-red-500">*</span></label>
+                      <input [(ngModel)]="entry.address" type="text" placeholder="г. Москва, ул. Тверская, д. 12"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    </div>
+                  </div>
+
+                  <!-- Терминалы выбранной точки -->
+                  <div *ngIf="entry.storeId" class="mt-3">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Терминалы (кассы) <span class="text-red-500">*</span></p>
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-1">
+                      <div *ngFor="let term of getTerminalsForStore(entry.storeId)" class="flex items-center gap-2 py-1.5">
+                        <input type="checkbox"
+                               [checked]="entry.selectedTerminalIds.has(term.terminalId)"
+                               (change)="toggleEntryTerminal(idx, term.terminalId)"
+                               class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500">
+                        <label class="text-sm text-gray-700">{{ term.terminalName }}</label>
+                      </div>
+                    </div>
+                    <p class="text-xs" [class]="entry.selectedTerminalIds.size > 0 ? 'text-gray-500' : 'text-red-500'">
+                      Выбрано: {{ entry.selectedTerminalIds.size }} из {{ getTerminalsForStore(entry.storeId).length }}
+                      <span *ngIf="entry.selectedTerminalIds.size === 0"> — выберите хотя бы одну кассу</span>
+                    </p>
+                  </div>
+                  <div *ngIf="!entry.storeId" class="mt-3">
+                    <p class="text-xs text-gray-400">Выберите торговую точку, чтобы увидеть доступные терминалы</p>
                   </div>
                 </div>
 
-                <!-- Выбор терминалов (чекбоксы) -->
-                <p class="text-sm font-medium text-gray-700 mb-2 mt-4">Терминалы (кассы) <span class="text-red-500">*</span></p>
-                <div class="bg-white border border-gray-200 rounded-lg p-3 mb-1">
-                  <div *ngFor="let term of availableTerminals" class="flex items-center gap-2 py-1.5">
-                    <input type="checkbox"
-                           [checked]="selectedTerminalIds.has(term.terminalId)"
-                           (change)="toggleTerminalSelection(term.terminalId)"
-                           class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500">
-                    <label class="text-sm text-gray-700">{{ term.terminalName }}</label>
-                  </div>
-                </div>
-                <p class="text-xs mb-3" [class]="selectedTerminalIds.size > 0 ? 'text-gray-500' : 'text-red-500'">
-                  Выбрано: {{ selectedTerminalIds.size }} из {{ availableTerminals.length }}
-                  <span *ngIf="selectedTerminalIds.size === 0"> — выберите хотя бы одну кассу</span>
-                </p>
+                <!-- Кнопка добавления точки -->
+                <button (click)="addMerchantEntry()"
+                        class="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors flex items-center justify-center gap-1.5 mb-4">
+                  <lucide-icon name="plus" [size]="16"></lucide-icon>
+                  Добавить ещё торговую точку
+                </button>
 
-                <!-- Банковские реквизиты -->
-                <p class="text-sm font-medium text-gray-700 mb-2 mt-4">Банковские реквизиты</p>
+                <!-- Банковские реквизиты (общие) -->
+                <p class="text-sm font-medium text-gray-700 mb-2 mt-2">Банковские реквизиты</p>
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm text-gray-600 mb-1">Расчётный счёт <span class="text-red-500">*</span></label>
@@ -656,7 +693,7 @@ import {
                   </div>
                 </div>
 
-                <!-- Контактные данные -->
+                <!-- Контактные данные (общие, предзаполняются) -->
                 <p class="text-sm font-medium text-gray-700 mb-2 mt-4">Контактные данные</p>
                 <div class="grid grid-cols-2 gap-4">
                   <div>
@@ -689,8 +726,10 @@ import {
                 <div class="flex gap-2 mt-4">
                   <button (click)="submitMerchantApplication()"
                           [disabled]="!isMerchantFormValid"
-                          [title]="!isMerchantFormValid ? 'Заполните все обязательные поля и выберите хотя бы одну кассу' : ''"
-                          class="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Подать заявку</button>
+                          [title]="!isMerchantFormValid ? 'Заполните все обязательные поля и выберите терминалы для каждой точки' : ''"
+                          class="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Подать заявку ({{ merchantEntries.length }} {{ merchantEntries.length === 1 ? 'точка' : merchantEntries.length < 5 ? 'точки' : 'точек' }})
+                  </button>
                   <button (click)="showMerchantForm = false" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors">Отмена</button>
                 </div>
               </div>
@@ -905,6 +944,7 @@ export class CometMainScreenComponent implements OnInit {
   userTokens: Map<string, UserTokenInfo[]> = new Map();
   merchantTokenStatusMap: Map<string, MerchantTokenStatus> = new Map();
   mccCodes: MccCode[] = [];
+  allStoreTerminals: StoreTerminals[] = MOCK_STORE_TERMINALS;
   availableTerminals: AvailableTerminal[] = MOCK_AVAILABLE_TERMINALS;
   selectedTerminalIds: Set<string> = new Set();
   showPartnerForm = false;
@@ -924,10 +964,10 @@ export class CometMainScreenComponent implements OnInit {
   newPartnerEmail = '';
   newPartnerPhone = '';
 
-  // Поля формы мерчанта (переработано)
-  newMerchantName = '';
-  newMerchantMcc = '';
-  newMerchantAddress = '';
+  // Мульти-заявка: массив торговых точек
+  merchantEntries: MerchantEntry[] = [];
+
+  // Общие поля заявки (банковские реквизиты + контактные данные)
   newMerchantSettlementAccount = '';
   newMerchantBik = '';
   newMerchantCorrAccount = '';
@@ -1291,32 +1331,48 @@ export class CometMainScreenComponent implements OnInit {
 
   submitMerchantApplication(): void {
     if (!this.selectedPartner || !this.isMerchantFormValid) return;
-    const merchant: MerchantInfo = {
-      merchant_id: this.generateId(),
-      partner_id: this.selectedPartner.partner_id,
-      name: this.newMerchantName,
-      is_offline: true,
-      enabled: true,
-      registration_status: 'processing',
-      created: new Date().toISOString(),
-      updated: new Date().toISOString(),
-    };
     const allMerchants = this.storage.load<MerchantInfo[]>('comet', 'merchants', MOCK_MERCHANTS);
-    allMerchants.push(merchant);
+
+    for (const entry of this.merchantEntries) {
+      const merchant: MerchantInfo = {
+        merchant_id: this.generateId(),
+        partner_id: this.selectedPartner.partner_id,
+        name: entry.name,
+        is_offline: true,
+        enabled: true,
+        registration_status: 'processing',
+        created: new Date().toISOString(),
+        updated: new Date().toISOString(),
+      };
+      allMerchants.push(merchant);
+    }
+
     this.storage.save('comet', 'merchants', allMerchants);
     this.merchants = allMerchants.filter(m => m.partner_id === this.selectedPartner!.partner_id);
+
+    // Сохранить контактные данные для предзаполнения следующей заявки
+    this.storage.save('comet', 'lastContact', {
+      lastName: this.newMerchantContactLastName,
+      firstName: this.newMerchantContactFirstName,
+      middleName: this.newMerchantContactMiddleName,
+      phone: this.newMerchantContactPhone,
+      email: this.newMerchantContactEmail,
+    });
+
+    const count = this.merchantEntries.length;
     this.showMerchantForm = false;
     this.resetMerchantForm();
-    this.showToast('Заявка подана', merchant.name + ' — используйте панель эмуляции для одобрения');
+    this.showToast('Заявка подана', `${count} ${count === 1 ? 'точка' : count < 5 ? 'точки' : 'точек'} — используйте панель эмуляции для одобрения`);
   }
 
-  // Валидация формы мерчанта (COR-02, COR-04, COR-10, COR-12)
+  // Валидация формы мерчанта (мульти-точки)
   get isMerchantFormValid(): boolean {
+    if (this.merchantEntries.length === 0) return false;
+    const allEntriesValid = this.merchantEntries.every(e =>
+      e.storeId && e.name.trim() && e.mcc && e.address.trim() && e.selectedTerminalIds.size > 0
+    );
     return !!(
-      this.newMerchantName.trim() &&
-      this.newMerchantMcc &&
-      this.newMerchantAddress.trim() &&
-      this.selectedTerminalIds.size > 0 &&
+      allEntriesValid &&
       this.newMerchantSettlementAccount.trim() &&
       this.newMerchantBik.trim() &&
       this.newMerchantCorrAccount.trim() &&
@@ -1328,7 +1384,76 @@ export class CometMainScreenComponent implements OnInit {
     );
   }
 
-  // COR-04: Переключение выбора терминала
+  // Открыть форму с предзаполнением контактных данных
+  openMerchantForm(): void {
+    this.resetMerchantForm();
+    this.merchantEntries = [this.createEmptyEntry()];
+
+    // Предзаполнить контактные данные из последней заявки
+    const lastContact = this.storage.load<any>('comet', 'lastContact', null);
+    if (lastContact) {
+      this.newMerchantContactLastName = lastContact.lastName || '';
+      this.newMerchantContactFirstName = lastContact.firstName || '';
+      this.newMerchantContactMiddleName = lastContact.middleName || '';
+      this.newMerchantContactPhone = lastContact.phone || '';
+      this.newMerchantContactEmail = lastContact.email || '';
+    }
+
+    this.showMerchantForm = true;
+  }
+
+  createEmptyEntry(): MerchantEntry {
+    return { storeId: '', name: '', mcc: '', address: '', selectedTerminalIds: new Set() };
+  }
+
+  addMerchantEntry(): void {
+    this.merchantEntries = [...this.merchantEntries, this.createEmptyEntry()];
+  }
+
+  removeMerchantEntry(idx: number): void {
+    this.merchantEntries = this.merchantEntries.filter((_, i) => i !== idx);
+  }
+
+  /** Доступные торговые точки (исключая уже выбранные в других entries) */
+  getAvailableStores(currentIdx: number): StoreTerminals[] {
+    const usedStoreIds = new Set(
+      this.merchantEntries.filter((_, i) => i !== currentIdx).map(e => e.storeId).filter(Boolean)
+    );
+    return this.allStoreTerminals.filter(st => !usedStoreIds.has(st.storeId));
+  }
+
+  /** Терминалы для конкретной торговой точки */
+  getTerminalsForStore(storeId: string): AvailableTerminal[] {
+    return this.allStoreTerminals.find(st => st.storeId === storeId)?.terminals || [];
+  }
+
+  /** При выборе торговой точки — автозаполнить название, сбросить терминалы */
+  onStoreSelected(idx: number, storeId: string): void {
+    const entry = this.merchantEntries[idx];
+    entry.storeId = storeId;
+    entry.selectedTerminalIds = new Set();
+    if (storeId) {
+      const store = this.allStoreTerminals.find(st => st.storeId === storeId);
+      if (store && !entry.name) {
+        entry.name = store.storeName;
+      }
+    }
+    this.merchantEntries = [...this.merchantEntries]; // trigger change detection
+  }
+
+  /** Toggle терминала в конкретной entry */
+  toggleEntryTerminal(idx: number, terminalId: string): void {
+    const entry = this.merchantEntries[idx];
+    if (entry.selectedTerminalIds.has(terminalId)) {
+      entry.selectedTerminalIds.delete(terminalId);
+    } else {
+      entry.selectedTerminalIds.add(terminalId);
+    }
+    entry.selectedTerminalIds = new Set(entry.selectedTerminalIds);
+    this.merchantEntries = [...this.merchantEntries];
+  }
+
+  // COR-04: Переключение выбора терминала (legacy, для совместимости)
   toggleTerminalSelection(terminalId: string): void {
     if (this.selectedTerminalIds.has(terminalId)) {
       this.selectedTerminalIds.delete(terminalId);
@@ -1513,9 +1638,7 @@ export class CometMainScreenComponent implements OnInit {
   }
 
   private resetMerchantForm(): void {
-    this.newMerchantName = '';
-    this.newMerchantMcc = '';
-    this.newMerchantAddress = '';
+    this.merchantEntries = [];
     this.newMerchantSettlementAccount = '';
     this.newMerchantBik = '';
     this.newMerchantCorrAccount = '';
