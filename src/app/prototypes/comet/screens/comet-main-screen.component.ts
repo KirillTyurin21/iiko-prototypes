@@ -598,7 +598,7 @@ import {
               <!-- Форма заявки (мульти-точки) -->
               <div *ngIf="showMerchantForm" class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 animate-fade-in">
                 <h4 class="font-medium text-gray-900 mb-1">Регистрация торговых точек</h4>
-                <p class="text-xs text-gray-400 mb-3">Добавьте одну или несколько торговых точек в заявку. Банковские реквизиты и контактные данные — общие.</p>
+                <p class="text-xs text-gray-400 mb-3">Добавьте одну или несколько торговых точек в заявку. Каждая точка содержит свои реквизиты и контактные данные.</p>
 
                 <!-- Блоки торговых точек -->
                 <div *ngFor="let entry of merchantEntries; let idx = index; let last = last"
@@ -664,6 +664,56 @@ import {
                   <div *ngIf="!entry.storeId" class="mt-3">
                     <p class="text-xs text-gray-400">Выберите торговую точку, чтобы увидеть доступные терминалы</p>
                   </div>
+
+                  <!-- Банковские реквизиты (внутри карточки точки) -->
+                  <p class="text-sm font-medium text-gray-700 mb-2 mt-4">Банковские реквизиты</p>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm text-gray-600 mb-1">Расчётный счёт <span class="text-red-500">*</span></label>
+                      <input [(ngModel)]="entry.settlementAccount" type="text" placeholder="40702810000000000001"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    </div>
+                    <div>
+                      <label class="block text-sm text-gray-600 mb-1">БИК <span class="text-red-500">*</span></label>
+                      <input [(ngModel)]="entry.bik" type="text" placeholder="044525225"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    </div>
+                    <div class="col-span-2">
+                      <label class="block text-sm text-gray-600 mb-1">Корреспондентский счёт <span class="text-red-500">*</span></label>
+                      <input [(ngModel)]="entry.corrAccount" type="text" placeholder="30101810400000000225"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    </div>
+                  </div>
+
+                  <!-- Контактные данные (внутри карточки точки, предзаполняются) -->
+                  <p class="text-sm font-medium text-gray-700 mb-2 mt-4">Контактные данные</p>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm text-gray-600 mb-1">Фамилия <span class="text-red-500">*</span></label>
+                      <input [(ngModel)]="entry.contactLastName" type="text" placeholder="Иванов"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    </div>
+                    <div>
+                      <label class="block text-sm text-gray-600 mb-1">Имя <span class="text-red-500">*</span></label>
+                      <input [(ngModel)]="entry.contactFirstName" type="text" placeholder="Иван"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    </div>
+                    <div>
+                      <label class="block text-sm text-gray-600 mb-1">Отчество <span class="text-red-500">*</span></label>
+                      <input [(ngModel)]="entry.contactMiddleName" type="text" placeholder="Иванович"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    </div>
+                    <div>
+                      <label class="block text-sm text-gray-600 mb-1">Телефон <span class="text-red-500">*</span></label>
+                      <input [(ngModel)]="entry.contactPhone" type="tel" placeholder="+79001234567"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    </div>
+                    <div class="col-span-2">
+                      <label class="block text-sm text-gray-600 mb-1">Email <span class="text-red-500">*</span></label>
+                      <input [(ngModel)]="entry.contactEmail" type="email" placeholder="contact@restaurant.ru"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Кнопка добавления точки -->
@@ -672,56 +722,6 @@ import {
                   <lucide-icon name="plus" [size]="16"></lucide-icon>
                   Добавить ещё торговую точку
                 </button>
-
-                <!-- Банковские реквизиты (общие) -->
-                <p class="text-sm font-medium text-gray-700 mb-2 mt-2">Банковские реквизиты</p>
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">Расчётный счёт <span class="text-red-500">*</span></label>
-                    <input [(ngModel)]="newMerchantSettlementAccount" type="text" placeholder="40702810000000000001"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                  </div>
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">БИК <span class="text-red-500">*</span></label>
-                    <input [(ngModel)]="newMerchantBik" type="text" placeholder="044525225"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                  </div>
-                  <div class="col-span-2">
-                    <label class="block text-sm text-gray-600 mb-1">Корреспондентский счёт <span class="text-red-500">*</span></label>
-                    <input [(ngModel)]="newMerchantCorrAccount" type="text" placeholder="30101810400000000225"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                  </div>
-                </div>
-
-                <!-- Контактные данные (общие, предзаполняются) -->
-                <p class="text-sm font-medium text-gray-700 mb-2 mt-4">Контактные данные</p>
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">Фамилия <span class="text-red-500">*</span></label>
-                    <input [(ngModel)]="newMerchantContactLastName" type="text" placeholder="Иванов"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                  </div>
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">Имя <span class="text-red-500">*</span></label>
-                    <input [(ngModel)]="newMerchantContactFirstName" type="text" placeholder="Иван"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                  </div>
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">Отчество <span class="text-red-500">*</span></label>
-                    <input [(ngModel)]="newMerchantContactMiddleName" type="text" placeholder="Иванович"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                  </div>
-                  <div>
-                    <label class="block text-sm text-gray-600 mb-1">Телефон <span class="text-red-500">*</span></label>
-                    <input [(ngModel)]="newMerchantContactPhone" type="tel" placeholder="+79001234567"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                  </div>
-                  <div class="col-span-2">
-                    <label class="block text-sm text-gray-600 mb-1">Email <span class="text-red-500">*</span></label>
-                    <input [(ngModel)]="newMerchantContactEmail" type="email" placeholder="contact@restaurant.ru"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                  </div>
-                </div>
 
                 <div class="flex gap-2 mt-4">
                   <button (click)="submitMerchantApplication()"
@@ -967,15 +967,7 @@ export class CometMainScreenComponent implements OnInit {
   // Мульти-заявка: массив торговых точек
   merchantEntries: MerchantEntry[] = [];
 
-  // Общие поля заявки (банковские реквизиты + контактные данные)
-  newMerchantSettlementAccount = '';
-  newMerchantBik = '';
-  newMerchantCorrAccount = '';
-  newMerchantContactFirstName = '';
-  newMerchantContactLastName = '';
-  newMerchantContactMiddleName = '';
-  newMerchantContactPhone = '';
-  newMerchantContactEmail = '';
+
 
   ngOnInit(): void {
     this.organizations = this.storage.load('comet', 'organizations', MOCK_ORGANIZATIONS);
@@ -1350,13 +1342,14 @@ export class CometMainScreenComponent implements OnInit {
     this.storage.save('comet', 'merchants', allMerchants);
     this.merchants = allMerchants.filter(m => m.partner_id === this.selectedPartner!.partner_id);
 
-    // Сохранить контактные данные для предзаполнения следующей заявки
+    // Сохранить контактные данные последней точки для предзаполнения следующей заявки
+    const lastEntry = this.merchantEntries[this.merchantEntries.length - 1];
     this.storage.save('comet', 'lastContact', {
-      lastName: this.newMerchantContactLastName,
-      firstName: this.newMerchantContactFirstName,
-      middleName: this.newMerchantContactMiddleName,
-      phone: this.newMerchantContactPhone,
-      email: this.newMerchantContactEmail,
+      lastName: lastEntry.contactLastName,
+      firstName: lastEntry.contactFirstName,
+      middleName: lastEntry.contactMiddleName,
+      phone: lastEntry.contactPhone,
+      email: lastEntry.contactEmail,
     });
 
     const count = this.merchantEntries.length;
@@ -1368,19 +1361,11 @@ export class CometMainScreenComponent implements OnInit {
   // Валидация формы мерчанта (мульти-точки)
   get isMerchantFormValid(): boolean {
     if (this.merchantEntries.length === 0) return false;
-    const allEntriesValid = this.merchantEntries.every(e =>
-      e.storeId && e.name.trim() && e.mcc && e.address.trim() && e.selectedTerminalIds.size > 0
-    );
-    return !!(
-      allEntriesValid &&
-      this.newMerchantSettlementAccount.trim() &&
-      this.newMerchantBik.trim() &&
-      this.newMerchantCorrAccount.trim() &&
-      this.newMerchantContactFirstName.trim() &&
-      this.newMerchantContactLastName.trim() &&
-      this.newMerchantContactMiddleName.trim() &&
-      this.newMerchantContactPhone.trim() &&
-      this.newMerchantContactEmail.trim()
+    return this.merchantEntries.every(e =>
+      e.storeId && e.name.trim() && e.mcc && e.address.trim() && e.selectedTerminalIds.size > 0 &&
+      e.settlementAccount.trim() && e.bik.trim() && e.corrAccount.trim() &&
+      e.contactFirstName.trim() && e.contactLastName.trim() && e.contactMiddleName.trim() &&
+      e.contactPhone.trim() && e.contactEmail.trim()
     );
   }
 
@@ -1389,21 +1374,20 @@ export class CometMainScreenComponent implements OnInit {
     this.resetMerchantForm();
     this.merchantEntries = [this.createEmptyEntry()];
 
-    // Предзаполнить контактные данные из последней заявки
-    const lastContact = this.storage.load<any>('comet', 'lastContact', null);
-    if (lastContact) {
-      this.newMerchantContactLastName = lastContact.lastName || '';
-      this.newMerchantContactFirstName = lastContact.firstName || '';
-      this.newMerchantContactMiddleName = lastContact.middleName || '';
-      this.newMerchantContactPhone = lastContact.phone || '';
-      this.newMerchantContactEmail = lastContact.email || '';
-    }
-
     this.showMerchantForm = true;
   }
 
   createEmptyEntry(): MerchantEntry {
-    return { storeId: '', name: '', mcc: '', address: '', selectedTerminalIds: new Set() };
+    const lastContact = this.storage.load<any>('comet', 'lastContact', null);
+    return {
+      storeId: '', name: '', mcc: '', address: '', selectedTerminalIds: new Set(),
+      settlementAccount: '', bik: '', corrAccount: '',
+      contactLastName: lastContact?.lastName || '',
+      contactFirstName: lastContact?.firstName || '',
+      contactMiddleName: lastContact?.middleName || '',
+      contactPhone: lastContact?.phone || '',
+      contactEmail: lastContact?.email || '',
+    };
   }
 
   addMerchantEntry(): void {
@@ -1639,14 +1623,6 @@ export class CometMainScreenComponent implements OnInit {
 
   private resetMerchantForm(): void {
     this.merchantEntries = [];
-    this.newMerchantSettlementAccount = '';
-    this.newMerchantBik = '';
-    this.newMerchantCorrAccount = '';
-    this.newMerchantContactFirstName = '';
-    this.newMerchantContactLastName = '';
-    this.newMerchantContactMiddleName = '';
-    this.newMerchantContactPhone = '';
-    this.newMerchantContactEmail = '';
     this.selectedTerminalIds = new Set();
   }
 

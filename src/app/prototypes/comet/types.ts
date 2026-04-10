@@ -140,6 +140,16 @@ export interface MerchantEntry {
   mcc: string;
   address: string;
   selectedTerminalIds: Set<string>;
+  // Банковские реквизиты
+  settlementAccount: string;
+  bik: string;
+  corrAccount: string;
+  // Контактные данные
+  contactLastName: string;
+  contactFirstName: string;
+  contactMiddleName: string;
+  contactPhone: string;
+  contactEmail: string;
 }
 
 export type MerchantTokenStatus = 'none' | 'pending' | 'received' | 'error' | 'retrying';
