@@ -36,6 +36,7 @@ import {
   MerchantTokenStatus,
   StoreTerminals,
   MerchantEntry,
+  MAX_TERMINALS_PER_MERCHANT,
 } from '../types';
 import {
   MOCK_ORGANIZATIONS,
@@ -423,17 +424,53 @@ import {
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Онбординг Яндекс.Пэй</h2>
 
         <!-- Блок авторизации (не авторизован) -->
-        <div *ngIf="!oauthState.isAuthorized" class="bg-white rounded-lg border border-gray-200 p-8 text-center">
+        <div *ngIf="!oauthState.isAuthorized && oauthSection !== 'connected'" class="bg-white rounded-lg border border-gray-200 p-8 text-center">
           <lucide-icon name="log-in" [size]="48" class="text-gray-300 mx-auto mb-4"></lucide-icon>
           <h3 class="text-lg font-medium text-gray-900 mb-2">Шаг 1: Авторизация</h3>
           <p class="text-gray-500 mb-6">Авторизуйтесь через Яндекс ID, чтобы начать процесс онбординга:<br/>
             <span class="text-sm text-gray-400">Авторизация → Организация → Заявка → Подключение</span>
           </p>
-          <button (click)="startOAuth()"
-                  class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
-            <lucide-icon name="log-in" [size]="18"></lucide-icon>
-            Войти с Яндекс ID
-          </button>
+          <div class="flex items-center justify-center gap-4">
+            <button (click)="startOAuth()"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
+              <lucide-icon name="log-in" [size]="18"></lucide-icon>
+              Войти с Яндекс ID
+            </button>
+            <button (click)="oauthSection = 'connected'"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:underline transition-colors">
+              <lucide-icon name="plug" [size]="16"></lucide-icon>
+              Текущие подключения
+            </button>
+          </div>
+        </div>
+
+        <!-- Вкладка Подключение (доступна без авторизации) -->
+        <div *ngIf="!oauthState.isAuthorized && oauthSection === 'connected'">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Подключённые торговые точки</h3>
+            <button (click)="oauthSection = 'partners'" class="text-sm text-gray-500 hover:text-gray-700">← Назад к авторизации</button>
+          </div>
+
+          <div *ngIf="connectedMerchants.length === 0" class="text-center text-gray-400 py-12">
+            <lucide-icon name="plug" [size]="48" class="mx-auto mb-3 text-gray-300"></lucide-icon>
+            <p>Нет подключённых торговых точек</p>
+            <p class="text-xs mt-1">Авторизуйтесь и подайте заявку для подключения</p>
+          </div>
+
+          <div class="space-y-3">
+            <div *ngFor="let m of connectedMerchants" class="bg-white border border-green-200 rounded-lg p-4">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="font-medium text-gray-900">{{ m.name }}</h4>
+                <span class="px-2 py-1 rounded-full text-xs font-medium text-green-600 bg-green-50">✓ Подключено</span>
+              </div>
+              <p class="text-sm text-gray-500 mb-3">Токен получен, торговая точка готова к приёму платежей</p>
+              <button (click)="goToSettings(m)"
+                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors">
+                <lucide-icon name="settings" [size]="16"></lucide-icon>
+                Перейти в настройки
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Основная панель (авторизован) -->
@@ -602,15 +639,26 @@ import {
 
                 <!-- Блоки торговых точек -->
                 <div *ngFor="let entry of merchantEntries; let idx = index; let last = last"
-                     class="bg-white border border-gray-200 rounded-lg p-4 mb-3 relative">
-                  <div class="flex items-center justify-between mb-3">
-                    <p class="text-sm font-medium text-gray-700">Торговая точка {{ idx + 1 }}</p>
+                     class="bg-white border border-gray-200 rounded-lg mb-3 relative overflow-hidden">
+                  <!-- Заголовок аккордеона (кликабельный) -->
+                  <div (click)="toggleEntryExpanded(idx)"
+                       class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors select-none">
+                    <div class="flex items-center gap-2">
+                      <lucide-icon [name]="entry.expanded ? 'chevron-down' : 'chevron-right'" [size]="16" class="text-gray-400"></lucide-icon>
+                      <p class="text-sm font-medium text-gray-700">Торговая точка {{ idx + 1 }}{{ entry.name ? ': ' + entry.name : '' }}</p>
+                      <span *ngIf="!entry.expanded && entry.storeId" class="text-xs text-gray-400 ml-1">
+                        ({{ entry.selectedTerminalIds.size }} касс)
+                      </span>
+                    </div>
                     <button *ngIf="merchantEntries.length > 1"
-                            (click)="removeMerchantEntry(idx)"
+                            (click)="$event.stopPropagation(); removeMerchantEntry(idx)"
                             class="text-xs text-red-500 hover:text-red-700 flex items-center gap-1">
                       <lucide-icon name="x" [size]="14"></lucide-icon> Удалить
                     </button>
                   </div>
+
+                  <!-- Содержимое (сворачиваемое) -->
+                  <div *ngIf="entry.expanded" class="px-4 pb-4">
 
                   <!-- Селектор торговой точки -->
                   <div class="mb-3">
@@ -652,12 +700,18 @@ import {
                         <input type="checkbox"
                                [checked]="entry.selectedTerminalIds.has(term.terminalId)"
                                (change)="toggleEntryTerminal(idx, term.terminalId)"
-                               class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500">
-                        <label class="text-sm text-gray-700">{{ term.terminalName }}</label>
+                               [disabled]="term.isConnected || (!entry.selectedTerminalIds.has(term.terminalId) && entry.selectedTerminalIds.size >= MAX_TERMINALS_PER_MERCHANT)"
+                               class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500 disabled:opacity-50">
+                        <label class="text-sm" [class]="term.isConnected ? 'text-gray-400 line-through' : 'text-gray-700'">
+                          {{ term.terminalName }}
+                          <span *ngIf="term.isConnected" class="text-xs text-gray-400 ml-1">(Подключена {{ term.connectedDate }})</span>
+                          <span *ngIf="!term.isConnected && !entry.selectedTerminalIds.has(term.terminalId) && entry.selectedTerminalIds.size >= MAX_TERMINALS_PER_MERCHANT"
+                                class="text-xs text-orange-500 ml-1">(лимит {{ MAX_TERMINALS_PER_MERCHANT }})</span>
+                        </label>
                       </div>
                     </div>
                     <p class="text-xs" [class]="entry.selectedTerminalIds.size > 0 ? 'text-gray-500' : 'text-red-500'">
-                      Выбрано: {{ entry.selectedTerminalIds.size }} из {{ getTerminalsForStore(entry.storeId).length }}
+                      Выбрано: {{ entry.selectedTerminalIds.size }} из {{ MAX_TERMINALS_PER_MERCHANT }} (макс.)
                       <span *ngIf="entry.selectedTerminalIds.size === 0"> — выберите хотя бы одну кассу</span>
                     </p>
                   </div>
@@ -714,21 +768,21 @@ import {
                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
                     </div>
                   </div>
+                  </div>
                 </div>
 
-                <!-- Кнопка добавления точки -->
-                <button (click)="addMerchantEntry()"
-                        class="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors flex items-center justify-center gap-1.5 mb-4">
-                  <lucide-icon name="plus" [size]="16"></lucide-icon>
-                  Добавить ещё торговую точку
-                </button>
-
-                <div class="flex gap-2 mt-4">
+                <!-- Кнопка добавления точки + кнопки формы -->
+                <div class="flex gap-2 mt-2">
                   <button (click)="submitMerchantApplication()"
                           [disabled]="!isMerchantFormValid"
                           [title]="!isMerchantFormValid ? 'Заполните все обязательные поля и выберите терминалы для каждой точки' : ''"
                           class="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     Подать заявку ({{ merchantEntries.length }} {{ merchantEntries.length === 1 ? 'точка' : merchantEntries.length < 5 ? 'точки' : 'точек' }})
+                  </button>
+                  <button (click)="addMerchantEntry()"
+                          class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors inline-flex items-center gap-1.5">
+                    <lucide-icon name="plus" [size]="16"></lucide-icon>
+                    Добавить новую точку
                   </button>
                   <button (click)="showMerchantForm = false" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors">Отмена</button>
                 </div>
@@ -945,6 +999,7 @@ export class CometMainScreenComponent implements OnInit {
   merchantTokenStatusMap: Map<string, MerchantTokenStatus> = new Map();
   mccCodes: MccCode[] = [];
   allStoreTerminals: StoreTerminals[] = MOCK_STORE_TERMINALS;
+  MAX_TERMINALS_PER_MERCHANT = MAX_TERMINALS_PER_MERCHANT;
   availableTerminals: AvailableTerminal[] = MOCK_AVAILABLE_TERMINALS;
   selectedTerminalIds: Set<string> = new Set();
   showPartnerForm = false;
@@ -1381,6 +1436,7 @@ export class CometMainScreenComponent implements OnInit {
     const lastContact = this.storage.load<any>('comet', 'lastContact', null);
     return {
       storeId: '', name: '', mcc: '', address: '', selectedTerminalIds: new Set(),
+      expanded: true,
       settlementAccount: '', bik: '', corrAccount: '',
       contactLastName: lastContact?.lastName || '',
       contactFirstName: lastContact?.firstName || '',
@@ -1392,6 +1448,8 @@ export class CometMainScreenComponent implements OnInit {
 
   addMerchantEntry(): void {
     const prev = this.merchantEntries.length > 0 ? this.merchantEntries[this.merchantEntries.length - 1] : null;
+    // Сворачиваем все предыдущие записи
+    this.merchantEntries.forEach(e => e.expanded = false);
     const entry = this.createEmptyEntry();
     if (prev) {
       entry.settlementAccount = prev.settlementAccount;
@@ -1430,19 +1488,36 @@ export class CometMainScreenComponent implements OnInit {
     entry.selectedTerminalIds = new Set();
     if (storeId) {
       const store = this.allStoreTerminals.find(st => st.storeId === storeId);
-      if (store && !entry.name) {
-        entry.name = store.storeName;
+      if (store) {
+        if (!entry.name) {
+          entry.name = store.storeName;
+        }
+        // D-07: автозаполнение адреса из RMS
+        if (store.address) {
+          entry.address = store.address;
+        }
       }
     }
     this.merchantEntries = [...this.merchantEntries]; // trigger change detection
   }
 
+  /** Аккордеон — свернуть/развернуть entry */
+  toggleEntryExpanded(idx: number): void {
+    this.merchantEntries[idx].expanded = !this.merchantEntries[idx].expanded;
+    this.merchantEntries = [...this.merchantEntries];
+  }
+
   /** Toggle терминала в конкретной entry */
   toggleEntryTerminal(idx: number, terminalId: string): void {
     const entry = this.merchantEntries[idx];
+    const term = this.getTerminalsForStore(entry.storeId).find(t => t.terminalId === terminalId);
+    // Не переключаем уже подключённые терминалы
+    if (term?.isConnected) return;
     if (entry.selectedTerminalIds.has(terminalId)) {
       entry.selectedTerminalIds.delete(terminalId);
     } else {
+      // Проверка лимита
+      if (entry.selectedTerminalIds.size >= this.MAX_TERMINALS_PER_MERCHANT) return;
       entry.selectedTerminalIds.add(terminalId);
     }
     entry.selectedTerminalIds = new Set(entry.selectedTerminalIds);

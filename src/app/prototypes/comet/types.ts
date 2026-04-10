@@ -122,14 +122,19 @@ export interface MccCode {
   name: string;
 }
 
+export const MAX_TERMINALS_PER_MERCHANT = 10;
+
 export interface AvailableTerminal {
   terminalId: string;
   terminalName: string;
+  isConnected?: boolean;
+  connectedDate?: string;
 }
 
 export interface StoreTerminals {
   storeId: string;
   storeName: string;
+  address: string;
   terminals: AvailableTerminal[];
 }
 
@@ -140,6 +145,7 @@ export interface MerchantEntry {
   mcc: string;
   address: string;
   selectedTerminalIds: Set<string>;
+  expanded: boolean;
   // Банковские реквизиты
   settlementAccount: string;
   bik: string;

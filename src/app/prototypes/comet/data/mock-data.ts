@@ -171,55 +171,74 @@ export const MOCK_AVAILABLE_TERMINALS: AvailableTerminal[] = [
 /** Терминалы по торговым точкам (для формы заявки) */
 export const MOCK_STORE_TERMINALS: StoreTerminals[] = [
   {
-    storeId: '101', storeName: 'Ресторан "Премьер"',
+    storeId: '101', storeName: 'Ресторан "Премьер"', address: 'г. Москва, ул. Тверская, д. 12',
     terminals: [
       { terminalId: 'st101-t1', terminalName: 'Касса 1 (бар)' },
       { terminalId: 'st101-t2', terminalName: 'Касса 2 (зал)' },
       { terminalId: 'st101-t3', terminalName: 'Касса 3 (терраса)' },
+      { terminalId: 'st101-t4', terminalName: 'Касса 4 (банкетный)' },
+      { terminalId: 'st101-t5', terminalName: 'Касса 5 (VIP-зал)' },
     ],
   },
   {
-    storeId: '102', storeName: 'Кафе "Уют"',
+    storeId: '102', storeName: 'Кафе "Уют"', address: 'г. Москва, ул. Арбат, д. 28',
     terminals: [
-      { terminalId: 'st102-t1', terminalName: 'Касса 1' },
-      { terminalId: 'st102-t2', terminalName: 'Касса 2' },
+      { terminalId: 'st102-t1', terminalName: 'Касса 1 (зал)', isConnected: true, connectedDate: '15.03.2026' },
+      { terminalId: 'st102-t2', terminalName: 'Касса 2 (веранда)', isConnected: true, connectedDate: '15.03.2026' },
+      { terminalId: 'st102-t3', terminalName: 'Касса 3 (бар)' },
+      { terminalId: 'st102-t4', terminalName: 'Касса 4 (доставка)' },
+      { terminalId: 'st102-t5', terminalName: 'Касса 5 (самовывоз)' },
+      { terminalId: 'st102-t6', terminalName: 'Касса 6 (резерв)' },
     ],
   },
   {
-    storeId: '103', storeName: 'Бар "Огонёк"',
+    storeId: '103', storeName: 'Бар "Огонёк"', address: 'г. Москва, ул. Пятницкая, д. 3',
     terminals: [
       { terminalId: 'st103-t1', terminalName: 'Касса 1 (барная)' },
     ],
   },
   {
-    storeId: '201', storeName: 'Пиццерия "Капричоза"',
+    storeId: '201', storeName: 'Пиццерия "Капричоза"', address: 'г. Санкт-Петербург, Невский пр., д. 44',
     terminals: [
       { terminalId: 'st201-t1', terminalName: 'Касса 1' },
       { terminalId: 'st201-t2', terminalName: 'Касса 2 (доставка)' },
     ],
   },
   {
-    storeId: '202', storeName: 'Суши-бар "Токио"',
+    storeId: '202', storeName: 'Суши-бар "Токио"', address: 'г. Санкт-Петербург, ул. Рубинштейна, д. 15',
     terminals: [
       { terminalId: 'st202-t1', terminalName: 'Касса 1 (зал)' },
       { terminalId: 'st202-t2', terminalName: 'Касса 2 (самовывоз)' },
     ],
   },
   {
-    storeId: '301', storeName: 'Бургерная №1',
+    storeId: '301', storeName: 'Кофе-поинт "ЦУМ"', address: 'г. Москва, ул. Петровка, д. 2',
     terminals: [
-      { terminalId: 'st301-t1', terminalName: 'Касса 1' },
+      { terminalId: 'st301-t1', terminalName: 'Касса 1 (1 этаж)', isConnected: true, connectedDate: '01.03.2026' },
+      { terminalId: 'st301-t2', terminalName: 'Касса 2 (1 этаж)', isConnected: true, connectedDate: '01.03.2026' },
+      { terminalId: 'st301-t3', terminalName: 'Касса 3 (2 этаж)', isConnected: true, connectedDate: '01.03.2026' },
+      { terminalId: 'st301-t4', terminalName: 'Касса 4 (2 этаж)', isConnected: true, connectedDate: '01.03.2026' },
+      { terminalId: 'st301-t5', terminalName: 'Касса 5 (3 этаж)', isConnected: true, connectedDate: '01.03.2026' },
+      { terminalId: 'st301-t6', terminalName: 'Касса 6 (3 этаж)', isConnected: true, connectedDate: '01.03.2026' },
+      { terminalId: 'st301-t7', terminalName: 'Касса 7 (фудкорт)', isConnected: true, connectedDate: '01.03.2026' },
+      { terminalId: 'st301-t8', terminalName: 'Касса 8 (фудкорт)', isConnected: true, connectedDate: '01.03.2026' },
+      { terminalId: 'st301-t9', terminalName: 'Касса 9 (летняя)', isConnected: true, connectedDate: '01.03.2026' },
+      { terminalId: 'st301-t10', terminalName: 'Касса 10 (доставка)', isConnected: true, connectedDate: '01.03.2026' },
+      { terminalId: 'st301-t11', terminalName: 'Касса 11 (подвал)' },
+      { terminalId: 'st301-t12', terminalName: 'Касса 12 (мероприятия)' },
+      { terminalId: 'st301-t13', terminalName: 'Касса 13 (VIP)' },
+      { terminalId: 'st301-t14', terminalName: 'Касса 14 (резерв)' },
     ],
   },
   {
-    storeId: '302', storeName: 'Бургерная №2',
+    storeId: '302', storeName: 'Бургерная №2', address: 'г. Москва, Цветной бул., д. 19',
     terminals: [
       { terminalId: 'st302-t1', terminalName: 'Касса 1' },
       { terminalId: 'st302-t2', terminalName: 'Касса 2' },
     ],
   },
   {
-    storeId: '303', storeName: 'Бургерная №3',
+    storeId: '303', storeName: 'Бургерная №3', address: 'г. Москва, ул. Маросейка, д. 7',
     terminals: [
       { terminalId: 'st303-t1', terminalName: 'Касса 1' },
       { terminalId: 'st303-t2', terminalName: 'Касса 2 (летняя)' },
