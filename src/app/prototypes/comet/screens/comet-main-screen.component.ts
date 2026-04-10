@@ -531,67 +531,20 @@ import {
               </button>
             </div>
 
-            <!-- Форма создания партнера (COR-01: только ИНН обязателен) -->
+            <!-- Форма создания партнера (только ИНН — Яндекс резолвит остальное) -->
             <div *ngIf="showPartnerForm" class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 animate-fade-in">
               <h4 class="font-medium text-gray-900 mb-1">Новая организация</h4>
               <p class="text-xs text-gray-400 mb-3">
                 <lucide-icon name="info" [size]="12" class="inline-block mr-1"></lucide-icon>
-                Обязательно только ИНН. Остальные реквизиты Яндекс подтянет по ИНН через DaData.
+                Введите ИНН — остальные реквизиты Яндекс заполнит автоматически из справочников.
               </p>
-              <div class="grid grid-cols-2 gap-4">
-                <div>
+              <div class="flex items-end gap-3">
+                <div class="flex-1 max-w-xs">
                   <label class="block text-sm text-gray-600 mb-1">ИНН <span class="text-red-500">*</span></label>
                   <input [(ngModel)]="newPartnerInn" type="text" placeholder="7707083893" maxlength="12"
                          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
                   <p *ngIf="partnerInnError" class="text-xs text-red-500 mt-1">{{ partnerInnError }}</p>
                 </div>
-                <div>
-                  <label class="block text-sm text-gray-600 mb-1">Название юрлица</label>
-                  <input [(ngModel)]="newPartnerName" type="text" placeholder="ООО Ромашка"
-                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                </div>
-                <div>
-                  <label class="block text-sm text-gray-600 mb-1">ОГРН</label>
-                  <input [(ngModel)]="newPartnerOgrn" type="text" placeholder="1027700132195"
-                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                </div>
-                <div>
-                  <label class="block text-sm text-gray-600 mb-1">КПП</label>
-                  <input [(ngModel)]="newPartnerKpp" type="text" placeholder="770701001"
-                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                </div>
-                <div class="col-span-2">
-                  <label class="block text-sm text-gray-600 mb-1">Полное наименование</label>
-                  <input [(ngModel)]="newPartnerFullName" type="text" placeholder="Общество с ограниченной ответственностью Ромашка"
-                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                </div>
-                <div class="col-span-2">
-                  <label class="block text-sm text-gray-600 mb-1">Юридический адрес</label>
-                  <input [(ngModel)]="newPartnerLegalAddress" type="text" placeholder="119021, г. Москва, ул. Льва Толстого, д. 16"
-                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                </div>
-                <div>
-                  <label class="block text-sm text-gray-600 mb-1">ФИО генерального директора</label>
-                  <input [(ngModel)]="newPartnerCeo" type="text" placeholder="Иванов Иван Иванович"
-                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                </div>
-                <div>
-                  <label class="block text-sm text-gray-600 mb-1">Сайт</label>
-                  <input [(ngModel)]="newPartnerUrl" type="text" placeholder="http://romashka.ru"
-                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                </div>
-                <div>
-                  <label class="block text-sm text-gray-600 mb-1">Email</label>
-                  <input [(ngModel)]="newPartnerEmail" type="email" placeholder="merchant@romashka.ru"
-                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                </div>
-                <div>
-                  <label class="block text-sm text-gray-600 mb-1">Телефон</label>
-                  <input [(ngModel)]="newPartnerPhone" type="tel" placeholder="+79001234567"
-                         class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                </div>
-              </div>
-              <div class="flex gap-2 mt-4">
                 <button (click)="createPartner()"
                         [disabled]="!isPartnerFormValid"
                         class="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Создать</button>
@@ -678,11 +631,11 @@ import {
                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
                     </div>
                     <div>
-                      <label class="block text-sm text-gray-600 mb-1">MCC-код <span class="text-red-500">*</span></label>
+                      <label class="block text-sm text-gray-600 mb-1">Категория <span class="text-red-500">*</span></label>
                       <select [(ngModel)]="entry.mcc"
                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
                         <option value="">Выберите категорию</option>
-                        <option *ngFor="let mcc of mccCodes" [value]="mcc.mcc">{{ mcc.mcc }} - {{ mcc.name }}</option>
+                        <option *ngFor="let mcc of mccCodes" [value]="mcc.slug">{{ mcc.name }}</option>
                       </select>
                     </div>
                     <div>
@@ -975,6 +928,7 @@ export class CometMainScreenComponent implements OnInit {
   searchQuery = '';
   terminals: YpTerminal[] = [];
   accounts: Account[] = [];
+  autoConfiguredTerminals = new Map<string, YpTerminal[]>();
   isLoadingAccounts = false;
   isLoadingStore = false;
   defaultAccountKey: string | null = null;
@@ -1007,17 +961,8 @@ export class CometMainScreenComponent implements OnInit {
   oauthSection: 'partners' | 'merchants' | 'connected' = 'partners';
   partnerInnError = '';
 
-  // Поля формы партнера
-  newPartnerName = '';
+  // Форма партнера — только ИНН (остальное резолвит Яндекс)
   newPartnerInn = '';
-  newPartnerOgrn = '';
-  newPartnerKpp = '';
-  newPartnerFullName = '';
-  newPartnerLegalAddress = '';
-  newPartnerCeo = '';
-  newPartnerUrl = '';
-  newPartnerEmail = '';
-  newPartnerPhone = '';
 
   // Мульти-заявка: массив торговых точек
   merchantEntries: MerchantEntry[] = [];
@@ -1026,6 +971,12 @@ export class CometMainScreenComponent implements OnInit {
 
   ngOnInit(): void {
     this.organizations = this.storage.load('comet', 'organizations', MOCK_ORGANIZATIONS);
+
+    // Восстановить auto-configured терминалы
+    const savedAutoTerminals = this.storage.load<Record<string, YpTerminal[]> | null>('comet', 'autoTerminals', null);
+    if (savedAutoTerminals) {
+      this.autoConfiguredTerminals = new Map(Object.entries(savedAutoTerminals));
+    }
 
     // Восстановить OAuth-состояние
     const savedOAuth = this.storage.load<OAuthState | null>('comet', 'oauth_state', null);
@@ -1115,9 +1066,10 @@ export class CometMainScreenComponent implements OnInit {
   }
 
   private loadTerminalsAndAccounts(storeId: string): void {
-    this.terminals = getMockTerminals(storeId);
+    const auto = this.autoConfiguredTerminals.get(storeId);
+    this.terminals = auto || getMockTerminals(storeId);
     this.accounts = [...MOCK_ACCOUNTS];
-    this.defaultAccountKey = getMockDefaultAccountKey(storeId);
+    this.defaultAccountKey = auto ? null : getMockDefaultAccountKey(storeId);
     this.originalDefaultAccountKey = this.defaultAccountKey;
   }
 
@@ -1176,6 +1128,10 @@ export class CometMainScreenComponent implements OnInit {
     this.defaultAccountKey = null;
     this.originalDefaultAccountKey = null;
 
+    // Удалить авто-назначенные терминалы
+    this.autoConfiguredTerminals.delete(this.selectedStore.storeId);
+    this.storage.save('comet', 'autoTerminals', Object.fromEntries(this.autoConfiguredTerminals));
+
     this.updateStoreInOrgs(this.selectedStore.storeId, { hasYandexPayKey: false, terminalsConfigured: 'none' });
     this.selectedStore = { ...this.selectedStore, hasYandexPayKey: false, terminalsConfigured: 'none' };
 
@@ -1212,6 +1168,12 @@ export class CometMainScreenComponent implements OnInit {
     const newStatus = this.calculateTerminalsConfigured(this.terminals, this.selectedStore.hasYandexPayKey);
     this.updateStoreInOrgs(this.selectedStore.storeId, { terminalsConfigured: newStatus });
     this.selectedStore = { ...this.selectedStore, terminalsConfigured: newStatus };
+
+    // Сохранить ручные изменения в авто-настроенных терминалах
+    if (this.autoConfiguredTerminals.has(this.selectedStore.storeId)) {
+      this.autoConfiguredTerminals.set(this.selectedStore.storeId, [...this.terminals]);
+      this.storage.save('comet', 'autoTerminals', Object.fromEntries(this.autoConfiguredTerminals));
+    }
 
     this.showToast(toastMsg);
     this.persistOrganizations();
@@ -1329,7 +1291,6 @@ export class CometMainScreenComponent implements OnInit {
   }
 
   createPartner(): void {
-    // COR-01: Обязательно только ИНН
     const inn = this.newPartnerInn.trim();
     if (!inn) {
       this.partnerInnError = 'ИНН обязателен';
@@ -1341,23 +1302,26 @@ export class CometMainScreenComponent implements OnInit {
     }
     this.partnerInnError = '';
 
+    // Мок DaData: резолвим название по ИНН
+    const resolvedName = this.resolveInnToName(inn);
+
     const partner: Partner = {
       partner_id: this.generateId(),
-      name: this.newPartnerName || `Организация (ИНН ${inn})`,
+      name: resolvedName,
       registration_data: {
         tax_ref_number: inn,
-        ogrn: this.newPartnerOgrn,
-        kpp: this.newPartnerKpp,
-        legal_address: this.newPartnerLegalAddress,
-        postal_address: this.newPartnerLegalAddress,
+        ogrn: '',
+        kpp: '',
+        legal_address: '',
+        postal_address: '',
         postal_code: '',
-        full_company_name: this.newPartnerFullName || this.newPartnerName,
-        ceo_name: this.newPartnerCeo,
-        url: this.newPartnerUrl,
+        full_company_name: resolvedName,
+        ceo_name: '',
+        url: '',
       },
       contact: {
-        email: this.newPartnerEmail,
-        phone: this.newPartnerPhone,
+        email: '',
+        phone: '',
         first_name: '',
         last_name: '',
         middle_name: '',
@@ -1367,7 +1331,19 @@ export class CometMainScreenComponent implements OnInit {
     this.storage.save('comet', 'partners', this.partners);
     this.showPartnerForm = false;
     this.resetPartnerForm();
-    this.showToast('Организация создана', partner.name);
+    this.showToast('Организация создана', resolvedName + ' (данные заполнены из справочников)');
+  }
+
+  /** Мок DaData — резолв ИНН в название организации */
+  private resolveInnToName(inn: string): string {
+    const dadataMap: Record<string, string> = {
+      '7707083893': 'ООО «Ресторанная группа Север»',
+      '7810987654': 'ИП Иванов А.В.',
+      '5001234567': 'ООО «Быстрое питание»',
+      '7723456789': 'ООО «Кофе Хаус»',
+      '7812345678': 'ИП Петров С.И.',
+    };
+    return dadataMap[inn] || `Организация (ИНН ${inn})`;
   }
 
   // COR-01: Валидация формы организации (только ИНН)
@@ -1390,6 +1366,8 @@ export class CometMainScreenComponent implements OnInit {
         registration_status: 'processing',
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
+        storeId: entry.storeId,
+        terminalIds: [...entry.selectedTerminalIds],
       };
       allMerchants.push(merchant);
     }
@@ -1558,9 +1536,21 @@ export class CometMainScreenComponent implements OnInit {
     return this.merchantTokenStatusMap.get(merchantId) || 'none';
   }
 
-  // COR-09: Навигация в настройки ресторана
+  // Навигация в настройки ресторана (связь Онбординг → Интеграции)
   goToSettings(merchant: MerchantInfo): void {
     this.activeSection = 'integrations';
+    // Если у мерчанта есть storeId — найти и выбрать соответствующий магазин в дереве
+    if (merchant.storeId) {
+      for (const org of this.organizations) {
+        const store = org.stores.find(s => s.storeId === merchant.storeId);
+        if (store) {
+          this.expandedOrgs.add(org.organizationId);
+          this.selectStore(store);
+          this.showToast('Переход в настройки', store.storeName);
+          return;
+        }
+      }
+    }
     this.showToast('Переход в настройки', merchant.name);
   }
 
@@ -1632,7 +1622,41 @@ export class CometMainScreenComponent implements OnInit {
   /** Яндекс выдаёт токен */
   emuIssueToken(merchant: MerchantInfo): void {
     this.autoGenerateToken(merchant.merchant_id);
+    // Автоматическое подключение QR-табличек к терминалам в Интеграциях
+    if (merchant.storeId) {
+      this.autoConfigureStore(merchant);
+    }
     this.showToast('Яндекс: токен выдан', merchant.name + ' — подключено!');
+  }
+
+  /** Автоматическое подключение QR-табличек при выдаче токена */
+  private autoConfigureStore(merchant: MerchantInfo): void {
+    // 1. Установить ключ Яндекс.Пэй на магазине
+    this.updateStoreInOrgs(merchant.storeId!, { hasYandexPayKey: true });
+
+    // 2. Сформировать терминалы с автоназначенными QR-табличками
+    const storeData = MOCK_STORE_TERMINALS.find(s => s.storeId === merchant.storeId);
+    if (storeData && merchant.terminalIds?.length) {
+      const selectedTerminals = storeData.terminals
+        .filter(t => merchant.terminalIds!.includes(t.terminalId));
+
+      const autoTerminals: YpTerminal[] = selectedTerminals.map((t, i) => ({
+        terminalId: t.terminalId,
+        terminalName: t.terminalName,
+        accountKey: i < MOCK_ACCOUNTS.length ? MOCK_ACCOUNTS[i].key : null,
+        accountName: i < MOCK_ACCOUNTS.length ? MOCK_ACCOUNTS[i].name : null,
+      }));
+
+      this.autoConfiguredTerminals.set(merchant.storeId!, autoTerminals);
+      this.storage.save('comet', 'autoTerminals', Object.fromEntries(this.autoConfiguredTerminals));
+
+      // Обновить статус привязки терминалов
+      const assignedCount = autoTerminals.filter(t => t.accountKey !== null).length;
+      const status = assignedCount === autoTerminals.length ? 'full' : assignedCount > 0 ? 'partial' : 'none';
+      this.updateStoreInOrgs(merchant.storeId!, { terminalsConfigured: status });
+    }
+
+    this.persistOrganizations();
   }
 
   /** Яндекс: ошибка выдачи токена */
@@ -1695,16 +1719,7 @@ export class CometMainScreenComponent implements OnInit {
   }
 
   private resetPartnerForm(): void {
-    this.newPartnerName = '';
     this.newPartnerInn = '';
-    this.newPartnerOgrn = '';
-    this.newPartnerKpp = '';
-    this.newPartnerFullName = '';
-    this.newPartnerLegalAddress = '';
-    this.newPartnerCeo = '';
-    this.newPartnerUrl = '';
-    this.newPartnerEmail = '';
-    this.newPartnerPhone = '';
     this.partnerInnError = '';
   }
 

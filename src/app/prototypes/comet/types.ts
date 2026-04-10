@@ -90,6 +90,10 @@ export interface MerchantInfo {
   registration_status: 'processing' | 'active' | 'failed';
   created: string;
   updated: string;
+  /** storeId из RMS — для связи с разделом «Интеграции» */
+  storeId?: string;
+  /** ID выбранных терминалов — для авто-привязки QR */
+  terminalIds?: string[];
 }
 
 export interface PosInfo {
@@ -118,7 +122,7 @@ export interface UserTokenInfo {
 }
 
 export interface MccCode {
-  mcc: string;
+  slug: string;
   name: string;
 }
 

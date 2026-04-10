@@ -22,7 +22,7 @@ export const MOCK_ORGANIZATIONS: Organization[] = [
     organizationId: '3',
     organizationName: 'ООО "Быстрое питание"',
     stores: [
-      { storeId: '301', storeName: 'Бургерная №1', hasYandexPayKey: true, terminalsConfigured: 'none' },
+      { storeId: '301', storeName: 'Кофе-поинт "ЦУМ"', hasYandexPayKey: true, terminalsConfigured: 'none' },
       { storeId: '302', storeName: 'Бургерная №2', hasYandexPayKey: false, terminalsConfigured: 'none' },
       { storeId: '303', storeName: 'Бургерная №3', hasYandexPayKey: true, terminalsConfigured: 'full' },
     ],
@@ -36,24 +36,30 @@ export const MOCK_ACCOUNTS: Account[] = [
 ];
 
 export function getMockTerminals(storeId: string): YpTerminal[] {
-  if (storeId === '301') {
-    return [];
+  const storeData = MOCK_STORE_TERMINALS.find(s => s.storeId === storeId);
+  if (!storeData) {
+    return [
+      {
+        terminalId: 't1',
+        terminalName: 'Касса 1',
+        accountKey: 'BS1F00733B8T64BE8O1BT9CA8VLKIH69',
+        accountName: 'QR табличка - ID 00095',
+      },
+      { terminalId: 't2', terminalName: 'Касса 2', accountKey: null, accountName: null },
+      {
+        terminalId: 't3',
+        terminalName: 'Касса 3',
+        accountKey: 'AS1R000RK04U6NRV8F1O5SRIRTJAHAHR',
+        accountName: 'QR табличка - ID 35126',
+      },
+    ];
   }
-  return [
-    {
-      terminalId: 't1',
-      terminalName: 'Касса 1',
-      accountKey: 'BS1F00733B8T64BE8O1BT9CA8VLKIH69',
-      accountName: 'QR табличка - ID 00095',
-    },
-    { terminalId: 't2', terminalName: 'Касса 2', accountKey: null, accountName: null },
-    {
-      terminalId: 't3',
-      terminalName: 'Касса 3',
-      accountKey: 'AS1R000RK04U6NRV8F1O5SRIRTJAHAHR',
-      accountName: 'QR табличка - ID 35126',
-    },
-  ];
+  return storeData.terminals.map(t => ({
+    terminalId: t.terminalId,
+    terminalName: t.terminalName,
+    accountKey: null,
+    accountName: null,
+  }));
 }
 
 export function getMockDefaultAccountKey(storeId: string): string | null {
@@ -98,32 +104,38 @@ export const MOCK_MERCHANTS: MerchantInfo[] = [
   {
     merchant_id: '500924a8-aaaa-bbbb-cccc-ddddeeee0001',
     partner_id: '6a3a39f6-1111-2222-3333-444455556666',
-    name: 'Ресторан Ромашка на Тверской',
+    name: 'Ресторан "Премьер"',
     is_offline: true,
     enabled: true,
     registration_status: 'active',
     created: '2026-03-18T10:30:00Z',
     updated: '2026-03-19T14:00:00Z',
+    storeId: '101',
+    terminalIds: ['st101-t1', 'st101-t2', 'st101-t3'],
   },
   {
     merchant_id: '500924a8-aaaa-bbbb-cccc-ddddeeee0002',
     partner_id: '6a3a39f6-1111-2222-3333-444455556666',
-    name: 'Ресторан Ромашка на Арбате',
+    name: 'Кафе "Уют"',
     is_offline: true,
     enabled: true,
     registration_status: 'processing',
     created: '2026-03-19T09:00:00Z',
     updated: '2026-03-19T09:00:00Z',
+    storeId: '102',
+    terminalIds: ['st102-t3', 'st102-t4'],
   },
   {
     merchant_id: '500924a8-aaaa-bbbb-cccc-ddddeeee0003',
     partner_id: '6a3a39f6-1111-2222-3333-444455556666',
-    name: 'Ресторан Ромашка на Патриках',
+    name: 'Бар "Огонёк"',
     is_offline: true,
     enabled: true,
     registration_status: 'active',
     created: '2026-03-17T11:00:00Z',
     updated: '2026-03-18T08:30:00Z',
+    storeId: '103',
+    terminalIds: ['st103-t1'],
   },
 ];
 
@@ -154,11 +166,11 @@ export const MOCK_USER_TOKENS: UserTokenInfo[] = [
 ];
 
 export const MOCK_MCC_CODES: MccCode[] = [
-  { mcc: '5812', name: 'Рестораны' },
-  { mcc: '5813', name: 'Бары и ночные клубы' },
-  { mcc: '5814', name: 'Фастфуд' },
-  { mcc: '7230', name: 'Парикмахерские и косметические услуги' },
-  { mcc: '7298', name: 'Оздоровительные и спа-услуги' },
+  { slug: 'eat_restaurant', name: 'Рестораны' },
+  { slug: 'eat_bar', name: 'Бары и ночные клубы' },
+  { slug: 'eat_fastfood', name: 'Фастфуд' },
+  { slug: 'beauty_salon', name: 'Парикмахерские и косметические услуги' },
+  { slug: 'health_spa', name: 'Оздоровительные и спа-услуги' },
 ];
 
 export const MOCK_AVAILABLE_TERMINALS: AvailableTerminal[] = [
