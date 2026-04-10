@@ -2,6 +2,21 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.5',
+    date: '2026-04-10',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Онбординг — Заявки',
+        pageRoute: '/prototype/comet',
+        items: [
+          'Оптимизирована компоновка формы заявки — поля в 3 колонки для экономии места',
+          'При добавлении новой точки через «+» банковские реквизиты и контактные данные копируются из предыдущей точки',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.4',
     date: '2026-04-10',
     status: 'released',

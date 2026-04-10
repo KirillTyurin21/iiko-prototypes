@@ -623,7 +623,7 @@ import {
                     </select>
                   </div>
 
-                  <div class="grid grid-cols-2 gap-4">
+                  <div class="grid grid-cols-3 gap-3">
                     <div>
                       <label class="block text-sm text-gray-600 mb-1">Название <span class="text-red-500">*</span></label>
                       <input [(ngModel)]="entry.name" type="text" placeholder="Ресторан на Тверской"
@@ -637,7 +637,7 @@ import {
                         <option *ngFor="let mcc of mccCodes" [value]="mcc.mcc">{{ mcc.mcc }} - {{ mcc.name }}</option>
                       </select>
                     </div>
-                    <div class="col-span-2">
+                    <div>
                       <label class="block text-sm text-gray-600 mb-1">Физический адрес <span class="text-red-500">*</span></label>
                       <input [(ngModel)]="entry.address" type="text" placeholder="г. Москва, ул. Тверская, д. 12"
                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
@@ -667,7 +667,7 @@ import {
 
                   <!-- Банковские реквизиты (внутри карточки точки) -->
                   <p class="text-sm font-medium text-gray-700 mb-2 mt-4">Банковские реквизиты</p>
-                  <div class="grid grid-cols-2 gap-4">
+                  <div class="grid grid-cols-3 gap-3">
                     <div>
                       <label class="block text-sm text-gray-600 mb-1">Расчётный счёт <span class="text-red-500">*</span></label>
                       <input [(ngModel)]="entry.settlementAccount" type="text" placeholder="40702810000000000001"
@@ -678,8 +678,8 @@ import {
                       <input [(ngModel)]="entry.bik" type="text" placeholder="044525225"
                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
                     </div>
-                    <div class="col-span-2">
-                      <label class="block text-sm text-gray-600 mb-1">Корреспондентский счёт <span class="text-red-500">*</span></label>
+                    <div>
+                      <label class="block text-sm text-gray-600 mb-1">Корр. счёт <span class="text-red-500">*</span></label>
                       <input [(ngModel)]="entry.corrAccount" type="text" placeholder="30101810400000000225"
                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
                     </div>
@@ -687,7 +687,7 @@ import {
 
                   <!-- Контактные данные (внутри карточки точки, предзаполняются) -->
                   <p class="text-sm font-medium text-gray-700 mb-2 mt-4">Контактные данные</p>
-                  <div class="grid grid-cols-2 gap-4">
+                  <div class="grid grid-cols-3 gap-3">
                     <div>
                       <label class="block text-sm text-gray-600 mb-1">Фамилия <span class="text-red-500">*</span></label>
                       <input [(ngModel)]="entry.contactLastName" type="text" placeholder="Иванов"
@@ -1391,7 +1391,19 @@ export class CometMainScreenComponent implements OnInit {
   }
 
   addMerchantEntry(): void {
-    this.merchantEntries = [...this.merchantEntries, this.createEmptyEntry()];
+    const prev = this.merchantEntries.length > 0 ? this.merchantEntries[this.merchantEntries.length - 1] : null;
+    const entry = this.createEmptyEntry();
+    if (prev) {
+      entry.settlementAccount = prev.settlementAccount;
+      entry.bik = prev.bik;
+      entry.corrAccount = prev.corrAccount;
+      entry.contactLastName = prev.contactLastName;
+      entry.contactFirstName = prev.contactFirstName;
+      entry.contactMiddleName = prev.contactMiddleName;
+      entry.contactPhone = prev.contactPhone;
+      entry.contactEmail = prev.contactEmail;
+    }
+    this.merchantEntries = [...this.merchantEntries, entry];
   }
 
   removeMerchantEntry(idx: number): void {
