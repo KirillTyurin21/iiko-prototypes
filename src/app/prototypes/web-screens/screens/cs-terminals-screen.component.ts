@@ -561,7 +561,7 @@ import { IconsModule } from '@/shared/icons.module';
 
     /* ── Table ── */
     .cs-table-wrap {
-      overflow-x: auto;
+      overflow: visible;
     }
     .cs-table {
       width: 100%;
