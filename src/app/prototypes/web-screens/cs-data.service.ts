@@ -52,6 +52,14 @@ export class CsDataService {
     // V2 данные
     const defaultRestaurants = JSON.parse(JSON.stringify(CS_RESTAURANTS));
     this.restaurants = this.storage.load('web-screens', 'restaurants', defaultRestaurants);
+
+    // Миграция: добавить terminalGroupIds если отсутствует (DS-862)
+    for (const r of this.restaurants) {
+      for (const t of r.terminals) {
+        if (!t.terminalGroupIds) t.terminalGroupIds = [];
+      }
+    }
+
     this.themeOptions = THEME_OPTIONS;
     this.campaignOptions = CAMPAIGN_OPTIONS;
     this.hintOptions = HINT_OPTIONS;
