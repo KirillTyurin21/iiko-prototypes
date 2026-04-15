@@ -4,7 +4,7 @@ export const CHANGELOG: ChangelogRelease[] = [
   {
     version: '1.5',
     date: '2026-04-15',
-    status: 'unreleased',
+    status: 'released',
     changes: [
       {
         page: 'Подсказки — Сравнение вариантов',
