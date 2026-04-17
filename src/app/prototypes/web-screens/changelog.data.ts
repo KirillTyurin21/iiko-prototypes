@@ -2,6 +2,23 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.5',
+    date: '2026-04-18',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Редактор тем (Электронная очередь)',
+        pageRoute: '/prototype/web-screens/arrivals-theme-editor/new',
+        items: [
+          'Новый тип элемента «Цена» с привязкой к продукту из номенклатуры',
+          'Навигатор номенклатуры: иерархическая навигация по группам продуктов с хлебными крошками',
+          'Выбор размера для продуктов с несколькими размерами',
+          'Отображение привязки продукта в панели свойств и на canvas',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.4',
     date: '2026-04-17',
     status: 'unreleased',

@@ -6,14 +6,15 @@ import { IconsModule } from '@/shared/icons.module';
 import { UiInputComponent, UiSelectComponent, UiTextareaComponent, UiConfirmDialogComponent } from '@/components/ui';
 import type { SelectOption } from '@/components/ui';
 import { StorageService } from '@/shared/storage.service';
-import { MOCK_ARRIVALS_THEMES } from '../data/mock-data';
+import { MOCK_ARRIVALS_THEMES, MOCK_PRODUCT_CATALOG } from '../data/mock-data';
 import {
   ArrivalsTheme,
   ArrivalsThemeElement,
   ArrivalsElementType,
+  ProductCatalogItem,
 } from '../types';
 
-type PanelView = 'theme' | 'add-element' | 'element';
+type PanelView = 'theme' | 'add-element' | 'element' | 'product-navigator';
 
 interface ElementTypeOption {
   type: ArrivalsElementType;
@@ -72,6 +73,16 @@ interface ElementTypeOption {
               </span>
               <span *ngIf="el.type === 'area' || el.type === 'rectangle' || el.type === 'ad-block' || el.type === 'popup'"
                 class="el-placeholder-label">{{ el.name }}</span>
+              <span *ngIf="el.type === 'price'" class="el-price"
+                [style.font-family]="el.fontFamily"
+                [style.font-size.px]="el.fontSize"
+                [style.font-weight]="el.fontBold ? 'bold' : 'normal'"
+                [style.font-style]="el.fontItalic ? 'italic' : 'normal'"
+                [style.text-align]="el.textAlign"
+              >
+                <lucide-icon *ngIf="!el.productId" name="tag" [size]="14" class="price-icon"></lucide-icon>
+                {{ el.productId ? ('Цена: ' + el.productName + (el.sizeName ? ' (' + el.sizeName + ')' : '')) : 'Цена' }}
+              </span>
 
               <!-- Selection handles -->
               <ng-container *ngIf="selectedElementId === el.id">
@@ -415,6 +426,170 @@ interface ElementTypeOption {
               </div>
             </ng-container>
 
+            <!-- ── Price element ── -->
+            <ng-container *ngIf="selectedElement.type === 'price'">
+              <!-- Привязка к товару -->
+              <div class="section-divider-bold">Привязка к товару</div>
+              <div class="product-binding">
+                <div *ngIf="selectedElement.productId" class="binding-info">
+                  <lucide-icon name="package" [size]="16" class="binding-icon"></lucide-icon>
+                  <span class="binding-name">{{ selectedElement.productName }}
+                    <span *ngIf="selectedElement.sizeName" class="binding-size">({{ selectedElement.sizeName }})</span>
+                  </span>
+                </div>
+                <div *ngIf="!selectedElement.productId" class="binding-empty">Товар не выбран</div>
+                <button class="btn-select-product" (click)="openProductNavigator()">
+                  {{ selectedElement.productId ? 'Изменить товар' : 'Выбрать товар' }}
+                </button>
+              </div>
+
+              <!-- Макет -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('layout')">
+                  <span>Макет</span>
+                  <lucide-icon [name]="isSectionOpen('layout') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('layout')" class="section-content">
+                  <div class="fields-row">
+                    <div class="field-sm"><label>X</label><input type="number" [(ngModel)]="selectedElement.x" class="field-input-sm" /></div>
+                    <div class="field-sm"><label>Y</label><input type="number" [(ngModel)]="selectedElement.y" class="field-input-sm" /></div>
+                  </div>
+                  <div class="fields-row">
+                    <div class="field-sm"><label>Ширина</label><input type="number" [(ngModel)]="selectedElement.width" class="field-input-sm" /></div>
+                    <div class="field-sm"><label>Высота</label><input type="number" [(ngModel)]="selectedElement.height" class="field-input-sm" /></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Граница -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('border')">
+                  <span>Граница</span>
+                  <lucide-icon [name]="isSectionOpen('border') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('border')" class="section-content">
+                  <div class="fields-row">
+                    <div class="field-sm"><label>Толщина</label><input type="number" [(ngModel)]="selectedElement.borderWidth" class="field-input-sm" /></div>
+                    <div class="field-sm"><label>Радиус</label><input type="number" [(ngModel)]="selectedElement.borderRadius" class="field-input-sm" /></div>
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Цвет</label>
+                    <input type="color" [(ngModel)]="selectedElement.borderColor" class="field-color" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Шрифт -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('font')">
+                  <span>Шрифт</span>
+                  <lucide-icon [name]="isSectionOpen('font') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('font')" class="section-content">
+                  <div class="field-group">
+                    <label class="field-label">Семейство</label>
+                    <select class="field-select" [(ngModel)]="selectedElement.fontFamily">
+                      <option value="Arial">Arial</option>
+                      <option value="Roboto">Roboto</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Courier New">Courier New</option>
+                    </select>
+                  </div>
+                  <div class="fields-row">
+                    <div class="field-sm"><label>Размер</label><input type="number" [(ngModel)]="selectedElement.fontSize" class="field-input-sm" /></div>
+                  </div>
+                  <div class="fields-row" style="gap: 16px;">
+                    <label class="field-check">
+                      <input type="checkbox" [(ngModel)]="selectedElement.fontBold" /> <strong>B</strong>
+                    </label>
+                    <label class="field-check">
+                      <input type="checkbox" [(ngModel)]="selectedElement.fontItalic" /> <em>I</em>
+                    </label>
+                  </div>
+                  <div class="fields-row" style="gap: 4px; margin-top: 8px;">
+                    <button class="align-btn" [class.active]="selectedElement.textAlign === 'left'" (click)="selectedElement.textAlign = 'left'">
+                      <lucide-icon name="align-left" [size]="16"></lucide-icon>
+                    </button>
+                    <button class="align-btn" [class.active]="selectedElement.textAlign === 'center'" (click)="selectedElement.textAlign = 'center'">
+                      <lucide-icon name="align-center" [size]="16"></lucide-icon>
+                    </button>
+                    <button class="align-btn" [class.active]="selectedElement.textAlign === 'right'" (click)="selectedElement.textAlign = 'right'">
+                      <lucide-icon name="align-right" [size]="16"></lucide-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+          </ng-container>
+
+          <!-- ──── VIEW: Product navigator ──── -->
+          <ng-container *ngIf="panelView === 'product-navigator'">
+            <div class="add-element-header">
+              <span class="add-element-title">
+                {{ navigatorSizeMode ? 'Выберите размер' : 'Выбор товара' }}
+              </span>
+              <button class="icon-btn-sm" (click)="closeProductNavigator()">
+                <lucide-icon name="x" [size]="18"></lucide-icon>
+              </button>
+            </div>
+
+            <!-- Size selector mode -->
+            <ng-container *ngIf="navigatorSizeMode && pendingProduct">
+              <div class="nav-product-title">{{ pendingProduct.name }}</div>
+              <div class="navigator-list">
+                <div
+                  *ngFor="let size of pendingProduct.sizes"
+                  class="navigator-item product"
+                  (click)="selectSize(size.id, size.name)"
+                >
+                  <span class="nav-item-name">{{ size.name }}</span>
+                  <lucide-icon name="chevron-right" [size]="16" class="nav-chevron"></lucide-icon>
+                </div>
+              </div>
+              <button class="btn-nav-back" (click)="navigatorSizeMode = false; pendingProduct = null">
+                <lucide-icon name="arrow-left" [size]="16"></lucide-icon> Назад к товарам
+              </button>
+            </ng-container>
+
+            <!-- Folder navigation mode -->
+            <ng-container *ngIf="!navigatorSizeMode">
+              <!-- Breadcrumbs -->
+              <div *ngIf="navigationStack.length > 0" class="nav-breadcrumbs">
+                <span class="bc-link" (click)="navigateToRoot()">Номенклатура</span>
+                <ng-container *ngFor="let crumb of navigationStack; let i = index; let last = last">
+                  <span class="bc-separator">/</span>
+                  <span [class]="last ? 'bc-current' : 'bc-link'" (click)="!last && navigateToStackLevel(i)">{{ crumb.name }}</span>
+                </ng-container>
+              </div>
+
+              <!-- Back button -->
+              <button *ngIf="navigationStack.length > 0" class="btn-nav-back" (click)="navigateBack()">
+                <lucide-icon name="arrow-left" [size]="16"></lucide-icon> Назад
+              </button>
+
+              <!-- Items list -->
+              <div class="navigator-list">
+                <div
+                  *ngFor="let item of catalogItems"
+                  class="navigator-item"
+                  [class.group]="item.isGroup"
+                  [class.product]="!item.isGroup"
+                  (click)="item.isGroup ? navigateToGroup(item) : selectProduct(item)"
+                >
+                  <lucide-icon [name]="item.isGroup ? 'folder' : 'package'" [size]="18"
+                    [class]="item.isGroup ? 'nav-icon-folder' : 'nav-icon-product'"></lucide-icon>
+                  <span class="nav-item-name">{{ item.name }}</span>
+                  <lucide-icon *ngIf="item.isGroup && item.hasChildren" name="chevron-right" [size]="16" class="nav-chevron"></lucide-icon>
+                </div>
+              </div>
+
+              <!-- Empty state -->
+              <div *ngIf="catalogItems.length === 0" class="navigator-empty">
+                <lucide-icon name="package" [size]="32" class="empty-icon"></lucide-icon>
+                <span>Нет элементов</span>
+              </div>
+            </ng-container>
           </ng-container>
         </div>
 
@@ -679,6 +854,71 @@ interface ElementTypeOption {
       animation: toastIn 0.3s ease;
     }
     @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } }
+
+    /* ═══ Price element on canvas ═══ */
+    .el-price {
+      display: flex; align-items: center; gap: 4px;
+      width: 100%; padding: 4px; word-break: break-word;
+      color: #333; font-size: 13px;
+    }
+    .el-price .price-icon { color: #ff6d00; flex-shrink: 0; }
+
+    /* ═══ Product binding ═══ */
+    .product-binding { margin-bottom: 16px; }
+    .binding-info {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; background: #e8f5e9; border-radius: 6px;
+      margin-bottom: 8px; font-size: 13px; color: #2e7d32;
+    }
+    .binding-icon { flex-shrink: 0; color: #43a047; }
+    .binding-name { font-weight: 500; }
+    .binding-size { font-weight: 400; color: #558b2f; }
+    .binding-empty {
+      padding: 10px 12px; background: #fff3e0; border-radius: 6px;
+      margin-bottom: 8px; font-size: 13px; color: #e65100;
+    }
+    .btn-select-product {
+      width: 100%; height: 36px; border: 1px solid #e0e0e0; border-radius: 4px;
+      background: #fff; color: #448aff; font-size: 13px; font-weight: 500;
+      font-family: Roboto, sans-serif; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-select-product:hover { background: #e3f2fd; border-color: #448aff; }
+
+    /* ═══ Product navigator ═══ */
+    .navigator-list { display: flex; flex-direction: column; margin-top: 8px; }
+    .navigator-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 8px; font-size: 14px; color: #333;
+      border-bottom: 1px solid #f5f5f5; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .navigator-item:hover { background: #f5f5f5; }
+    .navigator-item:last-child { border-bottom: none; }
+    .nav-icon-folder { color: #ff9800; }
+    .nav-icon-product { color: #448aff; }
+    .nav-item-name { flex: 1; }
+    .nav-chevron { color: #bdbdbd; }
+    .nav-breadcrumbs {
+      display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+      margin-bottom: 8px; font-size: 12px;
+    }
+    .btn-nav-back {
+      display: flex; align-items: center; gap: 6px;
+      width: 100%; height: 34px; border: none; border-radius: 4px;
+      background: #f5f5f5; color: #757575; font-size: 13px; font-weight: 500;
+      font-family: Roboto, sans-serif; cursor: pointer;
+      transition: background 0.15s; margin-top: 8px; padding: 0 12px;
+    }
+    .btn-nav-back:hover { background: #eeeeee; color: #333; }
+    .navigator-empty {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px; padding: 32px 0; color: #bdbdbd; font-size: 14px;
+    }
+    .empty-icon { color: #e0e0e0; }
+    .nav-product-title {
+      font-size: 14px; font-weight: 500; color: #333;
+      padding: 4px 0 8px; border-bottom: 1px solid #e0e0e0;
+    }
   `],
 })
 export class ArrivalsThemeEditorScreenComponent implements OnInit {
@@ -700,6 +940,12 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit {
   deleteElementTarget: ArrivalsThemeElement | null = null;
   toastMessage = '';
   canvasScale = 0.65;
+
+  // Product navigator state
+  catalogItems: ProductCatalogItem[] = [];
+  navigationStack: { id: string; name: string }[] = [];
+  pendingProduct: ProductCatalogItem | null = null;
+  navigatorSizeMode = false;
 
   openSections = new Set<string>();
 
@@ -724,6 +970,7 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit {
     { type: 'popup', label: 'Всплывающее окно' },
     { type: 'current-time', label: 'Текущее время' },
     { type: 'counter', label: 'Счетчик' },
+    { type: 'price', label: 'Цена' },
   ];
 
   get resWidth(): number {
@@ -806,6 +1053,16 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit {
       el.timeout = 5;
       el.authType = 'None';
       el.pollInterval = 300;
+    } else if (type === 'price') {
+      el.productId = undefined;
+      el.productName = undefined;
+      el.sizeId = null;
+      el.sizeName = undefined;
+      el.fontFamily = 'Arial';
+      el.fontSize = 16;
+      el.fontBold = true;
+      el.fontItalic = false;
+      el.textAlign = 'center';
     }
 
     this.theme.elements.push(el);
@@ -841,7 +1098,80 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit {
   }
 
   isGenericElement(type: ArrivalsElementType): boolean {
-    return !['text', 'counter', 'image'].includes(type);
+    return !['text', 'counter', 'image', 'price'].includes(type);
+  }
+
+  /* ── Product navigator methods ── */
+
+  openProductNavigator(): void {
+    this.navigationStack = [];
+    this.pendingProduct = null;
+    this.navigatorSizeMode = false;
+    this.catalogItems = MOCK_PRODUCT_CATALOG['root'] || [];
+    this.panelView = 'product-navigator';
+  }
+
+  closeProductNavigator(): void {
+    this.panelView = 'element';
+    this.pendingProduct = null;
+    this.navigatorSizeMode = false;
+  }
+
+  navigateToGroup(group: ProductCatalogItem): void {
+    this.navigationStack.push({ id: group.id, name: group.name });
+    this.catalogItems = MOCK_PRODUCT_CATALOG[group.id] || [];
+  }
+
+  navigateBack(): void {
+    this.navigationStack.pop();
+    const parentId = this.navigationStack.length > 0
+      ? this.navigationStack[this.navigationStack.length - 1].id
+      : 'root';
+    this.catalogItems = MOCK_PRODUCT_CATALOG[parentId] || [];
+  }
+
+  navigateToRoot(): void {
+    this.navigationStack = [];
+    this.catalogItems = MOCK_PRODUCT_CATALOG['root'] || [];
+  }
+
+  navigateToStackLevel(index: number): void {
+    this.navigationStack = this.navigationStack.slice(0, index + 1);
+    const id = this.navigationStack[index].id;
+    this.catalogItems = MOCK_PRODUCT_CATALOG[id] || [];
+  }
+
+  selectProduct(product: ProductCatalogItem): void {
+    if (product.sizes && product.sizes.length > 1) {
+      this.pendingProduct = product;
+      this.navigatorSizeMode = true;
+    } else {
+      this.applyProductBinding(
+        product.id,
+        product.name,
+        product.sizes && product.sizes.length === 1 ? product.sizes[0].id : null,
+        product.sizes && product.sizes.length === 1 ? product.sizes[0].name : undefined,
+      );
+    }
+  }
+
+  selectSize(sizeId: string, sizeName: string): void {
+    if (this.pendingProduct) {
+      this.applyProductBinding(this.pendingProduct.id, this.pendingProduct.name, sizeId, sizeName);
+    }
+  }
+
+  private applyProductBinding(productId: string, productName: string, sizeId: string | null, sizeName?: string): void {
+    if (this.selectedElement && this.selectedElement.type === 'price') {
+      this.selectedElement.productId = productId;
+      this.selectedElement.productName = productName;
+      this.selectedElement.sizeId = sizeId;
+      this.selectedElement.sizeName = sizeName;
+      this.selectedElement.name = 'Цена: ' + productName + (sizeName ? ' (' + sizeName + ')' : '');
+    }
+    this.pendingProduct = null;
+    this.navigatorSizeMode = false;
+    this.panelView = 'element';
   }
 
   save(): void {

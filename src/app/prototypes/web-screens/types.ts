@@ -67,7 +67,8 @@ export type ArrivalsElementType =
   | 'rectangle'
   | 'popup'
   | 'current-time'
-  | 'counter';
+  | 'counter'
+  | 'price';
 
 export interface ArrivalsThemeElement {
   id: string;
@@ -96,6 +97,26 @@ export interface ArrivalsThemeElement {
   pollInterval?: number;
   // Image
   imageUrl?: string;
+  // Price (product binding)
+  productId?: string;
+  productName?: string;
+  sizeId?: string | null;
+  sizeName?: string;
+}
+
+/* ── Product Catalog (for Price element navigator) ── */
+
+export interface ProductSize {
+  id: string;
+  name: string;
+}
+
+export interface ProductCatalogItem {
+  id: string;
+  name: string;
+  isGroup: boolean;
+  hasChildren?: boolean;
+  sizes?: ProductSize[];
 }
 
 export interface ArrivalsTheme {

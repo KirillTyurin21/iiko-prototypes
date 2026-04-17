@@ -6,6 +6,7 @@ import {
   SidebarSection,
   ArrivalsThemeListItem,
   ArrivalsTheme,
+  ProductCatalogItem,
 } from '../types';
 
 /** Секции бокового меню Web */
@@ -274,6 +275,69 @@ export const MOCK_ARRIVALS_THEMES: ArrivalsTheme[] = [
   { id: 104, name: 'Тёмный режим', resolution: '1366x768', screenMode: 'order-screen', elements: [] },
   { id: 105, name: 'Доставка (от 25-10-09)', resolution: '1024x768', screenMode: 'order-screen', elements: [] },
 ];
+
+/* ── Product catalog for Price element navigator ── */
+
+export const MOCK_PRODUCT_CATALOG: Record<string, ProductCatalogItem[]> = {
+  root: [
+    { id: 'g1', name: 'Горячие напитки', isGroup: true, hasChildren: true },
+    { id: 'g2', name: 'Холодные напитки', isGroup: true, hasChildren: true },
+    { id: 'g3', name: 'Салаты', isGroup: true, hasChildren: true },
+    { id: 'g4', name: 'Супы', isGroup: true, hasChildren: true },
+    { id: 'g5', name: 'Горячие блюда', isGroup: true, hasChildren: true },
+    { id: 'g6', name: 'Десерты', isGroup: true, hasChildren: true },
+    { id: 'g7', name: 'Пустая группа', isGroup: true, hasChildren: false },
+  ],
+  g1: [
+    { id: 'p1', name: 'Капучино', isGroup: false, sizes: [
+      { id: 's1', name: 'Маленький' }, { id: 's2', name: 'Средний' }, { id: 's3', name: 'Большой' },
+    ] },
+    { id: 'p2', name: 'Латте', isGroup: false, sizes: [
+      { id: 's4', name: 'Маленький' }, { id: 's5', name: 'Средний' }, { id: 's6', name: 'Большой' },
+    ] },
+    { id: 'p3', name: 'Американо', isGroup: false, sizes: [] },
+    { id: 'p4', name: 'Чай чёрный', isGroup: false, sizes: [] },
+  ],
+  g2: [
+    { id: 'p5', name: 'Лимонад', isGroup: false, sizes: [
+      { id: 's7', name: '0.3л' }, { id: 's8', name: '0.5л' },
+    ] },
+    { id: 'p6', name: 'Морс клюквенный', isGroup: false, sizes: [] },
+    { id: 'p7', name: 'Вода', isGroup: false, sizes: [
+      { id: 's9', name: '0.3л' }, { id: 's10', name: '0.5л' }, { id: 's11', name: '1л' },
+    ] },
+  ],
+  g3: [
+    { id: 'p8', name: 'Цезарь с курицей', isGroup: false, sizes: [] },
+    { id: 'p9', name: 'Греческий', isGroup: false, sizes: [] },
+    { id: 'p10', name: 'Оливье', isGroup: false, sizes: [] },
+  ],
+  g4: [
+    { id: 'p11', name: 'Борщ', isGroup: false, sizes: [] },
+    { id: 'p12', name: 'Том Ям', isGroup: false, sizes: [
+      { id: 's12', name: 'Маленький' }, { id: 's13', name: 'Большой' },
+    ] },
+    { id: 'p13', name: 'Солянка', isGroup: false, sizes: [] },
+  ],
+  g5: [
+    { id: 'p14', name: 'Стейк рибай', isGroup: false, sizes: [
+      { id: 's14', name: '200г' }, { id: 's15', name: '300г' }, { id: 's16', name: '400г' },
+    ] },
+    { id: 'p15', name: 'Паста карбонара', isGroup: false, sizes: [] },
+    { id: 'p16', name: 'Бургер классический', isGroup: false, sizes: [] },
+    { id: 'p17', name: 'Пицца Маргарита', isGroup: false, sizes: [
+      { id: 's17', name: '25 см' }, { id: 's18', name: '30 см' }, { id: 's19', name: '35 см' },
+    ] },
+  ],
+  g6: [
+    { id: 'p18', name: 'Тирамису', isGroup: false, sizes: [] },
+    { id: 'p19', name: 'Чизкейк', isGroup: false, sizes: [] },
+    { id: 'p20', name: 'Мороженое', isGroup: false, sizes: [
+      { id: 's20', name: '1 шарик' }, { id: 's21', name: '2 шарика' }, { id: 's22', name: '3 шарика' },
+    ] },
+  ],
+  g7: [],
+};
 
 export const MOCK_TERMINALS: ArrivalTerminal[] = [
   {

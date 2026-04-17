@@ -124,6 +124,8 @@ import {
   Folder,
   File,
   Home,
+  // Arrivals price element
+  Tag,
 } from 'lucide-angular';
 
 /**
@@ -256,6 +258,8 @@ const icons = {
   Folder,
   File,
   Home,
+  // Arrivals price element
+  Tag,
 };
 
 @NgModule({
