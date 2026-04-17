@@ -22,13 +22,16 @@ export const MOCK_GUEST: MockGuest = {
   ],
 };
 
-/** Список гостей в казино */
+/** Список гостей в казино — по одному гостю на каждый реальный статус */
 export const MOCK_GUESTS: MockGuestListItem[] = [
-  { customer_id: 'CID-00847', forename: 'Иван',    middlename: 'Иванович',   surname: 'Иванов',   status: 'GOLD',     color: '#FFD700' },
-  { customer_id: 'CID-01234', forename: 'Елена',   middlename: 'Сергеевна',  surname: 'Петрова',  status: 'PLATINUM', color: '#E5E4E2' },
-  { customer_id: 'CID-00512', forename: 'Алексей', middlename: 'Николаевич', surname: 'Сидоров',  status: 'SILVER',   color: '#C0C0C0' },
-  { customer_id: 'CID-02001', forename: 'Мария',   middlename: 'Дмитриевна', surname: 'Козлова',  status: 'GOLD',     color: '#FFD700' },
-  { customer_id: 'CID-00089', forename: 'Дмитрий', middlename: 'Андреевич',  surname: 'Волков',   status: 'STANDARD', color: '#4CAF50' },
+  { customer_id: 'CID-00089', forename: 'Дмитрий', middlename: 'Андреевич',  surname: 'Волков',     status: 'STANDARD', color: '#4CAF50' },
+  { customer_id: 'CID-00310', forename: 'Ольга',   middlename: 'Викторовна', surname: 'Кузнецова',  status: 'BRONZE',   color: '#CD7F32' },
+  { customer_id: 'CID-00512', forename: 'Алексей', middlename: 'Николаевич', surname: 'Сидоров',    status: 'SILVER',   color: '#C0C0C0' },
+  { customer_id: 'CID-00847', forename: 'Иван',    middlename: 'Иванович',   surname: 'Иванов',     status: 'GOLD',     color: '#FFD700' },
+  { customer_id: 'CID-01234', forename: 'Елена',   middlename: 'Сергеевна',  surname: 'Петрова',    status: 'PLATINUM', color: '#E5E4E2' },
+  { customer_id: 'CID-01587', forename: 'Андрей',  middlename: 'Павлович',   surname: 'Морозов',    status: 'DIAMOND',  color: '#4FC3F7' },
+  { customer_id: 'CID-02001', forename: 'Мария',   middlename: 'Дмитриевна', surname: 'Козлова',    status: 'VIP',      color: '#9C27B0' },
+  { customer_id: 'CID-02200', forename: 'Сергей',  middlename: 'Александрович', surname: 'Белов',   status: 'BLACK',    color: '#212121' },
 ];
 
 /** Контекст заказа */
@@ -110,7 +113,7 @@ export const CATALOG_SECTIONS: CatalogSection[] = [
       { id: 'identify-card',  label: 'Поиск по карте',  icon: 'credit-card', iconColor: '#1565c0', description: 'POST /v1/search/card — сканирование карты гостя', modalType: 'identify-method' },
       { id: 'identify-id',    label: 'Поиск по ID',     icon: 'hash',        iconColor: '#1565c0', description: 'POST /v1/search/id — ввод customer_id',          modalType: 'identify-method' },
       { id: 'profile-data',   label: 'Профиль гостя',   icon: 'user',        iconColor: '#2e7d32', description: 'Карточка гостя с балансами (состояние: данные)',   modalType: 'guest-profile', badge: '4 состояния', badgeColor: '#2e7d32' },
-      { id: 'guest-list',     label: 'Список гостей',   icon: 'users',       iconColor: '#6a1b9a', description: 'GET /v1/search/guests_in_casino',                 modalType: 'guest-list', badge: '4 состояния', badgeColor: '#6a1b9a' },
+      { id: 'guest-list',     label: 'Список гостей',   icon: 'users',       iconColor: '#6a1b9a', description: 'GET /v1/search/guests_in_casino',                 modalType: 'guest-list', badge: '8 статусов', badgeColor: '#6a1b9a' },
     ],
   },
   {
