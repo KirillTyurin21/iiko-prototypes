@@ -10,7 +10,6 @@ import { MockGuest, IdentifyMethod, DemoRoles } from '../../types';
   imports: [CommonModule, IconsModule, NeptunePosDialogComponent],
   template: `
     <neptune-pos-dialog [open]="open" maxWidth="lg"
-                        [borderColor]="guest?.color || ''"
                         (dialogClose)="dialogClose.emit()">
 
       <!-- State switcher (debug) -->
@@ -29,27 +28,27 @@ import { MockGuest, IdentifyMethod, DemoRoles } from '../../types';
 
       <!-- Not found -->
       <div *ngIf="state === 'not-found'" class="flex flex-col items-center justify-center py-20">
-        <lucide-icon name="alert-circle" [size]="48" class="text-orange-400"></lucide-icon>
-        <p class="text-orange-400 text-lg font-semibold mt-4">Гость не найден</p>
-        <button
-          class="mt-6 h-12 px-8 bg-[#1a1a1a] text-white hover:bg-[#252525] rounded font-semibold"
-          (click)="dialogClose.emit()">
-          Закрыть
-        </button>
+        <p class="text-orange-400 text-lg font-semibold">Гость не найден</p>
+        <div class="bg-[#2a2a2a] mt-6">
+          <button
+            class="h-12 px-8 text-white hover:bg-[#333] font-semibold"
+            (click)="dialogClose.emit()">
+            Закрыть
+          </button>
+        </div>
       </div>
 
       <!-- Error -->
       <div *ngIf="state === 'error'" class="flex flex-col items-center justify-center py-20">
-        <lucide-icon name="wifi-off" [size]="48" class="text-red-400"></lucide-icon>
-        <p class="text-red-400 text-lg font-semibold mt-4">Не удалось загрузить данные</p>
-        <div class="flex gap-3 mt-6">
+        <p class="text-red-400 text-lg font-semibold">Не удалось загрузить данные</p>
+        <div class="flex gap-px bg-[#555] mt-6">
           <button
-            class="h-12 px-8 bg-[#1a1a1a] text-white hover:bg-[#252525] rounded font-semibold"
+            class="h-12 px-8 bg-[#2a2a2a] text-white hover:bg-[#333] font-semibold"
             (click)="state = 'loading'">
             Повторить
           </button>
           <button
-            class="h-12 px-8 bg-[#1a1a1a] text-white hover:bg-[#252525] rounded font-semibold"
+            class="h-12 px-8 bg-[#2a2a2a] text-white hover:bg-[#333] font-semibold"
             (click)="dialogClose.emit()">
             Закрыть
           </button>
@@ -65,72 +64,79 @@ import { MockGuest, IdentifyMethod, DemoRoles } from '../../types';
 
         <!-- Block 1 — Main info -->
         <div class="flex gap-6">
-          <!-- Avatar -->
-          <div class="w-[128px] h-[128px] min-w-[128px] rounded-lg overflow-hidden"
-               [ngClass]="roles.show_photo_role ? 'bg-[#2d2d2d]' : 'bg-[#2d2d2d] opacity-30'">
-            <img *ngIf="guest.image && roles.show_photo_role"
-                 [src]="guest.image"
-                 class="w-full h-full object-cover"
-                 alt="Фото гостя"
-                 (error)="onImageError($event)">
-            <div *ngIf="!guest.image || !roles.show_photo_role"
-                 class="w-full h-full flex items-center justify-center">
-              <span *ngIf="roles.show_fio_role && !roles.show_photo_role"
-                    class="text-2xl font-bold text-gray-400">{{ initials }}</span>
-              <lucide-icon *ngIf="!roles.show_fio_role || roles.show_photo_role"
-                           name="user" [size]="48" class="text-gray-500"></lucide-icon>
+          <!-- Avatar with color frame -->
+          <div class="flex flex-col items-center">
+            <div class="w-[160px] h-[160px] min-w-[160px] overflow-hidden border-[6px] border-solid"
+                 [style.borderColor]="guest.color"
+                 [ngClass]="roles.show_photo_role ? 'bg-[#2d2d2d]' : 'bg-[#2d2d2d] opacity-60'">
+              <img *ngIf="guest.image && roles.show_photo_role"
+                   [src]="guest.image"
+                   class="w-full h-full object-cover"
+                   alt="Фото гостя"
+                   (error)="onImageError($event)">
+              <div *ngIf="!guest.image || !roles.show_photo_role"
+                   class="w-full h-full flex items-center justify-center">
+                <span *ngIf="roles.show_fio_role && !roles.show_photo_role"
+                      class="text-3xl font-bold text-gray-400">{{ initials }}</span>
+                <lucide-icon *ngIf="!roles.show_fio_role || roles.show_photo_role"
+                             name="user" [size]="56" class="text-gray-500"></lucide-icon>
+              </div>
             </div>
-            <div *ngIf="!roles.show_photo_role" class="absolute text-xs text-gray-500 mt-1">
-              <span class="bg-gray-700 px-1 rounded text-[10px]">show_photo_role</span>
+            <div *ngIf="!roles.show_photo_role" class="text-[10px] text-gray-500 mt-1">
+              <span class="bg-gray-700 px-1">show_photo_role</span>
             </div>
           </div>
 
-          <!-- Info card -->
+          <!-- Info fields (label:value layout) -->
           <div class="flex-1">
-            <div class="bg-white text-black p-3 rounded mb-2">
+            <div class="space-y-3">
               <!-- FIO -->
-              <div *ngIf="roles.show_fio_role" class="text-lg font-semibold text-black">
-                {{ guest.surname }} {{ guest.forename }} {{ guest.middlename }}
-              </div>
-              <div *ngIf="!roles.show_fio_role" class="text-lg font-semibold text-gray-300">
-                ФИО скрыто
-                <span class="text-[10px] bg-gray-200 text-gray-500 px-1 rounded ml-1">show_fio_role</span>
+              <div class="flex justify-between border-b border-[#555] pb-2">
+                <span class="text-sm text-gray-400">ФИО</span>
+                <span *ngIf="roles.show_fio_role" class="text-base font-semibold text-white text-right">
+                  {{ guest.surname }} {{ guest.forename }} {{ guest.middlename }}
+                </span>
+                <span *ngIf="!roles.show_fio_role" class="text-base text-gray-500 text-right">
+                  Скрыто <span class="text-[10px] bg-gray-700 text-gray-400 px-1 ml-1">show_fio_role</span>
+                </span>
               </div>
 
               <!-- Status -->
-              <div *ngIf="roles.show_state_role">
-                <span
-                  class="inline-block px-3 py-1 rounded-full text-sm font-bold mt-1"
-                  [style.background]="guest.color + '33'"
-                  [style.color]="guest.color">
+              <div class="flex justify-between border-b border-[#555] pb-2">
+                <span class="text-sm text-gray-400">Статус</span>
+                <span *ngIf="roles.show_state_role"
+                      class="text-base font-bold"
+                      [style.color]="guest.color">
                   {{ guest.status }}
                 </span>
-              </div>
-              <div *ngIf="!roles.show_state_role" class="text-sm text-gray-300 mt-1">
-                Статус скрыт
-                <span class="text-[10px] bg-gray-200 text-gray-500 px-1 rounded ml-1">show_state_role</span>
+                <span *ngIf="!roles.show_state_role" class="text-base text-gray-500">
+                  Скрыт <span class="text-[10px] bg-gray-700 text-gray-400 px-1 ml-1">show_state_role</span>
+                </span>
               </div>
 
               <!-- Customer ID -->
-              <div *ngIf="roles.show_id_role" class="text-sm text-gray-600 mt-2">
-                Customer ID: {{ guest.customer_id }}
+              <div *ngIf="roles.show_id_role" class="flex justify-between border-b border-[#555] pb-2">
+                <span class="text-sm text-gray-400">Customer ID</span>
+                <span class="text-base text-white">{{ guest.customer_id }}</span>
               </div>
 
               <!-- Card number (only when identified by card) -->
-              <div *ngIf="identifyMethod === 'card' && roles.show_card_role" class="text-sm text-gray-600">
-                Номер карты: 4590 1234 5678
+              <div *ngIf="identifyMethod === 'card' && roles.show_card_role" class="flex justify-between border-b border-[#555] pb-2">
+                <span class="text-sm text-gray-400">Номер карты</span>
+                <span class="text-base text-white">4590 1234 5678</span>
               </div>
 
               <!-- Birthday -->
-              <div *ngIf="roles.show_birthday_role" class="text-sm text-gray-600">
-                Дата рождения: {{ formatBirthday(guest.birthday) }}
+              <div *ngIf="roles.show_birthday_role" class="flex justify-between pb-2">
+                <span class="text-sm text-gray-400">Дата рождения</span>
+                <span class="text-base text-white">{{ formatBirthday(guest.birthday) }}</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Block 2 — Balances -->
-        <div class="bg-[#b8c959]/20 border border-[#b8c959] rounded p-5 my-4">
+        <div class="bg-[#2d2d2d] p-5 my-4">
           <div class="grid grid-cols-3 gap-4 text-center">
             <div [ngClass]="{'opacity-30': !roles.show_cashless_role}">
               <div class="text-2xl font-bold text-[#b8c959]">{{ roles.show_cashless_role ? (guest.balance_cash | number:'1.0-0') : '—' }}</div>
@@ -157,26 +163,26 @@ import { MockGuest, IdentifyMethod, DemoRoles } from '../../types';
         </div>
 
         <!-- Block 3 — Points detail -->
-        <div *ngIf="roles.show_loyalty_role" class="bg-[#2d2d2d] rounded p-4 mt-4">
+        <div *ngIf="roles.show_loyalty_role" class="bg-[#2d2d2d] p-4 mt-4">
           <div
             *ngFor="let pt of guest.points; let last = last"
             class="flex justify-between py-2"
             [class.border-b]="!last"
-            [class.border-gray-600]="!last">
+            [class.border-[#555]]="!last">
             <span class="text-sm text-gray-300">{{ pt.point_name }}</span>
             <span class="text-sm font-semibold text-white">{{ pt.point_sum | number:'1.0-0' }}</span>
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="grid grid-cols-2 gap-3 mt-6">
+        <div class="grid grid-cols-2 gap-px bg-[#555] mt-6">
           <button
-            class="h-14 bg-[#1a1a1a] text-white hover:bg-[#252525] rounded font-semibold"
+            class="h-14 bg-[#2a2a2a] text-white hover:bg-[#333] font-semibold"
             (click)="dialogClose.emit()">
             Закрыть
           </button>
           <button
-            class="h-14 bg-[#b8c959] text-black hover:bg-[#c5d466] rounded font-bold"
+            class="h-14 bg-[#b8c959] text-black hover:bg-[#c5d466] font-bold"
             (click)="payAction.emit()">
             К оплате
           </button>

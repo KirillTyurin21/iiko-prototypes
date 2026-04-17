@@ -8,10 +8,10 @@ import { NeptunePosDialogComponent } from '../pos-dialog.component';
   standalone: true,
   imports: [CommonModule, IconsModule, NeptunePosDialogComponent],
   template: `
-    <neptune-pos-dialog [open]="open" maxWidth="sm" theme="light" [closable]="false">
-      <div class="flex flex-col items-center justify-center py-6">
+    <neptune-pos-dialog [open]="open" maxWidth="sm" [closable]="false">
+      <div class="flex flex-col items-center justify-center py-10">
         <lucide-icon name="loader-2" [size]="48" class="text-gray-400 animate-spin"></lucide-icon>
-        <p class="text-gray-900 text-base mt-4">{{ message }}</p>
+        <p class="text-white text-base mt-4">{{ message }}</p>
       </div>
     </neptune-pos-dialog>
   `,

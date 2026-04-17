@@ -19,12 +19,12 @@ import { MockGuest } from '../../types';
       <!-- Guest info card -->
       <div
         *ngIf="guest"
-        class="bg-[#2d2d2d] rounded p-4 mb-4 flex justify-between items-center"
+        class="bg-[#2d2d2d] p-4 mb-4 flex justify-between items-center"
       >
         <div>
           <span class="text-white font-semibold">{{ guestFullName }}</span>
           <span
-            class="ml-2 inline-block text-xs px-2 py-0.5 rounded-full"
+            class="ml-2 inline-block text-xs px-2 py-0.5"
             [style.background-color]="guest.color + '33'"
             [style.color]="guest.color"
           >
@@ -40,7 +40,7 @@ import { MockGuest } from '../../types';
       <div>
         <label class="text-sm text-gray-300 mb-2 block">Сумма списания</label>
         <div
-          class="w-full h-14 text-2xl text-center bg-[#b8c959]/20 border border-[#b8c959] text-white rounded px-4 flex items-center justify-center font-mono"
+          class="w-full h-14 text-2xl text-center bg-[#2d2d2d] text-white px-4 flex items-center justify-center font-mono"
         >
           {{ amountStr || '0' }}
         </div>
@@ -50,15 +50,15 @@ import { MockGuest } from '../../types';
       </div>
 
       <!-- Numpad -->
-      <div class="grid grid-cols-3 gap-2 mt-4">
+      <div class="grid grid-cols-3 gap-px bg-[#555] mt-px">
         <button
           *ngFor="let key of numpadKeys"
           type="button"
-          class="h-16 rounded text-xl font-semibold transition-colors"
+          class="h-16 text-xl font-semibold transition-colors"
           [ngClass]="
             key === '←' || key === '✕'
-              ? 'bg-[#2d2d2d] text-gray-300 hover:bg-[#353535]'
-              : 'bg-[#1a1a1a] text-white hover:bg-[#252525]'
+              ? 'bg-[#d0d0d0] text-gray-700 hover:bg-[#c0c0c0]'
+              : 'bg-[#f0f0f0] text-black hover:bg-[#e0e0e0]'
           "
           (click)="onNumpadClick(key)"
         >
@@ -67,7 +67,7 @@ import { MockGuest } from '../../types';
       </div>
 
       <!-- Totals block -->
-      <div class="bg-[#2d2d2d] rounded p-4 space-y-2 mt-4">
+      <div class="bg-[#2d2d2d] p-4 space-y-2 mt-4">
         <div class="flex justify-between text-base">
           <span class="text-gray-300">Сумма заказа:</span>
           <span class="font-semibold text-white">{{ orderTotal | number:'1.0-0' }}</span>
@@ -76,7 +76,7 @@ import { MockGuest } from '../../types';
           <span>Списание Cashless:</span>
           <span class="font-semibold">-{{ amount | number:'1.0-0' }}</span>
         </div>
-        <div class="h-px bg-gray-600 my-2"></div>
+        <div class="h-px bg-[#555] my-2"></div>
         <div class="flex justify-between text-xl font-bold">
           <span class="text-white">Остаток к оплате:</span>
           <span class="text-[#b8c959]">{{ remaining | number:'1.0-0' }}</span>
@@ -84,21 +84,21 @@ import { MockGuest } from '../../types';
       </div>
 
       <!-- Footer -->
-      <div class="grid grid-cols-2 gap-3 mt-6">
+      <div class="grid grid-cols-2 gap-px bg-[#555] mt-6">
         <button
           type="button"
-          class="h-14 bg-[#1a1a1a] text-white hover:bg-[#252525] rounded font-semibold transition-colors"
+          class="h-14 bg-[#2a2a2a] text-white hover:bg-[#333] font-semibold transition-colors"
           (click)="dialogClose.emit()"
         >
           Отмена
         </button>
         <button
           type="button"
-          class="h-14 rounded font-bold transition-colors"
+          class="h-14 font-bold transition-colors"
           [ngClass]="
             canPay
               ? 'bg-[#b8c959] text-black hover:bg-[#c5d466]'
-              : 'bg-[#b8c959]/50 text-black/50 cursor-not-allowed opacity-50'
+              : 'bg-[#b8c959]/30 text-black/50 cursor-not-allowed opacity-50'
           "
           [disabled]="!canPay"
           (click)="canPay && paymentConfirmed.emit(amount)"

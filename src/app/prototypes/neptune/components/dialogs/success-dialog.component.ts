@@ -10,18 +10,11 @@ import { MockOrderItem } from '../../types';
   imports: [CommonModule, IconsModule, NeptunePosDialogComponent],
   template: `
     <neptune-pos-dialog [open]="open" maxWidth="md" (dialogClose)="dialogClose.emit()">
-      <!-- Status icon -->
-      <div class="flex justify-center mb-4">
-        <div class="w-20 h-20 rounded-full bg-[#b8c959]/20 flex items-center justify-center">
-          <lucide-icon name="check-circle-2" [size]="48" class="text-[#b8c959] animate-pulse"></lucide-icon>
-        </div>
-      </div>
-
       <!-- Title -->
-      <h2 class="text-2xl font-semibold text-[#b8c959] text-center mb-6">Операция выполнена</h2>
+      <h2 class="text-2xl font-semibold text-[#b8c959] text-center mb-6 mt-2">Операция выполнена</h2>
 
       <!-- Result block -->
-      <div class="bg-[#2d2d2d] rounded p-4 space-y-2">
+      <div class="bg-[#2d2d2d] p-4 space-y-2">
         <div class="flex justify-between text-sm">
           <span class="text-gray-300">Тип оплаты:</span>
           <span class="text-white">{{ paymentTypeLabel }}</span>
@@ -44,10 +37,9 @@ import { MockOrderItem } from '../../types';
       <!-- Receipt simulation -->
       <div *ngIf="orderItems.length > 0" class="mt-4">
         <div class="flex items-center gap-2 mb-2">
-          <lucide-icon name="receipt" [size]="14" class="text-gray-400"></lucide-icon>
           <span class="text-xs text-gray-400 uppercase tracking-wide">Имитация пречека</span>
         </div>
-        <div class="bg-white text-black rounded p-4 font-mono text-xs leading-relaxed"
+        <div class="bg-white text-black p-4 font-mono text-xs leading-relaxed"
              style="font-family: 'Courier New', monospace;">
           <div class="text-center border-b border-dashed border-gray-400 pb-2 mb-2">
             <div class="font-bold text-sm">ПРЕЧЕК</div>
@@ -83,11 +75,13 @@ import { MockOrderItem } from '../../types';
       </div>
 
       <!-- Footer -->
-      <button
-        (click)="dialogClose.emit()"
-        class="w-full h-14 bg-[#b8c959] text-black rounded font-bold hover:bg-[#c5d466] mt-6">
-        Готово
-      </button>
+      <div class="bg-[#2a2a2a] mt-6">
+        <button
+          (click)="dialogClose.emit()"
+          class="w-full h-14 bg-[#2a2a2a] text-[#b8c959] hover:bg-[#333] font-bold">
+          Готово
+        </button>
+      </div>
     </neptune-pos-dialog>
   `,
 })

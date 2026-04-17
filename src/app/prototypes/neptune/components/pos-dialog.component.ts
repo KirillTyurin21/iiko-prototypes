@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-black/50" (click)="onOverlayClick()"></div>
       <!-- Content -->
-      <div class="relative rounded-lg p-8 animate-scale-in w-full mx-4"
+      <div class="relative p-6 animate-fade-in w-full mx-4"
            [ngClass]="[maxWidthClass, themeClasses]"
            [style.border]="borderColor ? '3px solid ' + borderColor : 'none'">
         <ng-content></ng-content>

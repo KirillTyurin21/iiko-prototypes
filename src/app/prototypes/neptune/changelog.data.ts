@@ -2,6 +2,27 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '2.3',
+    date: '2026-04-17',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'POS-панель',
+        pageRoute: '/prototype/neptune/pos',
+        items: [
+          'Редизайн всех диалоговых окон под стилистику плагинов Front: прямые углы, плоский UI, тёмная палитра',
+          'Numpad: светлые клавиши с 1px-разделителями (вместо тёмных с gap)',
+          'Профиль гостя: цветная рамка вокруг фото (цвет = статус гостя), label:value layout полей',
+          'Окно идентификации: текстовые кнопки без иконок',
+          'Список гостей: цветная полоска вместо точки, прямоугольные бейджи',
+          'Footer-кнопки: плоские, без скруглений, на тёмной панели',
+          'Loading-диалог: тёмная тема (вместо светлой)',
+          'Убраны декоративные иконки из success/error окон',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.2',
     date: '2026-04-17',
     status: 'unreleased',

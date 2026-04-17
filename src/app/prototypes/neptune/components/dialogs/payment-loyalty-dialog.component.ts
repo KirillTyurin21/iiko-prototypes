@@ -16,10 +16,10 @@ import { MockGuest, MockPoint, PaymentType } from '../../types';
       <p class="text-base text-gray-300 text-center mb-6">{{ subtitle }}</p>
 
       <!-- Guest info card -->
-      <div *ngIf="guest" class="bg-[#2d2d2d] rounded p-4 mb-4 flex justify-between items-center">
+      <div *ngIf="guest" class="bg-[#2d2d2d] p-4 mb-4 flex justify-between items-center">
         <div>
           <p class="text-base font-medium text-white">{{ guestFullName }}</p>
-          <span class="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-bold"
+          <span class="inline-block mt-1 px-3 py-0.5 text-xs font-bold"
                 [style.background]="guest.color + '33'"
                 [style.color]="guest.color">
             {{ guest.status }}
@@ -32,12 +32,12 @@ import { MockGuest, MockPoint, PaymentType } from '../../types';
       </div>
 
       <!-- Point type tabs (loyalty only) -->
-      <div *ngIf="!isComp && guest" class="flex gap-2 mb-4">
+      <div *ngIf="!isComp && guest" class="flex gap-px bg-[#555] mb-4">
         <button *ngFor="let pt of guest!.points; let i = index"
-          class="flex-1 h-10 rounded text-sm font-semibold transition-colors"
+          class="flex-1 h-10 text-sm font-semibold transition-colors"
           [ngClass]="i === selectedPointIndex
             ? 'bg-[#b8c959] text-black font-bold'
-            : 'bg-[#1a1a1a] text-white hover:bg-[#252525]'"
+            : 'bg-[#2d2d2d] text-white hover:bg-[#353535]'"
           (click)="selectedPointIndex = i">
           {{ pt.point_name }} ({{ pt.point_sum | number:'1.0-0' }})
         </button>
@@ -46,28 +46,28 @@ import { MockGuest, MockPoint, PaymentType } from '../../types';
       <!-- Amount input -->
       <div class="mb-4">
         <label class="block text-sm text-gray-400 mb-1">Сумма списания</label>
-        <div class="h-14 bg-[#1a1a1a] rounded flex items-center justify-end px-4 text-3xl font-bold text-white tracking-wider">
+        <div class="h-14 bg-[#2d2d2d] flex items-center justify-end px-4 text-3xl font-bold text-white tracking-wider">
           {{ amountStr || '0' }}
         </div>
         <p class="text-xs text-gray-500 mt-1">Доступно: {{ balance | number:'1.0-0' }}</p>
       </div>
 
       <!-- Numpad -->
-      <div class="grid grid-cols-3 gap-2 mb-4">
+      <div class="grid grid-cols-3 gap-px bg-[#555] mb-4">
         <button *ngFor="let key of numpadKeys"
-          class="h-12 rounded text-lg font-semibold transition-colors"
+          class="h-12 text-lg font-semibold transition-colors"
           [ngClass]="key === 'C'
-            ? 'bg-red-900/40 text-red-300 hover:bg-red-900/60'
+            ? 'bg-red-900/60 text-red-200 hover:bg-red-900/80'
             : key === '⌫'
-              ? 'bg-[#2d2d2d] text-gray-300 hover:bg-[#353535]'
-              : 'bg-[#1a1a1a] text-white hover:bg-[#252525]'"
+              ? 'bg-[#d0d0d0] text-gray-700 hover:bg-[#c0c0c0]'
+              : 'bg-[#f0f0f0] text-black hover:bg-[#e0e0e0]'"
           (click)="onNumpad(key)">
           {{ key }}
         </button>
       </div>
 
       <!-- Totals -->
-      <div class="bg-[#2d2d2d] rounded p-4 mb-4 space-y-2">
+      <div class="bg-[#2d2d2d] p-4 mb-4 space-y-2">
         <div class="flex justify-between text-base text-gray-300">
           <span>Итого к оплате:</span>
           <span class="font-semibold">{{ orderTotal | number:'1.0-0' }}</span>
@@ -76,21 +76,21 @@ import { MockGuest, MockPoint, PaymentType } from '../../types';
           <span>{{ deductionLabel }}</span>
           <span class="font-semibold">-{{ amount | number:'1.0-0' }}</span>
         </div>
-        <div class="border-t border-gray-600 pt-2 flex justify-between text-base text-white">
+        <div class="border-t border-[#555] pt-2 flex justify-between text-base text-white">
           <span>Остаток:</span>
           <span class="font-bold">{{ remaining | number:'1.0-0' }}</span>
         </div>
       </div>
 
       <!-- Footer -->
-      <div class="flex gap-3">
+      <div class="flex gap-px bg-[#555]">
         <button
-          class="flex-1 h-14 bg-[#1a1a1a] text-white hover:bg-[#252525] rounded font-semibold transition-colors"
+          class="flex-1 h-14 bg-[#2a2a2a] text-white hover:bg-[#333] font-semibold transition-colors"
           (click)="dialogClose.emit()">
           Отмена
         </button>
         <button
-          class="flex-1 h-14 rounded font-semibold transition-colors"
+          class="flex-1 h-14 font-semibold transition-colors"
           [ngClass]="canPay
             ? 'bg-[#b8c959] text-black hover:bg-[#a8b94a]'
             : 'bg-[#2d2d2d] text-gray-500 cursor-not-allowed'"
