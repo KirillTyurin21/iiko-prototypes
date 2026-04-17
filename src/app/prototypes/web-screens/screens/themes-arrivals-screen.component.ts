@@ -85,8 +85,8 @@ import { ArrivalsThemeListItem } from '../types';
         [message]="'Удалить «' + deleteTarget.name + '»?'"
         confirmText="Удалить"
         confirmColor="red"
-        (confirm)="confirmDelete()"
-        (cancel)="deleteTarget = null"
+        (confirmed)="confirmDelete()"
+        (cancelled)="deleteTarget = null"
       ></ui-confirm-dialog>
     </div>
   `,

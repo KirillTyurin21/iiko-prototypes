@@ -435,8 +435,8 @@ interface ElementTypeOption {
         [message]="'Удалить элемент «' + deleteElementTarget.name + '»?'"
         confirmText="Удалить"
         confirmColor="red"
-        (confirm)="confirmDeleteElement()"
-        (cancel)="deleteElementTarget = null"
+        (confirmed)="confirmDeleteElement()"
+        (cancelled)="deleteElementTarget = null"
       ></ui-confirm-dialog>
     </div>
   `,
@@ -701,7 +701,7 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit {
   toastMessage = '';
   canvasScale = 0.65;
 
-  openSections = new Set<string>(['layout', 'border', 'font']);
+  openSections = new Set<string>();
 
   resolutionOptions: SelectOption[] = [
     { value: '1024x768', label: '1024px / 768px' },
