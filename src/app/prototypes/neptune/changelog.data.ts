@@ -2,6 +2,24 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '2.2',
+    date: '2026-04-17',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'POS-панель',
+        pageRoute: '/prototype/neptune/pos',
+        items: [
+          'Таймер TTL токена: обратный отсчёт 5 мин после ввода PIN-кода, индикация состояния (зелёный → жёлтый → красный)',
+          'Повторный PIN не запрашивается, пока токен активен — кнопки оплаты работают напрямую',
+          'При истечении токена — индикатор + кнопка повторного ввода PIN',
+          'API-консоль — сворачиваемая панель с логом HTTP-запросов: метод, endpoint, request/response body, HTTP-код',
+          'Переключатель контекста «Ресторан» / «Фаст-фуд» с описанием различий',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.1',
     date: '2026-04-18',
     status: 'unreleased',

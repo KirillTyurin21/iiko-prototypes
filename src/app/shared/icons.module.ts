@@ -133,6 +133,10 @@ import {
   ServerOff,
   ToggleLeft,
   Database,
+  // Neptune v3 TTL / API console / context
+  Timer,
+  Code2,
+  Coffee,
 } from 'lucide-angular';
 
 /**
@@ -274,6 +278,10 @@ const icons = {
   ServerOff,
   ToggleLeft,
   Database,
+  // Neptune v3 TTL / API console / context
+  Timer,
+  Code2,
+  Coffee,
 };
 
 @NgModule({

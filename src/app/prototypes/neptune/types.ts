@@ -130,6 +130,21 @@ export interface CatalogCard {
   description: string;
 }
 
+/** Запись API-консоли */
+export interface ApiLogEntry {
+  timestamp: string;
+  method: 'GET' | 'POST';
+  endpoint: string;
+  requestBody: Record<string, any> | null;
+  responseBody: Record<string, any> | null;
+  httpCode: number | null;
+  isError: boolean;
+  label: string;
+}
+
+/** Контекст работы (ресторан / фаст-фуд) */
+export type ServiceContext = 'restaurant' | 'fastfood';
+
 /** Демо-роли для визуализации ролевой модели */
 export interface DemoRoles {
   card_role: boolean;

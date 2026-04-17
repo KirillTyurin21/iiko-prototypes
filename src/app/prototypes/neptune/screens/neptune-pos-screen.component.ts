@@ -1,9 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { IconsModule } from '@/shared/icons.module';
-import { ModalType, PaymentType, PanelState, MockGuest, IdentifyMethod, ErrorScenario, ExternalDataEntry, DemoRoles } from '../types';
+import { ModalType, PaymentType, PanelState, MockGuest, IdentifyMethod, ErrorScenario, ExternalDataEntry, DemoRoles, ApiLogEntry, ServiceContext } from '../types';
 import {
   MOCK_GUEST, MOCK_GUESTS, MOCK_ORDER, ERROR_SCENARIOS, PLUGIN_CONFIG, DEMO_ROLES,
 } from '../data/mock-data';
@@ -81,6 +81,33 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
           </div>
         </div>
 
+        <!-- Переключатель контекста (3.13) -->
+        <div class="flex items-center gap-2 mb-4">
+          <lucide-icon name="utensils" [size]="18" class="text-gray-400"></lucide-icon>
+          <span class="text-sm text-gray-500">Контекст:</span>
+          <div class="flex gap-2">
+            <button (click)="serviceContext = 'restaurant'"
+                    class="px-3 py-1.5 rounded text-sm transition-colors flex items-center gap-1.5"
+                    [ngClass]="serviceContext === 'restaurant'
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'">
+              <lucide-icon name="utensils" [size]="14"></lucide-icon>
+              Ресторан
+            </button>
+            <button (click)="serviceContext = 'fastfood'"
+                    class="px-3 py-1.5 rounded text-sm transition-colors flex items-center gap-1.5"
+                    [ngClass]="serviceContext === 'fastfood'
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'">
+              <lucide-icon name="coffee" [size]="14"></lucide-icon>
+              Фаст-фуд
+            </button>
+          </div>
+          <span class="text-xs text-gray-400 ml-2">
+            {{ serviceContext === 'restaurant' ? 'TTL 5 мин, пречек, несколько оплат' : 'TTL 5 мин, быстрое закрытие, одна оплата' }}
+          </span>
+        </div>
+
         <!-- Ролевая модель (демо) -->
         <div class="mb-4">
           <button (click)="showRolesPanel = !showRolesPanel"
@@ -132,6 +159,29 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
             <lucide-icon name="wifi-off" [size]="14"></lucide-icon>
             Neptune недоступен
           </div>
+        </div>
+
+        <!-- TTL Token Indicator (3.11) -->
+        <div *ngIf="tokenActive" class="mb-3 flex items-center gap-2">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm"
+               [ngClass]="tokenSecondsLeft > 60
+                 ? 'bg-green-50 border border-green-200 text-green-700'
+                 : tokenSecondsLeft > 0
+                   ? 'bg-amber-50 border border-amber-200 text-amber-700'
+                   : 'bg-red-50 border border-red-200 text-red-700'">
+            <lucide-icon name="timer" [size]="14"></lucide-icon>
+            <span *ngIf="tokenSecondsLeft > 0" class="font-mono font-medium">
+              Токен активен: {{ tokenMinutes }}:{{ tokenSecondsPad }}
+            </span>
+            <span *ngIf="tokenSecondsLeft <= 0" class="font-medium">
+              Токен истёк — требуется повторный PIN
+            </span>
+          </div>
+          <button *ngIf="tokenSecondsLeft <= 0"
+                  (click)="onTokenExpiredRepin()"
+                  class="text-xs text-blue-600 hover:text-blue-800 underline">
+            Ввести PIN
+          </button>
         </div>
 
         <!-- Button Panel -->
@@ -244,6 +294,71 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
             </div>
           </div>
         </div>
+
+        <!-- API Console (3.12) -->
+        <div class="mt-4">
+          <button (click)="showApiConsole = !showApiConsole"
+                  class="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+            <lucide-icon name="code-2" [size]="14"></lucide-icon>
+            <span>API-консоль</span>
+            <span *ngIf="apiLog.length" class="text-xs bg-gray-200 text-gray-600 rounded-full px-1.5">{{ apiLog.length }}</span>
+            <lucide-icon [name]="showApiConsole ? 'chevron-up' : 'chevron-down'" [size]="14"></lucide-icon>
+          </button>
+
+          <div *ngIf="showApiConsole"
+               class="mt-2 bg-[#1e1e1e] rounded-lg border border-gray-700 overflow-hidden animate-fade-in">
+            <div class="flex items-center justify-between px-4 py-2 border-b border-gray-700">
+              <span class="text-xs text-gray-400 font-mono">MGS API Requests</span>
+              <button (click)="apiLog = []"
+                      class="text-xs text-gray-500 hover:text-gray-300 transition-colors">
+                Очистить
+              </button>
+            </div>
+
+            <div *ngIf="!apiLog.length" class="px-4 py-6 text-center text-gray-500 text-sm">
+              Выполните действие (идентификация, оплата) — запросы появятся здесь
+            </div>
+
+            <div class="max-h-72 overflow-y-auto">
+              <div *ngFor="let entry of apiLog; let last = last"
+                   class="px-4 py-3 text-xs font-mono"
+                   [ngClass]="!last ? 'border-b border-gray-800' : ''">
+
+                <!-- Header line -->
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-bold"
+                        [ngClass]="entry.isError ? 'text-red-400' : 'text-green-400'">
+                    {{ entry.method }}
+                  </span>
+                  <span class="text-blue-300">{{ entry.endpoint }}</span>
+                  <span *ngIf="entry.httpCode"
+                        class="ml-auto px-1.5 py-0.5 rounded text-[10px]"
+                        [ngClass]="entry.isError
+                          ? 'bg-red-900/40 text-red-300'
+                          : 'bg-green-900/40 text-green-300'">
+                    {{ entry.httpCode }}
+                  </span>
+                  <span class="text-gray-600 text-[10px]">{{ entry.timestamp }}</span>
+                </div>
+
+                <!-- Label -->
+                <div class="text-gray-400 mb-1">// {{ entry.label }}</div>
+
+                <!-- Request -->
+                <div *ngIf="entry.requestBody" class="mb-1">
+                  <span class="text-gray-500">→ </span>
+                  <span class="text-yellow-200/80">{{ formatJson(entry.requestBody) }}</span>
+                </div>
+
+                <!-- Response -->
+                <div *ngIf="entry.responseBody">
+                  <span class="text-gray-500">← </span>
+                  <span [ngClass]="entry.isError ? 'text-red-300/80' : 'text-green-200/80'">{{ formatJson(entry.responseBody) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ===== DIALOGS ===== -->
@@ -330,7 +445,7 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
     </div>
   `,
 })
-export class NeptunePosScreenComponent implements OnInit {
+export class NeptunePosScreenComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -368,6 +483,27 @@ export class NeptunePosScreenComponent implements OnInit {
 
   // ── External Data (3.10) ──
   externalDataEntries: ExternalDataEntry[] = [];
+
+  // ── TTL Token (3.11) ──
+  tokenActive = false;
+  tokenSecondsLeft = 0;
+  private tokenInterval: any = null;
+  private readonly TOKEN_TTL = 300; // 5 мин
+
+  get tokenMinutes(): string {
+    return String(Math.floor(this.tokenSecondsLeft / 60));
+  }
+
+  get tokenSecondsPad(): string {
+    return String(this.tokenSecondsLeft % 60).padStart(2, '0');
+  }
+
+  // ── API Console (3.12) ──
+  apiLog: ApiLogEntry[] = [];
+  showApiConsole = false;
+
+  // ── Service Context (3.13) ──
+  serviceContext: ServiceContext = 'restaurant';
 
   // ── Mock data ──
   guests = MOCK_GUESTS;
@@ -429,6 +565,10 @@ export class NeptunePosScreenComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.clearTokenTimer();
+  }
+
   goBack(): void {
     this.router.navigate(['..'], { relativeTo: this.route });
   }
@@ -450,6 +590,22 @@ export class NeptunePosScreenComponent implements OnInit {
       : 'Поиск гостя по ID...';
     this.loadingTarget = 'guest-profile';
     this.activeModal = 'loading';
+
+    // API log (3.12)
+    const endpoint = method === 'card' ? '/v1/search/card' : '/v1/search/id';
+    const reqBody = method === 'card'
+      ? { card_track: '*4590123456789012*' }
+      : { customer_id: this.currentGuest.customer_id };
+    this.addApiLog('POST', endpoint, reqBody, {
+      customer_id: this.currentGuest.customer_id,
+      forename: this.currentGuest.forename,
+      middlename: this.currentGuest.middlename,
+      surname: this.currentGuest.surname,
+      status: this.currentGuest.status,
+      color: this.currentGuest.color,
+      balance_cash: this.currentGuest.balance_cash,
+      points: this.currentGuest.points,
+    }, 200, false, `Идентификация (${method === 'card' ? 'карта' : 'ID'})`);
   }
 
   // ── Guest list flow ──
@@ -458,6 +614,11 @@ export class NeptunePosScreenComponent implements OnInit {
     this.loadingMessage = 'Загрузка списка гостей...';
     this.loadingTarget = 'guest-list';
     this.activeModal = 'loading';
+
+    // API log
+    this.addApiLog('GET', '/v1/search/guests_in_casino', null,
+      this.guests.map(g => ({ customer_id: g.customer_id, forename: g.forename, surname: g.surname, status: g.status })),
+      200, false, 'Список гостей в казино');
   }
 
   // ── Guest selected from list ──
@@ -477,6 +638,15 @@ export class NeptunePosScreenComponent implements OnInit {
   onPaymentClick(type: PaymentType): void {
     if (this.panelState !== 'identified') return;
     this.currentPaymentType = type;
+
+    // (3.11) If token is still active, skip PIN
+    if (this.tokenActive && this.tokenSecondsLeft > 0) {
+      this.loadingMessage = 'Загрузка...';
+      this.loadingTarget = type === 'cashless' ? 'payment-cashless' : 'payment-loyalty';
+      this.activeModal = 'loading';
+      return;
+    }
+
     this.activeModal = 'pin-entry';
   }
 
@@ -489,6 +659,15 @@ export class NeptunePosScreenComponent implements OnInit {
       this.loadingTarget = 'payment-loyalty';
     }
     this.activeModal = 'loading';
+
+    // API log: get_token
+    this.addApiLog('POST', '/v1/payment/get_token',
+      { pin: '****', customer_id: this.currentGuest.customer_id },
+      { token: 'eyJ***...masked', ttl: this.TOKEN_TTL },
+      200, false, 'Получение платёжного токена');
+
+    // (3.11) Start token TTL timer
+    this.startTokenTimer();
   }
 
   // ── Payment confirmed ──
@@ -499,6 +678,20 @@ export class NeptunePosScreenComponent implements OnInit {
     this.loadingMessage = 'Обработка платежа...';
     this.loadingTarget = 'success';
     this.activeModal = 'loading';
+
+    // API log: payment
+    if (this.currentPaymentType === 'cashless') {
+      this.addApiLog('POST', '/v1/payment/cash',
+        { amount: Number(amount.toFixed(2)), token: 'eyJ***', service: PLUGIN_CONFIG.service, items: this.mockOrder.items.map(i => i.name) },
+        { status: 'OK', balance: this.successRemaining },
+        200, false, 'Оплата Cashless');
+    } else {
+      const pointId = this.currentPaymentType === 'comp' ? PLUGIN_CONFIG.ComplimentaryPointId : PLUGIN_CONFIG.RestaurantPointId;
+      this.addApiLog('POST', '/v1/payment/promo',
+        { point_id: pointId, point_service_id: PLUGIN_CONFIG.point_service_id, amount: Math.round(amount), token: 'eyJ***', description: `Оплата заказа #${this.mockOrder.order_number}` },
+        { status: 'OK', remaining: this.successRemaining },
+        200, false, `Оплата ${this.getPaymentLabel()}`);
+    }
   }
 
   // ── Loading complete → go to target ──
@@ -573,5 +766,55 @@ export class NeptunePosScreenComponent implements OnInit {
       ...this.externalDataEntries.filter(e => !e.key.startsWith('MGS_payment_')),
       ...paymentEntries,
     ];
+  }
+
+  // ── Token TTL (3.11) ──
+  private startTokenTimer(): void {
+    this.clearTokenTimer();
+    this.tokenActive = true;
+    this.tokenSecondsLeft = this.TOKEN_TTL;
+    this.tokenInterval = setInterval(() => {
+      this.tokenSecondsLeft--;
+      if (this.tokenSecondsLeft <= 0) {
+        this.clearTokenTimer();
+        this.tokenSecondsLeft = 0;
+        // Token expired but keep indicator visible
+      }
+    }, 1000);
+  }
+
+  private clearTokenTimer(): void {
+    if (this.tokenInterval) {
+      clearInterval(this.tokenInterval);
+      this.tokenInterval = null;
+    }
+  }
+
+  onTokenExpiredRepin(): void {
+    this.tokenActive = false;
+    this.activeModal = 'pin-entry';
+  }
+
+  // ── API Log (3.12) ──
+  private addApiLog(
+    method: 'GET' | 'POST',
+    endpoint: string,
+    requestBody: Record<string, any> | null,
+    responseBody: Record<string, any> | null,
+    httpCode: number | null,
+    isError: boolean,
+    label: string,
+  ): void {
+    const now = new Date();
+    const timestamp = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    this.apiLog.unshift({ timestamp, method, endpoint, requestBody, responseBody, httpCode, isError, label });
+  }
+
+  formatJson(obj: any): string {
+    try {
+      return JSON.stringify(obj, null, 0);
+    } catch {
+      return String(obj);
+    }
   }
 }
