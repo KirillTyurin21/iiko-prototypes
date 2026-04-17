@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -50,6 +50,7 @@ interface ElementTypeOption {
               *ngFor="let el of theme.elements"
               class="canvas-element"
               [class.selected]="selectedElementId === el.id"
+              [class.dragging]="dragState?.elementId === el.id"
               [style.left.px]="el.x"
               [style.top.px]="el.y"
               [style.width.px]="el.width"
@@ -58,6 +59,7 @@ interface ElementTypeOption {
               [style.border-color]="el.borderColor"
               [style.border-radius.px]="el.borderRadius"
               (click)="selectElement(el.id, $event)"
+              (mousedown)="onElementMouseDown($event, el)"
             >
               <span *ngIf="el.type === 'text'" class="el-text"
                 [style.font-family]="el.fontFamily"
@@ -86,14 +88,14 @@ interface ElementTypeOption {
 
               <!-- Selection handles -->
               <ng-container *ngIf="selectedElementId === el.id">
-                <div class="handle tl"></div>
-                <div class="handle tr"></div>
-                <div class="handle bl"></div>
-                <div class="handle br"></div>
-                <div class="handle tm"></div>
-                <div class="handle bm"></div>
-                <div class="handle ml"></div>
-                <div class="handle mr"></div>
+                <div class="handle tl" (mousedown)="onHandleMouseDown($event, el, 'tl')"></div>
+                <div class="handle tr" (mousedown)="onHandleMouseDown($event, el, 'tr')"></div>
+                <div class="handle bl" (mousedown)="onHandleMouseDown($event, el, 'bl')"></div>
+                <div class="handle br" (mousedown)="onHandleMouseDown($event, el, 'br')"></div>
+                <div class="handle tm" (mousedown)="onHandleMouseDown($event, el, 'tm')"></div>
+                <div class="handle bm" (mousedown)="onHandleMouseDown($event, el, 'bm')"></div>
+                <div class="handle ml" (mousedown)="onHandleMouseDown($event, el, 'ml')"></div>
+                <div class="handle mr" (mousedown)="onHandleMouseDown($event, el, 'mr')"></div>
               </ng-container>
             </div>
           </div>
@@ -606,10 +608,11 @@ interface ElementTypeOption {
       <!-- Delete confirm dialog -->
       <ui-confirm-dialog
         *ngIf="deleteElementTarget"
+        [open]="true"
         title="Удалить элемент"
         [message]="'Удалить элемент «' + deleteElementTarget.name + '»?'"
         confirmText="Удалить"
-        confirmColor="red"
+        variant="danger"
         (confirmed)="confirmDeleteElement()"
         (cancelled)="deleteElementTarget = null"
       ></ui-confirm-dialog>
@@ -647,16 +650,18 @@ interface ElementTypeOption {
 
     /* Canvas elements */
     .canvas-element {
-      position: absolute; border-style: dashed; cursor: pointer;
+      position: absolute; border-style: dashed; cursor: move;
       display: flex; align-items: center; justify-content: center;
       background: rgba(255,255,255,0.5); transition: box-shadow 0.15s;
       font-size: 13px; color: #333; overflow: hidden;
+      user-select: none;
     }
     .canvas-element:hover { box-shadow: 0 0 0 1px #448aff; }
     .canvas-element.selected {
       border-style: solid; border-color: #448aff !important;
       box-shadow: 0 0 0 1px #448aff;
     }
+    .canvas-element.dragging { opacity: 0.85; transition: none; }
 
     .el-text { display: block; width: 100%; padding: 4px; word-break: break-word; }
     .el-counter { font-size: 20px; font-weight: 500; }
@@ -921,7 +926,7 @@ interface ElementTypeOption {
     }
   `],
 })
-export class ArrivalsThemeEditorScreenComponent implements OnInit {
+export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private storage = inject(StorageService);
@@ -946,6 +951,29 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit {
   navigationStack: { id: string; name: string }[] = [];
   pendingProduct: ProductCatalogItem | null = null;
   navigatorSizeMode = false;
+
+  // Drag & resize state
+  dragState: {
+    elementId: string;
+    startMouseX: number;
+    startMouseY: number;
+    startElX: number;
+    startElY: number;
+  } | null = null;
+
+  resizeState: {
+    elementId: string;
+    handle: string;
+    startMouseX: number;
+    startMouseY: number;
+    startElX: number;
+    startElY: number;
+    startElW: number;
+    startElH: number;
+  } | null = null;
+
+  private boundMouseMove = this.onDocMouseMove.bind(this);
+  private boundMouseUp = this.onDocMouseUp.bind(this);
 
   openSections = new Set<string>();
 
@@ -1000,12 +1028,117 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    document.removeEventListener('mousemove', this.boundMouseMove);
+    document.removeEventListener('mouseup', this.boundMouseUp);
+  }
+
   onResolutionChange(): void {
     // Canvas updates reactively via resWidth / resHeight
   }
 
   onCanvasClick(): void {
+    if (this.dragState || this.resizeState) return;
     this.deselectElement();
+  }
+
+  /* ── Drag ── */
+
+  onElementMouseDown(event: MouseEvent, el: ArrivalsThemeElement): void {
+    if (event.button !== 0) return;
+    // Ignore if mousedown originated on a resize handle
+    const target = event.target as HTMLElement;
+    if (target.classList.contains('handle')) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.selectedElementId = el.id;
+    this.panelView = 'element';
+
+    this.dragState = {
+      elementId: el.id,
+      startMouseX: event.clientX,
+      startMouseY: event.clientY,
+      startElX: el.x,
+      startElY: el.y,
+    };
+
+    document.addEventListener('mousemove', this.boundMouseMove);
+    document.addEventListener('mouseup', this.boundMouseUp);
+  }
+
+  /* ── Resize ── */
+
+  onHandleMouseDown(event: MouseEvent, el: ArrivalsThemeElement, handle: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.resizeState = {
+      elementId: el.id,
+      handle,
+      startMouseX: event.clientX,
+      startMouseY: event.clientY,
+      startElX: el.x,
+      startElY: el.y,
+      startElW: el.width,
+      startElH: el.height,
+    };
+
+    document.addEventListener('mousemove', this.boundMouseMove);
+    document.addEventListener('mouseup', this.boundMouseUp);
+  }
+
+  /* ── Shared mouse handlers ── */
+
+  private onDocMouseMove(event: MouseEvent): void {
+    const scale = this.canvasScale;
+    if (this.dragState) {
+      const dx = (event.clientX - this.dragState.startMouseX) / scale;
+      const dy = (event.clientY - this.dragState.startMouseY) / scale;
+      const el = this.theme.elements.find(e => e.id === this.dragState!.elementId);
+      if (el) {
+        el.x = Math.max(0, Math.round(this.dragState.startElX + dx));
+        el.y = Math.max(0, Math.round(this.dragState.startElY + dy));
+      }
+    }
+
+    if (this.resizeState) {
+      const dx = (event.clientX - this.resizeState.startMouseX) / scale;
+      const dy = (event.clientY - this.resizeState.startMouseY) / scale;
+      const el = this.theme.elements.find(e => e.id === this.resizeState!.elementId);
+      if (el) {
+        const h = this.resizeState.handle;
+        const minSize = 20;
+
+        // Horizontal
+        if (h.includes('r')) {
+          el.width = Math.max(minSize, Math.round(this.resizeState.startElW + dx));
+        }
+        if (h.includes('l')) {
+          const newW = Math.max(minSize, Math.round(this.resizeState.startElW - dx));
+          el.x = Math.max(0, Math.round(this.resizeState.startElX + this.resizeState.startElW - newW));
+          el.width = newW;
+        }
+        // 'm' middle handles: tm/bm affect only height, ml/mr only width — handled above with 'l'/'r'
+
+        // Vertical
+        if (h.includes('b')) {
+          el.height = Math.max(minSize, Math.round(this.resizeState.startElH + dy));
+        }
+        if (h.includes('t')) {
+          const newH = Math.max(minSize, Math.round(this.resizeState.startElH - dy));
+          el.y = Math.max(0, Math.round(this.resizeState.startElY + this.resizeState.startElH - newH));
+          el.height = newH;
+        }
+      }
+    }
+  }
+
+  private onDocMouseUp(): void {
+    this.dragState = null;
+    this.resizeState = null;
+    document.removeEventListener('mousemove', this.boundMouseMove);
+    document.removeEventListener('mouseup', this.boundMouseUp);
   }
 
   selectElement(id: string, event: Event): void {
