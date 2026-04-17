@@ -623,6 +623,15 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
 
   // ── Guest selected from list ──
   onGuestSelected(guest: any): void {
+    this.currentGuest = {
+      ...MOCK_GUEST,
+      customer_id: guest.customer_id,
+      forename: guest.forename,
+      middlename: guest.middlename,
+      surname: guest.surname,
+      status: guest.status,
+      color: guest.color,
+    };
     this.loadingMessage = 'Загрузка профиля...';
     this.loadingTarget = 'guest-profile';
     this.activeModal = 'loading';
