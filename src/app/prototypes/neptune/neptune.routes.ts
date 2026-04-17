@@ -11,8 +11,15 @@ export const NEPTUNE_ROUTES: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./screens/neptune-overview-screen.component').then(
-            m => m.NeptuneOverviewScreenComponent
+          import('./screens/neptune-catalog-screen.component').then(
+            m => m.NeptuneCatalogScreenComponent
+          ),
+      },
+      {
+        path: 'pos',
+        loadComponent: () =>
+          import('./screens/neptune-pos-screen.component').then(
+            m => m.NeptunePosScreenComponent
           ),
       },
     ],

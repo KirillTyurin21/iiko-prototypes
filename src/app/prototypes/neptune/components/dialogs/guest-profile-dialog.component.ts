@@ -99,7 +99,7 @@ import { MockGuest } from '../../types';
               <div class="text-xs text-gray-400">Loyalty</div>
             </div>
             <div>
-              <div class="text-2xl font-bold text-[#b8c959]">{{ guest.comp_balance | number:'1.0-0' }}</div>
+              <div class="text-2xl font-bold text-[#b8c959]">{{ compBalance | number:'1.0-0' }}</div>
               <div class="text-xs text-gray-400">Comp</div>
             </div>
           </div>
@@ -152,5 +152,9 @@ export class NeptuneGuestProfileDialogComponent {
 
   get loyaltyTotal(): number {
     return this.guest?.points.reduce((s, p) => s + p.point_sum, 0) ?? 0;
+  }
+
+  get compBalance(): number {
+    return this.guest?.points.find(p => p.point_id === 0)?.point_sum ?? 0;
   }
 }

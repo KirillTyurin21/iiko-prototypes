@@ -131,8 +131,12 @@ export class NeptunePaymentLoyaltyDialogComponent implements OnChanges {
   get amount(): number { return parseInt(this.amountStr, 10) || 0; }
 
   get balance(): number {
-    if (this.isComp) return this.guest?.comp_balance ?? 0;
-    return this.guest?.points[this.selectedPointIndex]?.point_sum ?? 0;
+    if (!this.guest) return 0;
+    if (this.isComp) {
+      const compPt = this.guest.points.find(p => p.point_id === 0);
+      return compPt?.point_sum ?? 0;
+    }
+    return this.guest.points[this.selectedPointIndex]?.point_sum ?? 0;
   }
 
   get remaining(): number { return Math.max(0, this.orderTotal - this.amount); }

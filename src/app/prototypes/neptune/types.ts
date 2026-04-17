@@ -8,6 +8,7 @@ export type ModalType =
   | 'guest-list'
   | 'payment-cashless'
   | 'payment-loyalty'
+  | 'identify-method'
   | 'loading'
   | 'success'
   | 'error'
@@ -19,7 +20,10 @@ export type PaymentType = 'cashless' | 'loyalty' | 'comp';
 /** Состояние панели кнопок */
 export type PanelState = 'no-guest' | 'identified' | 'unavailable';
 
-/** Баллы лояльности */
+/** Способ идентификации гостя */
+export type IdentifyMethod = 'card' | 'id';
+
+/** Баллы лояльности (соответствие MGS: 0=Complimentary, 1=Gaming, 3=Travel, 4=Restaurant) */
 export interface MockPoint {
   point_id: number;
   point_name: string;
@@ -38,7 +42,6 @@ export interface MockGuest {
   birthday: string;
   balance_cash: number;
   points: MockPoint[];
-  comp_balance: number;
 }
 
 /** Элемент списка гостей */
@@ -51,14 +54,75 @@ export interface MockGuestListItem {
   color: string;
 }
 
-/** Контекст заказа */
-export interface MockOrder {
-  order_total: number;
-  table: string;
-  items_count: number;
+/** Позиция заказа */
+export interface MockOrderItem {
+  name: string;
+  price: number;
+  quantity: number;
+  category?: string;
 }
 
-/** Карточка каталога диалогов */
+/** Контекст заказа */
+export interface MockOrder {
+  order_id: string;
+  order_number: number;
+  order_total: number;
+  table: string;
+  items: MockOrderItem[];
+}
+
+/** Запись External Data заказа */
+export interface ExternalDataEntry {
+  key: string;
+  value: string;
+  isPublic: boolean;
+}
+
+/** Сервис из каталога point_services */
+export interface MockPointService {
+  id: string;
+  name: string;
+  description: string;
+  is_gaming_service: string;
+  points: string;
+}
+
+/** Тип ошибки по спецификации MGS */
+export interface ErrorScenario {
+  id: string;
+  httpCode: number | null;
+  title: string;
+  message: string;
+  action: string;
+  retryable: boolean;
+}
+
+/** Секция каталога состояний */
+export interface CatalogSection {
+  title: string;
+  icon: string;
+  description: string;
+  cells: CatalogCell[];
+}
+
+/** Ячейка каталога */
+export interface CatalogCell {
+  id: string;
+  label: string;
+  icon: string;
+  iconColor: string;
+  description: string;
+  badge?: string;
+  badgeColor?: string;
+  /** Модальное окно для открытия на POS */
+  modalType?: ModalType;
+  /** Тип ошибки для демонстрации */
+  errorScenarioId?: string;
+  /** Тип оплаты */
+  paymentType?: PaymentType;
+}
+
+/** Карточка каталога диалогов (legacy) */
 export interface CatalogCard {
   id: ModalType;
   label: string;

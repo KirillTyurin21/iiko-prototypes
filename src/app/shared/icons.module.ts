@@ -126,6 +126,13 @@ import {
   Home,
   // Arrivals price element
   Tag,
+  // Neptune v2 catalog
+  Hash,
+  ShieldOff,
+  UserX,
+  ServerOff,
+  ToggleLeft,
+  Database,
 } from 'lucide-angular';
 
 /**
@@ -260,6 +267,13 @@ const icons = {
   Home,
   // Arrivals price element
   Tag,
+  // Neptune v2 catalog
+  Hash,
+  ShieldOff,
+  UserX,
+  ServerOff,
+  ToggleLeft,
+  Database,
 };
 
 @NgModule({
