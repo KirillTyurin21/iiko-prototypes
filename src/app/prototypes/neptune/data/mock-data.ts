@@ -11,7 +11,7 @@ export const MOCK_GUEST: MockGuest = {
   surname: 'Иванов',
   status: 'GOLD',
   color: '#FFD700',
-  image: '',
+  image: 'https://i.pravatar.cc/128?img=14',
   birthday: '1985-03-15',
   balance_cash: 15250,
   points: [
@@ -61,6 +61,27 @@ export const PLUGIN_CONFIG = {
   point_service_id: 6,   // «Другое»
   service: 'restaurant',
 };
+
+/** Демо-роли (начальное состояние — все включены) */
+export const DEMO_ROLES = {
+  card_role: true,
+  use_cashless_role: true,
+  use_loyalty_role: true,
+  use_comp_role: true,
+  show_all_guests_role: true,
+  show_id_role: true,
+  show_card_role: true,
+  show_fio_role: true,
+  show_birthday_role: true,
+  show_state_role: true,
+  show_photo_role: true,
+  show_cashless_role: true,
+  show_loyalty_role: true,
+  show_comp_role: true,
+};
+
+/** Шаблон пречека */
+export const PRECHEQUE_TEMPLATE = 'Списание MGS: {result_sum} руб.';
 
 /** Сценарии ошибок из спецификации MGS */
 export const ERROR_SCENARIOS: ErrorScenario[] = [

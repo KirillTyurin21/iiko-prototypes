@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconsModule } from '@/shared/icons.module';
 import { NeptunePosDialogComponent } from '../pos-dialog.component';
+import { MockOrderItem } from '../../types';
 
 @Component({
   selector: 'neptune-success-dialog',
@@ -40,6 +41,47 @@ import { NeptunePosDialogComponent } from '../pos-dialog.component';
         </div>
       </div>
 
+      <!-- Receipt simulation -->
+      <div *ngIf="orderItems.length > 0" class="mt-4">
+        <div class="flex items-center gap-2 mb-2">
+          <lucide-icon name="receipt" [size]="14" class="text-gray-400"></lucide-icon>
+          <span class="text-xs text-gray-400 uppercase tracking-wide">Имитация пречека</span>
+        </div>
+        <div class="bg-white text-black rounded p-4 font-mono text-xs leading-relaxed"
+             style="font-family: 'Courier New', monospace;">
+          <div class="text-center border-b border-dashed border-gray-400 pb-2 mb-2">
+            <div class="font-bold text-sm">ПРЕЧЕК</div>
+          </div>
+
+          <div *ngFor="let item of orderItems" class="flex justify-between">
+            <span>{{ item.name }}
+              <span *ngIf="item.quantity > 1"> x{{ item.quantity }}</span>
+            </span>
+            <span>{{ item.price * item.quantity }}</span>
+          </div>
+
+          <div class="border-t border-dashed border-gray-400 mt-2 pt-2 flex justify-between font-bold">
+            <span>ИТОГО:</span>
+            <span>{{ orderTotal | number:'1.0-0' }}</span>
+          </div>
+
+          <div class="border-t border-dashed border-gray-400 mt-2 pt-2 text-gray-600">
+            <div class="flex justify-between">
+              <span>{{ paymentTypeLabel }}:</span>
+              <span>-{{ amountDeducted | number:'1.0-0' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Остаток на счёте:</span>
+              <span>{{ remainingBalance | number:'1.0-0' }}</span>
+            </div>
+          </div>
+
+          <div class="border-t border-dashed border-gray-400 mt-2 pt-2 text-center text-gray-500">
+            {{ prechequeText }}
+          </div>
+        </div>
+      </div>
+
       <!-- Footer -->
       <button
         (click)="dialogClose.emit()"
@@ -55,5 +97,11 @@ export class NeptuneSuccessDialogComponent {
   @Input() amountDeducted = 0;
   @Input() guestName = '';
   @Input() remainingBalance = 0;
+  @Input() orderItems: MockOrderItem[] = [];
+  @Input() orderTotal = 0;
   @Output() dialogClose = new EventEmitter<void>();
+
+  get prechequeText(): string {
+    return `Списание MGS: ${this.amountDeducted} руб.`;
+  }
 }

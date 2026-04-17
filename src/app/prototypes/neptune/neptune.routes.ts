@@ -22,6 +22,13 @@ export const NEPTUNE_ROUTES: Routes = [
             m => m.NeptunePosScreenComponent
           ),
       },
+      {
+        path: 'config',
+        loadComponent: () =>
+          import('./screens/neptune-config-screen.component').then(
+            m => m.NeptuneConfigScreenComponent
+          ),
+      },
     ],
   },
 ];

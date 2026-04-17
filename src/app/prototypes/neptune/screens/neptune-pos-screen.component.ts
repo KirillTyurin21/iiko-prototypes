@@ -1,10 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { IconsModule } from '@/shared/icons.module';
-import { ModalType, PaymentType, PanelState, MockGuest, IdentifyMethod, ErrorScenario } from '../types';
+import { ModalType, PaymentType, PanelState, MockGuest, IdentifyMethod, ErrorScenario, ExternalDataEntry, DemoRoles } from '../types';
 import {
-  MOCK_GUEST, MOCK_GUESTS, MOCK_ORDER, ERROR_SCENARIOS, PLUGIN_CONFIG,
+  MOCK_GUEST, MOCK_GUESTS, MOCK_ORDER, ERROR_SCENARIOS, PLUGIN_CONFIG, DEMO_ROLES,
 } from '../data/mock-data';
 import { NeptuneGuestProfileDialogComponent } from '../components/dialogs/guest-profile-dialog.component';
 import { NeptunePinEntryDialogComponent } from '../components/dialogs/pin-entry-dialog.component';
@@ -21,6 +22,7 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     IconsModule,
     NeptuneGuestProfileDialogComponent,
     NeptunePinEntryDialogComponent,
@@ -79,6 +81,40 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
           </div>
         </div>
 
+        <!-- Ролевая модель (демо) -->
+        <div class="mb-4">
+          <button (click)="showRolesPanel = !showRolesPanel"
+                  class="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+            <lucide-icon name="key-round" [size]="14"></lucide-icon>
+            <span>Настройки ролей</span>
+            <lucide-icon [name]="showRolesPanel ? 'chevron-up' : 'chevron-down'" [size]="14"></lucide-icon>
+          </button>
+
+          <div *ngIf="showRolesPanel"
+               class="mt-2 bg-white rounded-lg border border-gray-200 p-4 animate-fade-in">
+            <div class="grid grid-cols-2 gap-x-8 gap-y-1">
+              <div>
+                <div class="text-xs text-gray-400 uppercase tracking-wide mb-2">Доступ к функциям</div>
+                <label *ngFor="let r of accessRoles" class="flex items-center gap-2 py-1 cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="demoRoles[r.key]"
+                         class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span class="text-sm text-gray-700">{{ r.label }}</span>
+                  <code class="text-[10px] text-gray-400 ml-auto">{{ r.key }}</code>
+                </label>
+              </div>
+              <div>
+                <div class="text-xs text-gray-400 uppercase tracking-wide mb-2">Видимость данных</div>
+                <label *ngFor="let r of visibilityRoles" class="flex items-center gap-2 py-1 cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="demoRoles[r.key]"
+                         class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span class="text-sm text-gray-700">{{ r.label }}</span>
+                  <code class="text-[10px] text-gray-400 ml-auto">{{ r.key }}</code>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Статус гостя -->
         <div class="mb-2">
           <div *ngIf="panelState === 'no-guest'" class="text-sm text-gray-400 flex items-center gap-1">
@@ -104,11 +140,12 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
 
             <!-- Идентификация -->
             <button (click)="onIdentify()"
-                    class="h-14 rounded px-6 flex items-center gap-2 font-semibold transition-colors"
-                    [ngClass]="panelState === 'unavailable'
+                    class="h-14 rounded px-6 flex items-center gap-2 font-semibold transition-colors relative"
+                    [ngClass]="panelState === 'unavailable' || !demoRoles.card_role
                       ? 'bg-[#1a1a1a] text-gray-600 opacity-50 cursor-not-allowed'
                       : 'bg-[#1a1a1a] text-white hover:bg-[#252525]'"
-                    [disabled]="panelState === 'unavailable'">
+                    [disabled]="panelState === 'unavailable' || !demoRoles.card_role"
+                    [title]="!demoRoles.card_role ? 'Требуется роль: card_role' : ''">
               <lucide-icon name="scan-line" [size]="18"></lucide-icon>
               Идентификация
             </button>
@@ -116,10 +153,11 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
             <!-- Cashless -->
             <button (click)="onPaymentClick('cashless')"
                     class="h-14 rounded px-6 flex items-center gap-2 font-semibold transition-colors"
-                    [ngClass]="panelState === 'identified'
+                    [ngClass]="panelState === 'identified' && demoRoles.use_cashless_role
                       ? 'bg-[#2e7d32] text-white hover:bg-[#388e3c]'
                       : 'bg-[#1a1a1a] text-gray-600 opacity-50 cursor-not-allowed'"
-                    [disabled]="panelState !== 'identified'">
+                    [disabled]="panelState !== 'identified' || !demoRoles.use_cashless_role"
+                    [title]="!demoRoles.use_cashless_role ? 'Требуется роль: use_cashless_role' : ''">
               <lucide-icon name="wallet" [size]="18"></lucide-icon>
               Cashless
             </button>
@@ -127,10 +165,11 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
             <!-- Loyalty -->
             <button (click)="onPaymentClick('loyalty')"
                     class="h-14 rounded px-6 flex items-center gap-2 font-semibold transition-colors"
-                    [ngClass]="panelState === 'identified'
+                    [ngClass]="panelState === 'identified' && demoRoles.use_loyalty_role
                       ? 'bg-[#1565c0] text-white hover:bg-[#1976d2]'
                       : 'bg-[#1a1a1a] text-gray-600 opacity-50 cursor-not-allowed'"
-                    [disabled]="panelState !== 'identified'">
+                    [disabled]="panelState !== 'identified' || !demoRoles.use_loyalty_role"
+                    [title]="!demoRoles.use_loyalty_role ? 'Требуется роль: use_loyalty_role' : ''">
               <lucide-icon name="star" [size]="18"></lucide-icon>
               Loyalty
             </button>
@@ -138,10 +177,11 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
             <!-- Comp -->
             <button (click)="onPaymentClick('comp')"
                     class="h-14 rounded px-6 flex items-center gap-2 font-semibold transition-colors"
-                    [ngClass]="panelState === 'identified'
+                    [ngClass]="panelState === 'identified' && demoRoles.use_comp_role
                       ? 'bg-[#6a1b9a] text-white hover:bg-[#7b1fa2]'
                       : 'bg-[#1a1a1a] text-gray-600 opacity-50 cursor-not-allowed'"
-                    [disabled]="panelState !== 'identified'">
+                    [disabled]="panelState !== 'identified' || !demoRoles.use_comp_role"
+                    [title]="!demoRoles.use_comp_role ? 'Требуется роль: use_comp_role' : ''">
               <lucide-icon name="gift" [size]="18"></lucide-icon>
               Comp
             </button>
@@ -149,10 +189,11 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
             <!-- Список гостей -->
             <button (click)="onGuestList()"
                     class="h-14 rounded px-6 flex items-center gap-2 font-semibold transition-colors"
-                    [ngClass]="panelState === 'unavailable'
+                    [ngClass]="panelState === 'unavailable' || !demoRoles.show_all_guests_role
                       ? 'bg-[#1a1a1a] text-gray-600 opacity-50 cursor-not-allowed'
                       : 'bg-[#1a1a1a] text-white hover:bg-[#252525]'"
-                    [disabled]="panelState === 'unavailable'">
+                    [disabled]="panelState === 'unavailable' || !demoRoles.show_all_guests_role"
+                    [title]="!demoRoles.show_all_guests_role ? 'Требуется роль: show_all_guests_role' : ''">
               <lucide-icon name="users" [size]="18"></lucide-icon>
               Список гостей
             </button>
@@ -193,21 +234,13 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
           </div>
 
           <div class="space-y-1 text-sm">
-            <div class="flex gap-2">
-              <span class="text-gray-400 w-40 shrink-0">customer_id</span>
-              <span class="text-gray-700 font-mono">{{ currentGuest.customer_id }}</span>
-            </div>
-            <div class="flex gap-2">
-              <span class="text-gray-400 w-40 shrink-0">customer_name</span>
-              <span class="text-gray-700 font-mono">{{ guestFullName }}</span>
-            </div>
-            <div class="flex gap-2">
-              <span class="text-gray-400 w-40 shrink-0">customer_status</span>
-              <span class="text-gray-700 font-mono">{{ currentGuest.status }}</span>
-            </div>
-            <div class="flex gap-2">
-              <span class="text-gray-400 w-40 shrink-0">balance_cash</span>
-              <span class="text-gray-700 font-mono">{{ currentGuest.balance_cash }}</span>
+            <div *ngFor="let entry of externalDataEntries" class="flex gap-2 items-center">
+              <span class="text-gray-400 w-44 shrink-0 font-mono">{{ entry.key }}</span>
+              <span class="text-gray-700 font-mono flex-1">{{ entry.value }}</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded"
+                    [ngClass]="entry.isPublic ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'">
+                {{ entry.isPublic ? 'public' : 'private' }}
+              </span>
             </div>
           </div>
         </div>
@@ -226,6 +259,8 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
       <neptune-guest-profile-dialog
         [open]="activeModal === 'guest-profile'"
         [guest]="currentGuest"
+        [identifyMethod]="currentIdentifyMethod"
+        [roles]="demoRoles"
         (dialogClose)="closeDialog()"
         (payAction)="onPayFromProfile()">
       </neptune-guest-profile-dialog>
@@ -279,6 +314,8 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
         [amountDeducted]="successAmount"
         [guestName]="guestShortName"
         [remainingBalance]="successRemaining"
+        [orderItems]="mockOrder.items"
+        [orderTotal]="mockOrder.order_total"
         (dialogClose)="onSuccessClose()">
       </neptune-success-dialog>
 
@@ -303,6 +340,34 @@ export class NeptunePosScreenComponent implements OnInit {
   currentPaymentType: PaymentType = 'cashless';
   currentGuest: MockGuest = MOCK_GUEST;
   currentErrorScenario: ErrorScenario | null = null;
+  currentIdentifyMethod: IdentifyMethod | null = null;
+
+  // ── Roles (3.7) ──
+  demoRoles: DemoRoles = { ...DEMO_ROLES };
+  showRolesPanel = false;
+
+  accessRoles = [
+    { key: 'card_role' as keyof DemoRoles, label: 'Идентификация' },
+    { key: 'use_cashless_role' as keyof DemoRoles, label: 'Cashless' },
+    { key: 'use_loyalty_role' as keyof DemoRoles, label: 'Loyalty' },
+    { key: 'use_comp_role' as keyof DemoRoles, label: 'Comp' },
+    { key: 'show_all_guests_role' as keyof DemoRoles, label: 'Список гостей' },
+  ];
+
+  visibilityRoles = [
+    { key: 'show_id_role' as keyof DemoRoles, label: 'Customer ID' },
+    { key: 'show_card_role' as keyof DemoRoles, label: 'Номер карты' },
+    { key: 'show_fio_role' as keyof DemoRoles, label: 'ФИО' },
+    { key: 'show_birthday_role' as keyof DemoRoles, label: 'Дата рождения' },
+    { key: 'show_state_role' as keyof DemoRoles, label: 'Статус' },
+    { key: 'show_photo_role' as keyof DemoRoles, label: 'Фото' },
+    { key: 'show_cashless_role' as keyof DemoRoles, label: 'Баланс Cashless' },
+    { key: 'show_loyalty_role' as keyof DemoRoles, label: 'Баланс Loyalty' },
+    { key: 'show_comp_role' as keyof DemoRoles, label: 'Баланс Comp' },
+  ];
+
+  // ── External Data (3.10) ──
+  externalDataEntries: ExternalDataEntry[] = [];
 
   // ── Mock data ──
   guests = MOCK_GUESTS;
@@ -379,6 +444,7 @@ export class NeptunePosScreenComponent implements OnInit {
   }
 
   onIdentifyMethodSelected(method: IdentifyMethod): void {
+    this.currentIdentifyMethod = method;
     this.loadingMessage = method === 'card'
       ? 'Поиск гостя по карте...'
       : 'Поиск гостя по ID...';
@@ -441,6 +507,10 @@ export class NeptunePosScreenComponent implements OnInit {
       this.activeModal = this.loadingTarget;
       if (this.loadingTarget === 'guest-profile') {
         this.panelState = 'identified';
+        this.populateIdentifyExternalData();
+      }
+      if (this.loadingTarget === 'success') {
+        this.populatePaymentExternalData();
       }
       this.loadingTarget = null;
     } else {
@@ -479,5 +549,29 @@ export class NeptunePosScreenComponent implements OnInit {
         return Math.max(0, (compPoints?.point_sum ?? 0) - amount);
       }
     }
+  }
+
+  // ── External Data helpers (3.10) ──
+  private populateIdentifyExternalData(): void {
+    this.externalDataEntries = [
+      { key: 'MGS_customer_id', value: this.currentGuest.customer_id, isPublic: true },
+      { key: 'MGS_forename', value: this.currentGuest.forename, isPublic: true },
+      { key: 'MGS_middlename', value: this.currentGuest.middlename, isPublic: true },
+      { key: 'MGS_surname', value: this.currentGuest.surname, isPublic: true },
+      { key: 'MGS_status', value: this.currentGuest.status, isPublic: true },
+      { key: 'MGS_balance_cash', value: String(this.currentGuest.balance_cash), isPublic: false },
+    ];
+  }
+
+  private populatePaymentExternalData(): void {
+    const paymentEntries: ExternalDataEntry[] = [
+      { key: 'MGS_payment_type', value: this.currentPaymentType, isPublic: true },
+      { key: 'MGS_payment_amount', value: String(this.successAmount), isPublic: true },
+      { key: 'MGS_payment_remaining', value: String(this.successRemaining), isPublic: false },
+    ];
+    this.externalDataEntries = [
+      ...this.externalDataEntries.filter(e => !e.key.startsWith('MGS_payment_')),
+      ...paymentEntries,
+    ];
   }
 }

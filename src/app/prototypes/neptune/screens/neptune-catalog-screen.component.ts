@@ -43,6 +43,20 @@ import { CatalogSection, CatalogCell } from '../types';
       <!-- Секции каталога -->
       <div class="max-w-6xl mx-auto px-6 py-6 space-y-8">
 
+        <!-- Config link -->
+        <div (click)="goToConfig()"
+             class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md cursor-pointer
+                    hover:border-blue-300 transition-all duration-200 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+            <lucide-icon name="settings" [size]="24" class="text-gray-500"></lucide-icon>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-medium text-gray-900">Конфигурация плагина</h3>
+            <p class="text-sm text-gray-500">Все параметры настройки: подключение, таймауты, роли, кнопки, размеры UI, MGS</p>
+          </div>
+          <lucide-icon name="chevron-right" [size]="20" class="text-gray-400"></lucide-icon>
+        </div>
+
         <div *ngFor="let section of sections; let last = last">
 
           <!-- Заголовок секции -->
@@ -121,6 +135,10 @@ export class NeptuneCatalogScreenComponent {
       relativeTo: this.route,
       queryParams,
     });
+  }
+
+  goToConfig(): void {
+    this.router.navigate(['config'], { relativeTo: this.route });
   }
 
   getCellTypeLabel(cell: CatalogCell): string {

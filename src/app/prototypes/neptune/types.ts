@@ -129,3 +129,21 @@ export interface CatalogCard {
   icon: string;
   description: string;
 }
+
+/** Демо-роли для визуализации ролевой модели */
+export interface DemoRoles {
+  card_role: boolean;
+  use_cashless_role: boolean;
+  use_loyalty_role: boolean;
+  use_comp_role: boolean;
+  show_all_guests_role: boolean;
+  show_id_role: boolean;
+  show_card_role: boolean;
+  show_fio_role: boolean;
+  show_birthday_role: boolean;
+  show_state_role: boolean;
+  show_photo_role: boolean;
+  show_cashless_role: boolean;
+  show_loyalty_role: boolean;
+  show_comp_role: boolean;
+}
