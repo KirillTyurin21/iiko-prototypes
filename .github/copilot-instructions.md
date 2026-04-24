@@ -8,6 +8,23 @@
 
 ---
 
+## СТОП-ЛИСТ — Запрещённые действия
+
+> **Этот блок критически важен. Нарушение любого пункта — серьёзная ошибка.**
+
+1. **НЕ используй синтаксис Angular 17+**: `@if`, `@for`, `@switch`, `@defer` — ЗАПРЕЩЕНЫ. Только `*ngIf`, `*ngFor`, `[ngSwitch]` (проект на Angular 16)
+2. **НЕ используй `constructor(private ...)` для DI** — только `inject()`: `private router = inject(Router)`
+3. **НЕ упоминай «iiko»** нигде: ни в changelog, ни в UI, ни в комментариях кода. Пиши «Front» вместо «iikoFront», «Web» вместо «iikoWeb», «Signage» вместо «iikoSignage»
+4. **НЕ упоминай коды доступа, хеши, токены** в changelog, UI, коммитах, комментариях
+5. **НЕ используй реальные названия клиентских проектов** — только кодовые имена (falcon, eagle, neptune, comet)
+6. **НЕ создавай отдельные .html файлы** для шаблонов — только inline `template: \`...\``
+7. **НЕ забывай `standalone: true`** — все компоненты ТОЛЬКО standalone
+8. **НЕ выдумывай @Input/@Output** у UI-компонентов — сверяйся со справочником API (см. ниже)
+9. **НЕ используй `ngModel` напрямую** — в проекте двусторонняя привязка через `[(value)]`, `[(checked)]` на кастомных UI-компонентах
+10. **НЕ используй `templateUrl` / `styleUrls`** — только inline `template` и `styles` (или Tailwind-классы)
+
+---
+
 ## Кодовые имена прототипов (ОБЯЗАТЕЛЬНО)
 
 ### Правило конфиденциальности
@@ -373,6 +390,169 @@ export const SLUG_ROUTES: Routes = [
 
 ---
 
+## Готовые шаблоны файлов (copy-paste)
+
+> При создании нового прототипа — копируй шаблоны и заменяй плейсхолдеры:
+> - `<slug>` → кодовое имя (например `aurora`)
+> - `<SLUG_UPPER>` → верхний регистр (например `AURORA`)
+> - `<Name>` → PascalCase (например `Aurora`)
+> - `<description>` → краткое описание
+
+### Шаблон: `<slug>.routes.ts`
+
+```typescript
+import { Routes } from '@angular/router';
+
+export const <SLUG_UPPER>_ROUTES: Routes = [
+  {
+    path: '',
+    loadComponent: () =>
+      import('./<slug>-prototype.component').then(m => m.<Name>PrototypeComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./screens/<slug>-main-screen.component').then(
+            m => m.<Name>MainScreenComponent,
+          ),
+      },
+    ],
+  },
+];
+```
+
+### Шаблон: `<slug>-prototype.component.ts`
+
+```typescript
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'app-<slug>-prototype',
+  standalone: true,
+  imports: [RouterOutlet],
+  template: `<router-outlet></router-outlet>`,
+})
+export class <Name>PrototypeComponent {}
+```
+
+### Шаблон: `changelog.data.ts`
+
+```typescript
+import { ChangelogRelease } from '@/shared/changelog.types';
+
+export const CHANGELOG: ChangelogRelease[] = [
+  {
+    version: '1.0',
+    date: 'YYYY-MM-DD',
+    status: 'unreleased',
+    changes: [
+      {
+        items: ['Создан прототип: <description>'],
+      },
+    ],
+  },
+];
+```
+
+### Шаблон: главный экран `screens/<slug>-main-screen.component.ts`
+
+```typescript
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import {
+  UiCardComponent,
+  UiCardHeaderComponent,
+  UiCardTitleComponent,
+  UiCardContentComponent,
+} from '@/components/ui';
+import { IconsModule } from '@/shared/icons.module';
+
+@Component({
+  selector: 'app-<slug>-main-screen',
+  standalone: true,
+  imports: [
+    CommonModule,
+    UiCardComponent,
+    UiCardHeaderComponent,
+    UiCardTitleComponent,
+    UiCardContentComponent,
+    IconsModule,
+  ],
+  template: `
+    <div class="max-w-4xl mx-auto animate-fade-in">
+      <div class="mb-6">
+        <h2 class="text-xl font-medium text-text-primary">Главная</h2>
+        <p class="text-sm text-text-secondary mt-1"><description></p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <ui-card
+          *ngFor="let card of cards"
+          [hoverable]="true"
+          (cardClick)="router.navigate([card.route])"
+        >
+          <ui-card-header>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <lucide-icon [name]="card.icon" [size]="20" class="text-app-primary"></lucide-icon>
+              </div>
+              <div>
+                <ui-card-title>{{ card.title }}</ui-card-title>
+                <p class="text-xs text-text-secondary mt-0.5">{{ card.description }}</p>
+              </div>
+            </div>
+          </ui-card-header>
+        </ui-card>
+      </div>
+    </div>
+  `,
+})
+export class <Name>MainScreenComponent {
+  router = inject(Router);
+
+  cards = [
+    {
+      title: 'Экран 1',
+      description: 'Описание экрана 1',
+      icon: 'layout-dashboard',
+      route: '/prototype/<slug>/screen1',
+    },
+  ];
+}
+```
+
+### Шаблон: добавление в `app.routes.ts`
+
+```typescript
+{
+  path: 'prototype/<slug>',
+  loadChildren: () =>
+    import('./prototypes/<slug>/<slug>.routes').then(m => m.<SLUG_UPPER>_ROUTES),
+},
+```
+
+### Шаблон: добавление в `prototypes.registry.ts`
+
+```typescript
+{
+  path: '/prototype/<slug>',
+  label: '<Name> — Краткое название',
+  icon: '<lucide-icon-name>',
+  description: '<description>',
+},
+```
+
+### Шаблон: добавление case в `changelog-button.component.ts`
+
+```typescript
+case '<slug>':
+  return import('../../prototypes/<slug>/changelog.data');
+```
+
+---
+
 ## Паттерны создания экранов
 
 ### Каждый экран — standalone-компонент
@@ -495,6 +675,244 @@ import { PROTOTYPES, PrototypeEntry } from '@/shared/prototypes.registry';
 
 ---
 
+## Справочник API UI-компонентов
+
+> **ОБЯЗАТЕЛЬНО сверяйся** с этим справочником при использовании UI-компонентов. НЕ выдумывай параметры — здесь перечислены ВСЕ доступные @Input/@Output.
+
+### UiButtonComponent (`<ui-button>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `variant` | `'primary'\|'secondary'\|'outline'\|'danger'\|'ghost'\|'success'` | `'primary'` |
+| `size` | `'sm'\|'md'\|'lg'` | `'md'` |
+| `type` | `'button'\|'submit'\|'reset'` | `'button'` |
+| `loading` | `boolean` | `false` |
+| `fullWidth` | `boolean` | `false` |
+| `disabled` | `boolean` | `false` |
+| `iconName` | `string\|undefined` | `undefined` |
+
+Нет @Output. Контент через `<ng-content>`.
+
+### UiCardComponent (`<ui-card>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `padding` | `'none'\|'sm'\|'md'\|'lg'` | `'md'` |
+| `hoverable` | `boolean` | `false` |
+
+| @Output | Тип |
+|---------|-----|
+| `cardClick` | `EventEmitter<void>` |
+
+Дочерние: `<ui-card-header>`, `<ui-card-title>`, `<ui-card-content>` — без @Input/@Output.
+
+### UiInputComponent (`<ui-input>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `label` | `string` | `''` |
+| `error` | `string` | `''` |
+| `hint` | `string` | `''` |
+| `placeholder` | `string` | `''` |
+| `type` | `string` | `'text'` |
+| `disabled` | `boolean` | `false` |
+| `fullWidth` | `boolean` | `true` |
+| `value` | `string` | `''` |
+| `iconName` | `string\|undefined` | `undefined` |
+
+| @Output | Тип |
+|---------|-----|
+| `valueChange` | `EventEmitter<string>` |
+
+Двусторонняя привязка: `[(value)]="model"`.
+
+### UiTextareaComponent (`<ui-textarea>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `label` | `string` | `''` |
+| `error` | `string` | `''` |
+| `hint` | `string` | `''` |
+| `placeholder` | `string` | `''` |
+| `disabled` | `boolean` | `false` |
+| `fullWidth` | `boolean` | `true` |
+| `value` | `string` | `''` |
+| `rows` | `number` | `4` |
+
+| @Output | Тип |
+|---------|-----|
+| `valueChange` | `EventEmitter<string>` |
+
+Двусторонняя привязка: `[(value)]="model"`.
+
+### UiSelectComponent (`<ui-select>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `label` | `string` | `''` |
+| `error` | `string` | `''` |
+| `placeholder` | `string` | `''` |
+| `options` | `SelectOption[]` | `[]` |
+| `fullWidth` | `boolean` | `true` |
+| `value` | `string` | `''` |
+| `disabled` | `boolean` | `false` |
+
+| @Output | Тип |
+|---------|-----|
+| `valueChange` | `EventEmitter<string>` |
+
+Двусторонняя привязка: `[(value)]="model"`. Интерфейс: `SelectOption { value: string; label: string; }`.
+
+### UiCheckboxComponent (`<ui-checkbox>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `label` | `string` | `''` |
+| `checked` | `boolean` | `false` |
+| `disabled` | `boolean` | `false` |
+
+| @Output | Тип |
+|---------|-----|
+| `checkedChange` | `EventEmitter<boolean>` |
+
+Двусторонняя привязка: `[(checked)]="model"`.
+
+### UiToggleComponent (`<ui-toggle>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `label` | `string` | `''` |
+| `checked` | `boolean` | `false` |
+| `disabled` | `boolean` | `false` |
+
+| @Output | Тип |
+|---------|-----|
+| `checkedChange` | `EventEmitter<boolean>` |
+
+Двусторонняя привязка: `[(checked)]="model"`.
+
+### UiModalComponent (`<ui-modal>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `open` | `boolean` | `false` |
+| `title` | `string` | `''` |
+| `size` | `'sm'\|'md'\|'lg'\|'xl'\|'full'` | `'md'` |
+
+| @Output | Тип |
+|---------|-----|
+| `modalClose` | `EventEmitter<void>` |
+
+Контент через `<ng-content>`. Закрытие по Escape и клику на overlay.
+
+### UiConfirmDialogComponent (`<ui-confirm-dialog>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `open` | `boolean` | `false` |
+| `title` | `string` | `'Подтверждение'` |
+| `message` | `string` | `''` |
+| `confirmText` | `string` | `'Подтвердить'` |
+| `cancelText` | `string` | `'Отмена'` |
+| `variant` | `'primary'\|'danger'` | `'primary'` |
+
+| @Output | Тип |
+|---------|-----|
+| `confirmed` | `EventEmitter<void>` |
+| `cancelled` | `EventEmitter<void>` |
+
+### UiTableComponent (`<ui-table>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `columns` | `TableColumn[]` | `[]` |
+| `data` | `any[]` | `[]` |
+| `rowKeyFn` | `(item: any) => string\|number` | `undefined` |
+| `selectedKey` | `string\|number\|undefined` | `undefined` |
+| `emptyMessage` | `string` | `'Нет данных'` |
+| `compact` | `boolean` | `false` |
+| `sortColumn` | `string\|undefined` | `undefined` |
+| `sortDirection` | `'asc'\|'desc'` | `'asc'` |
+
+| @Output | Тип |
+|---------|-----|
+| `rowClick` | `EventEmitter<any>` |
+| `sort` | `EventEmitter<{ column: string; direction: 'asc'\|'desc' }>` |
+
+Интерфейс: `TableColumn { key: string; header: string; width?: string; sortable?: boolean; align?: 'left'\|'center'\|'right'; }`.
+Кастомные ячейки: `<ng-template tableCellDef="columnKey" let-item>`. Импортировать `TableCellDefDirective`.
+
+### UiTabsComponent (`<ui-tabs>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `tabs` | `TabItem[]` | `[]` |
+| `activeTab` | `string` | `''` |
+
+| @Output | Тип |
+|---------|-----|
+| `tabChange` | `EventEmitter<string>` |
+
+Интерфейс: `TabItem { key: string; label: string; iconName?: string; badge?: number; title?: string; }`.
+
+### UiBadgeComponent (`<ui-badge>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `variant` | `'default'\|'primary'\|'success'\|'warning'\|'danger'\|'info'` | `'default'` |
+
+Контент через `<ng-content>`. Нет @Output.
+
+### UiStatusDotComponent (`<ui-status-dot>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `color` | `'green'\|'red'\|'yellow'\|'gray'\|'blue'` | `'gray'` |
+| `label` | `string\|undefined` | `undefined` |
+| `pulse` | `boolean` | `false` |
+
+### UiAlertComponent (`<ui-alert>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `variant` | `'info'\|'success'\|'warning'\|'error'` | `'info'` |
+| `title` | `string\|undefined` | `undefined` |
+| `dismissible` | `boolean` | `false` |
+
+| @Output | Тип |
+|---------|-----|
+| `dismissed` | `EventEmitter<void>` |
+
+Контент через `<ng-content>`.
+
+### UiEmptyStateComponent (`<ui-empty-state>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `title` | `string` | `''` |
+| `description` | `string\|undefined` | `undefined` |
+| `iconName` | `string\|undefined` | `undefined` |
+
+### UiBreadcrumbsComponent (`<ui-breadcrumbs>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `items` | `BreadcrumbItem[]` | `[]` |
+
+Интерфейс: `BreadcrumbItem { label: string; onClick?: () => void; }`.
+
+### UiDividerComponent (`<ui-divider>`)
+
+Нет @Input/@Output. Простой горизонтальный разделитель.
+
+### UiSkeletonComponent (`<ui-skeleton>`)
+
+| @Input | Тип | Default |
+|--------|-----|---------|
+| `className` | `string` | `'h-4 w-full'` |
+
+---
+
 ## Правила качества
 
 1. **Каждый экран** должен быть **кликабельным** — кнопки работают, формы отправляются, модалки открываются
@@ -506,6 +924,37 @@ import { PROTOTYPES, PrototypeEntry } from '@/shared/prototypes.registry';
 7. **Анимации** — используй классы `animate-fade-in`, `animate-slide-up` для появления элементов
 8. **standalone: true** — все новые компоненты ТОЛЬКО standalone
 9. **inline templates** — шаблоны внутри `template: \`...\`` (не отдельные .html файлы)
+
+---
+
+## Чеклисты типовых операций
+
+### Чеклист: Новый прототип (8 пунктов)
+
+- [ ] Создана папка `src/app/prototypes/<slug>/`
+- [ ] Создан `<slug>.routes.ts` с массивом `<SLUG>_ROUTES`
+- [ ] Создан `<slug>-prototype.component.ts` с `<router-outlet>`
+- [ ] Создан `changelog.data.ts` с версией 1.0
+- [ ] Добавлен маршрут в `src/app/app.routes.ts`
+- [ ] Добавлена запись в `src/app/shared/prototypes.registry.ts`
+- [ ] Добавлен case в `changelog-button.component.ts` → switch-блок `importChangelog()`
+- [ ] Новые иконки зарегистрированы в `src/app/shared/icons.module.ts`
+
+### Чеклист: Изменение прототипа (4 пункта)
+
+- [ ] Код работает (нет ошибок компиляции)
+- [ ] `changelog.data.ts` обновлён (unreleased секция)
+- [ ] Нет упоминаний «iiko», кодов доступа, хешей
+- [ ] Используется `*ngIf` / `*ngFor` (НЕ `@if` / `@for`)
+
+### Чеклист: Публикация DEV → MASTER (6 пунктов)
+
+- [ ] Проверить локально (`npm run dev` — всё работает)
+- [ ] `npm run build` проходит без ошибок
+- [ ] changelog: `unreleased` → `released`, дата обновлена
+- [ ] Мерж `dev → master`
+- [ ] `git push origin master`
+- [ ] Вернуться в ветку `dev`
 
 ---
 

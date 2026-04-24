@@ -6,15 +6,14 @@ import { IconsModule } from '@/shared/icons.module';
 import { UiInputComponent, UiSelectComponent, UiTextareaComponent, UiConfirmDialogComponent } from '@/components/ui';
 import type { SelectOption } from '@/components/ui';
 import { StorageService } from '@/shared/storage.service';
-import { MOCK_ARRIVALS_THEMES, MOCK_PRODUCT_CATALOG } from '../data/mock-data';
+import { MOCK_ARRIVALS_THEMES } from '../data/mock-data';
 import {
   ArrivalsTheme,
   ArrivalsThemeElement,
   ArrivalsElementType,
-  ProductCatalogItem,
 } from '../types';
 
-type PanelView = 'theme' | 'add-element' | 'element' | 'product-navigator';
+type PanelView = 'theme' | 'add-element' | 'element';
 
 interface ElementTypeOption {
   type: ArrivalsElementType;
@@ -68,23 +67,11 @@ interface ElementTypeOption {
                 [style.font-style]="el.fontItalic ? 'italic' : 'normal'"
                 [style.text-align]="el.textAlign"
               >{{ el.text || 'Type something' }}</span>
-              <span *ngIf="el.type === 'counter'" class="el-counter">114</span>
-              <span *ngIf="el.type === 'current-time'" class="el-time">12:00</span>
               <span *ngIf="el.type === 'image'" class="el-placeholder">
                 <lucide-icon name="image" [size]="24"></lucide-icon>
               </span>
-              <span *ngIf="el.type === 'area' || el.type === 'rectangle' || el.type === 'ad-block' || el.type === 'popup'"
+              <span *ngIf="el.type !== 'text' && el.type !== 'image'"
                 class="el-placeholder-label">{{ el.name }}</span>
-              <span *ngIf="el.type === 'price'" class="el-price"
-                [style.font-family]="el.fontFamily"
-                [style.font-size.px]="el.fontSize"
-                [style.font-weight]="el.fontBold ? 'bold' : 'normal'"
-                [style.font-style]="el.fontItalic ? 'italic' : 'normal'"
-                [style.text-align]="el.textAlign"
-              >
-                <lucide-icon *ngIf="!el.productId" name="tag" [size]="14" class="price-icon"></lucide-icon>
-                {{ el.productId ? ('Цена: ' + el.productName + (el.sizeName ? ' (' + el.sizeName + ')' : '')) : 'Цена' }}
-              </span>
 
               <!-- Selection handles -->
               <ng-container *ngIf="selectedElementId === el.id">
@@ -271,84 +258,6 @@ interface ElementTypeOption {
               </div>
             </ng-container>
 
-            <!-- ── Counter element ── -->
-            <ng-container *ngIf="selectedElement.type === 'counter'">
-              <div class="section-divider-bold">Источник данных (REST)</div>
-
-              <div class="field-group">
-                <label class="field-label">URL*</label>
-                <input class="field-input" [(ngModel)]="selectedElement.dataSourceUrl" placeholder="https://..." />
-              </div>
-              <div class="field-group">
-                <label class="field-label">HTTP-метод*</label>
-                <select class="field-select" [(ngModel)]="selectedElement.httpMethod">
-                  <option value="GET">GET</option>
-                  <option value="POST">POST</option>
-                  <option value="PUT">PUT</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label">Заголовки</label>
-                <input class="field-input" [(ngModel)]="selectedElement.headers" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Таймаут, сек*</label>
-                <input class="field-input" type="number" [(ngModel)]="selectedElement.timeout" />
-              </div>
-
-              <div class="section-divider-bold">Тип авторизации</div>
-              <div class="field-group">
-                <select class="field-select" [(ngModel)]="selectedElement.authType">
-                  <option value="None">None</option>
-                  <option value="Basic">Basic</option>
-                  <option value="Bearer">Bearer</option>
-                  <option value="API Key">API Key</option>
-                </select>
-              </div>
-
-              <div class="section-divider-bold">План опроса</div>
-              <div class="field-group">
-                <label class="field-label">Интервал опроса, сек*</label>
-                <input class="field-input" type="number" [(ngModel)]="selectedElement.pollInterval" />
-              </div>
-
-              <!-- Макет -->
-              <div class="collapsible-section">
-                <div class="section-header" (click)="toggleSection('layout')">
-                  <span>Макет</span>
-                  <lucide-icon [name]="isSectionOpen('layout') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
-                </div>
-                <div *ngIf="isSectionOpen('layout')" class="section-content">
-                  <div class="fields-row">
-                    <div class="field-sm"><label>X</label><input type="number" [(ngModel)]="selectedElement.x" class="field-input-sm" /></div>
-                    <div class="field-sm"><label>Y</label><input type="number" [(ngModel)]="selectedElement.y" class="field-input-sm" /></div>
-                  </div>
-                  <div class="fields-row">
-                    <div class="field-sm"><label>Ширина</label><input type="number" [(ngModel)]="selectedElement.width" class="field-input-sm" /></div>
-                    <div class="field-sm"><label>Высота</label><input type="number" [(ngModel)]="selectedElement.height" class="field-input-sm" /></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Граница -->
-              <div class="collapsible-section">
-                <div class="section-header" (click)="toggleSection('border')">
-                  <span>Граница</span>
-                  <lucide-icon [name]="isSectionOpen('border') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
-                </div>
-                <div *ngIf="isSectionOpen('border')" class="section-content">
-                  <div class="fields-row">
-                    <div class="field-sm"><label>Толщина</label><input type="number" [(ngModel)]="selectedElement.borderWidth" class="field-input-sm" /></div>
-                    <div class="field-sm"><label>Радиус</label><input type="number" [(ngModel)]="selectedElement.borderRadius" class="field-input-sm" /></div>
-                  </div>
-                  <div class="field-group">
-                    <label class="field-label">Цвет</label>
-                    <input type="color" [(ngModel)]="selectedElement.borderColor" class="field-color" />
-                  </div>
-                </div>
-              </div>
-            </ng-container>
-
             <!-- ── Image element ── -->
             <ng-container *ngIf="selectedElement.type === 'image'">
               <div class="field-group">
@@ -391,7 +300,7 @@ interface ElementTypeOption {
               </div>
             </ng-container>
 
-            <!-- ── Generic element (area, rectangle, ad-block, popup, current-time) ── -->
+            <!-- ── Generic element ── -->
             <ng-container *ngIf="isGenericElement(selectedElement.type)">
               <div class="collapsible-section">
                 <div class="section-header" (click)="toggleSection('layout')">
@@ -428,170 +337,6 @@ interface ElementTypeOption {
               </div>
             </ng-container>
 
-            <!-- ── Price element ── -->
-            <ng-container *ngIf="selectedElement.type === 'price'">
-              <!-- Привязка к товару -->
-              <div class="section-divider-bold">Привязка к товару</div>
-              <div class="product-binding">
-                <div *ngIf="selectedElement.productId" class="binding-info">
-                  <lucide-icon name="package" [size]="16" class="binding-icon"></lucide-icon>
-                  <span class="binding-name">{{ selectedElement.productName }}
-                    <span *ngIf="selectedElement.sizeName" class="binding-size">({{ selectedElement.sizeName }})</span>
-                  </span>
-                </div>
-                <div *ngIf="!selectedElement.productId" class="binding-empty">Товар не выбран</div>
-                <button class="btn-select-product" (click)="openProductNavigator()">
-                  {{ selectedElement.productId ? 'Изменить товар' : 'Выбрать товар' }}
-                </button>
-              </div>
-
-              <!-- Макет -->
-              <div class="collapsible-section">
-                <div class="section-header" (click)="toggleSection('layout')">
-                  <span>Макет</span>
-                  <lucide-icon [name]="isSectionOpen('layout') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
-                </div>
-                <div *ngIf="isSectionOpen('layout')" class="section-content">
-                  <div class="fields-row">
-                    <div class="field-sm"><label>X</label><input type="number" [(ngModel)]="selectedElement.x" class="field-input-sm" /></div>
-                    <div class="field-sm"><label>Y</label><input type="number" [(ngModel)]="selectedElement.y" class="field-input-sm" /></div>
-                  </div>
-                  <div class="fields-row">
-                    <div class="field-sm"><label>Ширина</label><input type="number" [(ngModel)]="selectedElement.width" class="field-input-sm" /></div>
-                    <div class="field-sm"><label>Высота</label><input type="number" [(ngModel)]="selectedElement.height" class="field-input-sm" /></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Граница -->
-              <div class="collapsible-section">
-                <div class="section-header" (click)="toggleSection('border')">
-                  <span>Граница</span>
-                  <lucide-icon [name]="isSectionOpen('border') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
-                </div>
-                <div *ngIf="isSectionOpen('border')" class="section-content">
-                  <div class="fields-row">
-                    <div class="field-sm"><label>Толщина</label><input type="number" [(ngModel)]="selectedElement.borderWidth" class="field-input-sm" /></div>
-                    <div class="field-sm"><label>Радиус</label><input type="number" [(ngModel)]="selectedElement.borderRadius" class="field-input-sm" /></div>
-                  </div>
-                  <div class="field-group">
-                    <label class="field-label">Цвет</label>
-                    <input type="color" [(ngModel)]="selectedElement.borderColor" class="field-color" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- Шрифт -->
-              <div class="collapsible-section">
-                <div class="section-header" (click)="toggleSection('font')">
-                  <span>Шрифт</span>
-                  <lucide-icon [name]="isSectionOpen('font') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
-                </div>
-                <div *ngIf="isSectionOpen('font')" class="section-content">
-                  <div class="field-group">
-                    <label class="field-label">Семейство</label>
-                    <select class="field-select" [(ngModel)]="selectedElement.fontFamily">
-                      <option value="Arial">Arial</option>
-                      <option value="Roboto">Roboto</option>
-                      <option value="Times New Roman">Times New Roman</option>
-                      <option value="Courier New">Courier New</option>
-                    </select>
-                  </div>
-                  <div class="fields-row">
-                    <div class="field-sm"><label>Размер</label><input type="number" [(ngModel)]="selectedElement.fontSize" class="field-input-sm" /></div>
-                  </div>
-                  <div class="fields-row" style="gap: 16px;">
-                    <label class="field-check">
-                      <input type="checkbox" [(ngModel)]="selectedElement.fontBold" /> <strong>B</strong>
-                    </label>
-                    <label class="field-check">
-                      <input type="checkbox" [(ngModel)]="selectedElement.fontItalic" /> <em>I</em>
-                    </label>
-                  </div>
-                  <div class="fields-row" style="gap: 4px; margin-top: 8px;">
-                    <button class="align-btn" [class.active]="selectedElement.textAlign === 'left'" (click)="selectedElement.textAlign = 'left'">
-                      <lucide-icon name="align-left" [size]="16"></lucide-icon>
-                    </button>
-                    <button class="align-btn" [class.active]="selectedElement.textAlign === 'center'" (click)="selectedElement.textAlign = 'center'">
-                      <lucide-icon name="align-center" [size]="16"></lucide-icon>
-                    </button>
-                    <button class="align-btn" [class.active]="selectedElement.textAlign === 'right'" (click)="selectedElement.textAlign = 'right'">
-                      <lucide-icon name="align-right" [size]="16"></lucide-icon>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </ng-container>
-
-          </ng-container>
-
-          <!-- ──── VIEW: Product navigator ──── -->
-          <ng-container *ngIf="panelView === 'product-navigator'">
-            <div class="add-element-header">
-              <span class="add-element-title">
-                {{ navigatorSizeMode ? 'Выберите размер' : 'Выбор товара' }}
-              </span>
-              <button class="icon-btn-sm" (click)="closeProductNavigator()">
-                <lucide-icon name="x" [size]="18"></lucide-icon>
-              </button>
-            </div>
-
-            <!-- Size selector mode -->
-            <ng-container *ngIf="navigatorSizeMode && pendingProduct">
-              <div class="nav-product-title">{{ pendingProduct.name }}</div>
-              <div class="navigator-list">
-                <div
-                  *ngFor="let size of pendingProduct.sizes"
-                  class="navigator-item product"
-                  (click)="selectSize(size.id, size.name)"
-                >
-                  <span class="nav-item-name">{{ size.name }}</span>
-                  <lucide-icon name="chevron-right" [size]="16" class="nav-chevron"></lucide-icon>
-                </div>
-              </div>
-              <button class="btn-nav-back" (click)="navigatorSizeMode = false; pendingProduct = null">
-                <lucide-icon name="arrow-left" [size]="16"></lucide-icon> Назад к товарам
-              </button>
-            </ng-container>
-
-            <!-- Folder navigation mode -->
-            <ng-container *ngIf="!navigatorSizeMode">
-              <!-- Breadcrumbs -->
-              <div *ngIf="navigationStack.length > 0" class="nav-breadcrumbs">
-                <span class="bc-link" (click)="navigateToRoot()">Номенклатура</span>
-                <ng-container *ngFor="let crumb of navigationStack; let i = index; let last = last">
-                  <span class="bc-separator">/</span>
-                  <span [class]="last ? 'bc-current' : 'bc-link'" (click)="!last && navigateToStackLevel(i)">{{ crumb.name }}</span>
-                </ng-container>
-              </div>
-
-              <!-- Back button -->
-              <button *ngIf="navigationStack.length > 0" class="btn-nav-back" (click)="navigateBack()">
-                <lucide-icon name="arrow-left" [size]="16"></lucide-icon> Назад
-              </button>
-
-              <!-- Items list -->
-              <div class="navigator-list">
-                <div
-                  *ngFor="let item of catalogItems"
-                  class="navigator-item"
-                  [class.group]="item.isGroup"
-                  [class.product]="!item.isGroup"
-                  (click)="item.isGroup ? navigateToGroup(item) : selectProduct(item)"
-                >
-                  <lucide-icon [name]="item.isGroup ? 'folder' : 'package'" [size]="18"
-                    [class]="item.isGroup ? 'nav-icon-folder' : 'nav-icon-product'"></lucide-icon>
-                  <span class="nav-item-name">{{ item.name }}</span>
-                  <lucide-icon *ngIf="item.isGroup && item.hasChildren" name="chevron-right" [size]="16" class="nav-chevron"></lucide-icon>
-                </div>
-              </div>
-
-              <!-- Empty state -->
-              <div *ngIf="catalogItems.length === 0" class="navigator-empty">
-                <lucide-icon name="package" [size]="32" class="empty-icon"></lucide-icon>
-                <span>Нет элементов</span>
-              </div>
-            </ng-container>
           </ng-container>
         </div>
 
@@ -946,12 +691,6 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy {
   toastMessage = '';
   canvasScale = 0.65;
 
-  // Product navigator state
-  catalogItems: ProductCatalogItem[] = [];
-  navigationStack: { id: string; name: string }[] = [];
-  pendingProduct: ProductCatalogItem | null = null;
-  navigatorSizeMode = false;
-
   // Drag & resize state
   dragState: {
     elementId: string;
@@ -990,15 +729,31 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy {
   ];
 
   elementTypes: ElementTypeOption[] = [
-    { type: 'area', label: 'Область' },
-    { type: 'ad-block', label: 'Рекламный блок' },
     { type: 'text', label: 'Текст' },
     { type: 'image', label: 'Изображение' },
-    { type: 'rectangle', label: 'Прямоугольник' },
-    { type: 'popup', label: 'Всплывающее окно' },
-    { type: 'current-time', label: 'Текущее время' },
-    { type: 'counter', label: 'Счетчик' },
-    { type: 'price', label: 'Цена' },
+    { type: 'order-number', label: 'Номер заказа' },
+    { type: 'table-number', label: 'Номер стола' },
+    { type: 'order-status', label: 'Статус заказа' },
+    { type: 'cooking-start-time', label: 'Время начала приготовления заказа' },
+    { type: 'cooking-end-time', label: 'Время завершения приготовления заказа' },
+    { type: 'system-cooking-time', label: 'Системное время приготовления заказа' },
+    { type: 'cooking-wait-time', label: 'Время ожидания приготовления заказа' },
+    { type: 'expired-wait-flag', label: 'Признак истекшего времени ожидания' },
+    { type: 'client-name', label: 'Имя клиента' },
+    { type: 'client-phone', label: 'Номер телефона клиента' },
+    { type: 'courier-name', label: 'Имя назначенного курьера' },
+    { type: 'expected-delivery-time', label: 'Ожидаемое время доставки заказа' },
+    { type: 'expected-delivery-duration', label: 'Ожидаемая продолжительность доставки' },
+    { type: 'dispatch-time', label: 'Время отправки заказа' },
+    { type: 'travel-time', label: 'Время в пути' },
+    { type: 'delivery-time', label: 'Время доставки заказа' },
+    { type: 'delivery-status', label: 'Статус доставки' },
+    { type: 'client-comment', label: 'Комментарий от клиента' },
+    { type: 'client-delivery-time', label: 'Время доставки, обозначенное клиентом' },
+    { type: 'cancel-reason', label: 'Причина отмены заказа' },
+    { type: 'cancel-comment', label: 'Комментарий к отмене заказа' },
+    { type: 'cancel-time', label: 'Время отмены заказа' },
+    { type: 'external-data', label: 'Внешние данные' },
   ];
 
   get resWidth(): number {
@@ -1179,23 +934,6 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy {
       el.fontBold = false;
       el.fontItalic = false;
       el.textAlign = 'left';
-    } else if (type === 'counter') {
-      el.dataSourceUrl = '';
-      el.httpMethod = 'GET';
-      el.headers = '';
-      el.timeout = 5;
-      el.authType = 'None';
-      el.pollInterval = 300;
-    } else if (type === 'price') {
-      el.productId = undefined;
-      el.productName = undefined;
-      el.sizeId = null;
-      el.sizeName = undefined;
-      el.fontFamily = 'Arial';
-      el.fontSize = 16;
-      el.fontBold = true;
-      el.fontItalic = false;
-      el.textAlign = 'center';
     }
 
     this.theme.elements.push(el);
@@ -1231,80 +969,7 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy {
   }
 
   isGenericElement(type: ArrivalsElementType): boolean {
-    return !['text', 'counter', 'image', 'price'].includes(type);
-  }
-
-  /* ── Product navigator methods ── */
-
-  openProductNavigator(): void {
-    this.navigationStack = [];
-    this.pendingProduct = null;
-    this.navigatorSizeMode = false;
-    this.catalogItems = MOCK_PRODUCT_CATALOG['root'] || [];
-    this.panelView = 'product-navigator';
-  }
-
-  closeProductNavigator(): void {
-    this.panelView = 'element';
-    this.pendingProduct = null;
-    this.navigatorSizeMode = false;
-  }
-
-  navigateToGroup(group: ProductCatalogItem): void {
-    this.navigationStack.push({ id: group.id, name: group.name });
-    this.catalogItems = MOCK_PRODUCT_CATALOG[group.id] || [];
-  }
-
-  navigateBack(): void {
-    this.navigationStack.pop();
-    const parentId = this.navigationStack.length > 0
-      ? this.navigationStack[this.navigationStack.length - 1].id
-      : 'root';
-    this.catalogItems = MOCK_PRODUCT_CATALOG[parentId] || [];
-  }
-
-  navigateToRoot(): void {
-    this.navigationStack = [];
-    this.catalogItems = MOCK_PRODUCT_CATALOG['root'] || [];
-  }
-
-  navigateToStackLevel(index: number): void {
-    this.navigationStack = this.navigationStack.slice(0, index + 1);
-    const id = this.navigationStack[index].id;
-    this.catalogItems = MOCK_PRODUCT_CATALOG[id] || [];
-  }
-
-  selectProduct(product: ProductCatalogItem): void {
-    if (product.sizes && product.sizes.length > 1) {
-      this.pendingProduct = product;
-      this.navigatorSizeMode = true;
-    } else {
-      this.applyProductBinding(
-        product.id,
-        product.name,
-        product.sizes && product.sizes.length === 1 ? product.sizes[0].id : null,
-        product.sizes && product.sizes.length === 1 ? product.sizes[0].name : undefined,
-      );
-    }
-  }
-
-  selectSize(sizeId: string, sizeName: string): void {
-    if (this.pendingProduct) {
-      this.applyProductBinding(this.pendingProduct.id, this.pendingProduct.name, sizeId, sizeName);
-    }
-  }
-
-  private applyProductBinding(productId: string, productName: string, sizeId: string | null, sizeName?: string): void {
-    if (this.selectedElement && this.selectedElement.type === 'price') {
-      this.selectedElement.productId = productId;
-      this.selectedElement.productName = productName;
-      this.selectedElement.sizeId = sizeId;
-      this.selectedElement.sizeName = sizeName;
-      this.selectedElement.name = 'Цена: ' + productName + (sizeName ? ' (' + sizeName + ')' : '');
-    }
-    this.pendingProduct = null;
-    this.navigatorSizeMode = false;
-    this.panelView = 'element';
+    return !['text', 'image'].includes(type);
   }
 
   save(): void {

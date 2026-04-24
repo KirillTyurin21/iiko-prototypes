@@ -60,15 +60,31 @@ export interface ArrivalsThemeListItem {
 }
 
 export type ArrivalsElementType =
-  | 'area'
-  | 'ad-block'
   | 'text'
   | 'image'
-  | 'rectangle'
-  | 'popup'
-  | 'current-time'
-  | 'counter'
-  | 'price';
+  | 'order-number'
+  | 'table-number'
+  | 'order-status'
+  | 'cooking-start-time'
+  | 'cooking-end-time'
+  | 'system-cooking-time'
+  | 'cooking-wait-time'
+  | 'expired-wait-flag'
+  | 'client-name'
+  | 'client-phone'
+  | 'courier-name'
+  | 'expected-delivery-time'
+  | 'expected-delivery-duration'
+  | 'dispatch-time'
+  | 'travel-time'
+  | 'delivery-time'
+  | 'delivery-status'
+  | 'client-comment'
+  | 'client-delivery-time'
+  | 'cancel-reason'
+  | 'cancel-comment'
+  | 'cancel-time'
+  | 'external-data';
 
 export interface ArrivalsThemeElement {
   id: string;

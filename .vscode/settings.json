@@ -119,5 +119,12 @@
         },
         "vv[0][\\\"runtime\\\"]": true,
         "vv[0][\\\"created_at\\\"]": true
+    },
+    "typescript.preferences.importModuleSpecifier": "non-relative",
+    "files.exclude": {
+        "files/ACCESS_CODES.md": true
+    },
+    "search.exclude": {
+        "files/ACCESS_CODES.md": true
     }
 }
