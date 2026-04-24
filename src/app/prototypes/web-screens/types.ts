@@ -127,6 +127,9 @@ export interface ArrivalsThemeElement {
   orderDisplayMode?: 'ready-only' | 'all';
   orderTriggerStatus?: string;
   orderHideOnComplete?: boolean;
+  orderHidePendingStatusText?: boolean;
+  orderHideDeliveredItems?: boolean;
+  orderGroupReadyFirst?: boolean;
   orderShowName?: boolean;
   orderShowQty?: boolean;
   orderShowStatus?: boolean;
@@ -157,6 +160,8 @@ export interface ArrivalsThemeElement {
   orderStatusFontSize?: number;
   orderStatusFontFamily?: string;
   orderStatusFontColor?: string;
+  orderReadyStatusFontColor?: string;
+  orderPendingStatusFontColor?: string;
   // B: Two Zones
   zonesReadyBg?: string;
   zonesPendingBg?: string;

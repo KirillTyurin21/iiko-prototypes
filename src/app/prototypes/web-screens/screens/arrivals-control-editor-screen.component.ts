@@ -107,7 +107,9 @@ const BALANCER_STATUSES = [
                   </div>
                   <div *ngFor="let item of getFilteredOrderItems(el)" class="order-table-row"
                     [style.background]="item.ready ? (el.orderReadyColor || '#e8f5e9') : (el.orderNotReadyColor || '#ffffff')"
-                    [style.height.px]="el.orderRowHeight || 32">
+                    [style.height.px]="el.orderRowHeight || 32"
+                    [style.opacity]="item.delivered ? '0.45' : '1'"
+                    [style.text-decoration]="item.delivered ? 'line-through' : 'none'">
                     <span *ngIf="el.orderShowName !== false" class="order-col-name"
                       [style.color]="el.orderNameFontColor || '#333'"
                       [style.font-size.px]="el.orderNameFontSize || 14"
@@ -123,7 +125,7 @@ const BALANCER_STATUSES = [
                       [style.font-size.px]="el.orderStatusFontSize || 14"
                       [style.font-family]="el.orderStatusFontFamily || 'Roboto'"
                       [style.font-weight]="item.ready ? '600' : '400'"
-                      [style.width.px]="el.orderStatusColWidth || null">{{ item.status }}</span>
+                      [style.width.px]="el.orderStatusColWidth || null">{{ (el.orderHidePendingStatusText && !item.ready) ? '' : item.status }}</span>
                   </div>
                 </ng-container>
                 <div *ngIf="el.orderHideOnComplete && allOrderItemsReady(el)" class="order-complete-msg">
@@ -267,13 +269,13 @@ const BALANCER_STATUSES = [
       <div class="emulation-panel" [class.collapsed]="!emulationOpen">
         <div class="emulation-header" (click)="emulationOpen = !emulationOpen">
           <span>🍳 Эмуляция кухни</span>
-          <span class="emulation-badge">{{ getReadyItems().length }}/{{ orderMockItems.length }}</span>
+          <span class="emulation-badge">{{ getReadyNotDeliveredItems().length }}/{{ orderMockItems.length }}</span>
           <lucide-icon [name]="emulationOpen ? 'chevron-down' : 'chevron-up'" [size]="16" style="color:#fff; margin-left:auto"></lucide-icon>
         </div>
         <div *ngIf="emulationOpen" class="emulation-body">
           <div class="emulation-order-info">
             Заказ #1247 &nbsp;•&nbsp; Стол 5 &nbsp;•&nbsp; {{ orderMockItems.length }} позиций &nbsp;•&nbsp;
-            Готовность: <strong>{{ getReadyItems().length }}/{{ orderMockItems.length }}</strong>
+            Готовность: <strong>{{ getReadyNotDeliveredItems().length }}/{{ orderMockItems.length }}</strong>
           </div>
           <table class="emulation-table">
             <thead>
@@ -284,17 +286,20 @@ const BALANCER_STATUSES = [
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let item of orderMockItems; let i = index" [class.emu-ready]="item.ready">
+              <tr *ngFor="let item of orderMockItems; let i = index" [class.emu-ready]="item.ready" [class.emu-delivered]="item.delivered">
                 <td class="emu-td-name">{{ item.name }}</td>
                 <td class="emu-td-qty">{{ item.qty }}</td>
                 <td class="emu-td-status">
                   <select class="emu-select" [ngModel]="item.status" (ngModelChange)="onEmulationStatusChange(i, $event)"
                     [class.emu-s-ready]="item.status === 'Готово'"
                     [class.emu-s-cooking]="item.status === 'Готовится'"
-                    [class.emu-s-waiting]="item.status === 'Ожидает'">
+                    [class.emu-s-waiting]="item.status === 'Ожидает'"
+                    [class.emu-s-delivered]="item.status === 'Выдача' || item.status === 'Подан'">
                     <option value="Ожидает">⚪ Ожидает</option>
                     <option value="Готовится">🟡 Готовится</option>
                     <option value="Готово">🟢 Готово</option>
+                    <option value="Выдача">🟣 Выдача</option>
+                    <option value="Подан">✅ Подан</option>
                   </select>
                 </td>
               </tr>
@@ -625,6 +630,18 @@ const BALANCER_STATUSES = [
                     <input type="checkbox" [(ngModel)]="selectedElement.orderHideOnComplete" />
                     Скрывать при полной готовности
                   </label>
+                  <label class="field-check" style="margin-top: 4px;">
+                    <input type="checkbox" [(ngModel)]="selectedElement.orderHidePendingStatusText" />
+                    Скрывать статус у неготовых
+                  </label>
+                  <label class="field-check" style="margin-top: 4px;">
+                    <input type="checkbox" [(ngModel)]="selectedElement.orderHideDeliveredItems" />
+                    Скрывать выданные блюда
+                  </label>
+                  <label class="field-check" style="margin-top: 4px;">
+                    <input type="checkbox" [(ngModel)]="selectedElement.orderGroupReadyFirst" />
+                    Группировать готовые вверху
+                  </label>
                 </div>
               </div>
 
@@ -839,8 +856,12 @@ const BALANCER_STATUSES = [
                 </div>
                 <div *ngIf="isSectionOpen('order-status-font')" class="section-content">
                   <div class="field-group">
-                    <label class="field-label">Цвет</label>
-                    <input type="color" [(ngModel)]="selectedElement.orderStatusFontColor" class="field-color" />
+                    <label class="field-label">Цвет «Готово»</label>
+                    <input type="color" [(ngModel)]="selectedElement.orderReadyStatusFontColor" class="field-color" />
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Цвет «Не готово»</label>
+                    <input type="color" [(ngModel)]="selectedElement.orderPendingStatusFontColor" class="field-color" />
                   </div>
                   <div class="fields-row">
                     <div class="field-sm"><label>Размер</label><input type="number" [(ngModel)]="selectedElement.orderStatusFontSize" class="field-input-sm" /></div>
@@ -1755,6 +1776,7 @@ const BALANCER_STATUSES = [
     }
     .emulation-table tbody tr:hover { background: rgba(255,255,255,0.03); }
     .emulation-table tbody tr.emu-ready { background: rgba(76,175,80,0.1); }
+    .emulation-table tbody tr.emu-delivered { background: rgba(156,39,176,0.1); opacity: 0.55; text-decoration: line-through; }
     .emu-td-name { padding: 5px 8px; }
     .emu-td-qty { padding: 5px 8px; text-align: center; }
     .emu-td-status { padding: 5px 8px; }
@@ -1767,6 +1789,7 @@ const BALANCER_STATUSES = [
     .emu-s-ready { border-color: #4caf50; }
     .emu-s-cooking { border-color: #ff9800; }
     .emu-s-waiting { border-color: #455a64; }
+    .emu-s-delivered { border-color: #9c27b0; }
     .emulation-actions {
       display: flex; gap: 6px; flex-wrap: wrap;
     }
@@ -1865,11 +1888,12 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
     { type: 'order-items-cards', label: 'E. Состав заказа — Карточки' },
   ];
 
-  orderMockItems = [
-    { name: 'Шашлык из свинины', qty: 2, status: 'Готово', ready: true },
-    { name: 'Салат Цезарь', qty: 1, status: 'Готово', ready: true },
-    { name: 'Стейк Рибай', qty: 1, status: 'Готовится', ready: false },
-    { name: 'Картофель фри', qty: 3, status: 'Ожидает', ready: false },
+  orderMockItems: { name: string; qty: number; status: string; ready: boolean; delivered: boolean }[] = [
+    { name: 'Шашлык из баранины', qty: 2, status: 'Подан', ready: true, delivered: true },
+    { name: 'Салат Цезарь', qty: 1, status: 'Готово', ready: true, delivered: false },
+    { name: 'Стейк Рибай', qty: 1, status: 'Готовится', ready: false, delivered: false },
+    { name: 'Картофель фри', qty: 2, status: 'Ожидает', ready: false, delivered: false },
+    { name: 'Лимонад', qty: 3, status: 'Готово', ready: true, delivered: false },
   ];
 
   get currentStatuses(): string[] {
@@ -1922,23 +1946,34 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
     return this.elementTypes.find(et => et.type === type)?.label ?? type;
   }
 
-  getFilteredOrderItems(el: ArrivalsThemeElement): { name: string; qty: number; status: string; ready: boolean }[] {
-    if (el.orderDisplayMode === 'ready-only') {
-      return this.orderMockItems.filter(i => i.ready);
+  getFilteredOrderItems(el: ArrivalsThemeElement): { name: string; qty: number; status: string; ready: boolean; delivered: boolean }[] {
+    let items = [...this.orderMockItems];
+    if (el.orderHideDeliveredItems) {
+      items = items.filter(i => !i.delivered);
     }
-    return this.orderMockItems;
+    if (el.orderDisplayMode === 'ready-only') {
+      items = items.filter(i => i.ready);
+    }
+    if (el.orderGroupReadyFirst) {
+      items.sort((a, b) => (a.ready === b.ready ? 0 : a.ready ? -1 : 1));
+    }
+    return items;
   }
 
   allOrderItemsReady(el: ArrivalsThemeElement): boolean {
-    const items = this.getFilteredOrderItems(el);
+    const items = this.orderMockItems.filter(i => !i.delivered);
     return items.length > 0 && items.every(i => i.ready);
   }
 
+  getReadyNotDeliveredItems(): { name: string; qty: number; status: string; ready: boolean; delivered: boolean }[] {
+    return this.orderMockItems.filter(i => i.ready && !i.delivered);
+  }
+
   getStatusColor(el: ArrivalsThemeElement, item: { ready: boolean }): string {
-    if (el.orderStatusFontColor && el.orderStatusFontColor !== '#333333') {
-      return el.orderStatusFontColor;
+    if (item.ready) {
+      return (el.orderReadyStatusFontColor && el.orderReadyStatusFontColor !== '#333333') ? el.orderReadyStatusFontColor : '#2e7d32';
     }
-    return item.ready ? '#2e7d32' : '#c62828';
+    return (el.orderPendingStatusFontColor && el.orderPendingStatusFontColor !== '#333333') ? el.orderPendingStatusFontColor : '#c62828';
   }
 
   toggleStatusHighlight(status: string): void {
@@ -2247,30 +2282,33 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
 
   onEmulationStatusChange(index: number, newStatus: string): void {
     this.orderMockItems[index].status = newStatus;
-    this.orderMockItems[index].ready = newStatus === 'Готово';
+    this.orderMockItems[index].ready = newStatus === 'Готово' || newStatus === 'Выдача' || newStatus === 'Подан';
+    this.orderMockItems[index].delivered = newStatus === 'Выдача' || newStatus === 'Подан';
   }
 
   setAllReady(): void {
     this.orderMockItems.forEach(item => {
       item.status = 'Готово';
       item.ready = true;
+      item.delivered = false;
     });
   }
 
   resetEmulation(): void {
     this.stopScenario();
     this.orderMockItems = [
-      { name: 'Шашлык из свинины', qty: 2, status: 'Готово', ready: true },
-      { name: 'Салат Цезарь', qty: 1, status: 'Готово', ready: true },
-      { name: 'Стейк Рибай', qty: 1, status: 'Готовится', ready: false },
-      { name: 'Картофель фри', qty: 3, status: 'Ожидает', ready: false },
+      { name: 'Шашлык из баранины', qty: 2, status: 'Подан', ready: true, delivered: true },
+      { name: 'Салат Цезарь', qty: 1, status: 'Готово', ready: true, delivered: false },
+      { name: 'Стейк Рибай', qty: 1, status: 'Готовится', ready: false, delivered: false },
+      { name: 'Картофель фри', qty: 2, status: 'Ожидает', ready: false, delivered: false },
+      { name: 'Лимонад', qty: 3, status: 'Готово', ready: true, delivered: false },
     ];
   }
 
   addDish(): void {
     const available = this.extraDishes.filter(d => !this.orderMockItems.find(i => i.name === d));
     const name = available.length > 0 ? available[0] : `Блюдо #${this.orderMockItems.length + 1}`;
-    this.orderMockItems.push({ name, qty: 1, status: 'Ожидает', ready: false });
+    this.orderMockItems.push({ name, qty: 1, status: 'Ожидает', ready: false, delivered: false });
   }
 
   removeDish(): void {
@@ -2288,24 +2326,31 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
     this.orderMockItems.forEach(item => {
       item.status = 'Ожидает';
       item.ready = false;
+      item.delivered = false;
     });
     this.scenarioRunning = true;
     let step = 0;
-    const totalSteps = this.orderMockItems.length * 2; // each item: waiting → cooking → ready
+    const totalSteps = this.orderMockItems.length * 3; // each item: waiting → cooking → ready → delivered
     const tick = () => {
       if (step >= totalSteps || !this.scenarioRunning) {
         this.scenarioRunning = false;
         return;
       }
-      const itemIdx = Math.floor(step / 2);
-      const phase = step % 2;
+      const itemIdx = Math.floor(step / 3);
+      const phase = step % 3;
       if (itemIdx < this.orderMockItems.length) {
         if (phase === 0) {
           this.orderMockItems[itemIdx].status = 'Готовится';
           this.orderMockItems[itemIdx].ready = false;
-        } else {
+          this.orderMockItems[itemIdx].delivered = false;
+        } else if (phase === 1) {
           this.orderMockItems[itemIdx].status = 'Готово';
           this.orderMockItems[itemIdx].ready = true;
+          this.orderMockItems[itemIdx].delivered = false;
+        } else {
+          this.orderMockItems[itemIdx].status = 'Подан';
+          this.orderMockItems[itemIdx].ready = true;
+          this.orderMockItems[itemIdx].delivered = true;
         }
       }
       step++;
