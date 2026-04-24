@@ -639,7 +639,9 @@ const BALANCER_STATUSES = [
                     Скрывать выданные блюда
                   </label>
                   <label class="field-check" style="margin-top: 4px;">
-                    <input type="checkbox" [(ngModel)]="selectedElement.orderGroupReadyFirst" />
+                    <input type="checkbox"
+                      [checked]="selectedElement.orderGroupReadyFirst !== false"
+                      (change)="selectedElement.orderGroupReadyFirst = $any($event.target).checked" />
                     Группировать готовые вверху
                   </label>
                 </div>
@@ -1954,7 +1956,7 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
     if (el.orderDisplayMode === 'ready-only') {
       items = items.filter(i => i.ready);
     }
-    if (el.orderGroupReadyFirst) {
+    if (el.orderGroupReadyFirst !== false) {
       items.sort((a, b) => (a.ready === b.ready ? 0 : a.ready ? -1 : 1));
     }
     return items;
@@ -2130,6 +2132,9 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
       el.orderDisplayMode = 'all';
       el.orderTriggerStatus = '';
       el.orderHideOnComplete = false;
+      el.orderHidePendingStatusText = true;
+      el.orderHideDeliveredItems = true;
+      el.orderGroupReadyFirst = true;
       el.orderShowName = true;
       el.orderShowQty = true;
       el.orderShowStatus = true;

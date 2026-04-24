@@ -2,6 +2,22 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.10',
+    date: '2026-04-24',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Редактор контролов (Электронная очередь)',
+        pageRoute: '/prototype/web-screens/arrivals-control-editor/new',
+        items: [
+          'Сортировка в элементе «Состав заказа — Таблица»: готовые блюда всегда отображаются вверху списка по умолчанию',
+          'Настройка «Группировать готовые вверху» теперь включена по умолчанию для новых элементов',
+          'По умолчанию у новых элементов также включены: скрытие статуса у неготовых и скрытие выданных блюд',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.9',
     date: '2026-04-24',
     status: 'released',
