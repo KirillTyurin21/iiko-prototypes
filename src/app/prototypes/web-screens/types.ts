@@ -84,7 +84,8 @@ export type ArrivalsElementType =
   | 'cancel-reason'
   | 'cancel-comment'
   | 'cancel-time'
-  | 'external-data';
+  | 'external-data'
+  | 'order-items';
 
 export interface ArrivalsThemeElement {
   id: string;
@@ -118,6 +119,37 @@ export interface ArrivalsThemeElement {
   productName?: string;
   sizeId?: string | null;
   sizeName?: string;
+  // Order items (Состав заказа)
+  orderDisplayMode?: 'ready-only' | 'all';
+  orderTriggerStatus?: string;
+  orderHideOnComplete?: boolean;
+  orderShowName?: boolean;
+  orderShowQty?: boolean;
+  orderShowStatus?: boolean;
+  orderNameColWidth?: number;
+  orderQtyColWidth?: number;
+  orderStatusColWidth?: number;
+  orderShowHeader?: boolean;
+  orderHeaderBg?: string;
+  orderHeaderHeight?: number;
+  orderNameLabel?: string;
+  orderQtyLabel?: string;
+  orderStatusLabel?: string;
+  orderRowHeight?: number;
+  orderReadyColor?: string;
+  orderNotReadyColor?: string;
+  orderHeaderFontSize?: number;
+  orderHeaderFontFamily?: string;
+  orderHeaderFontColor?: string;
+  orderNameFontSize?: number;
+  orderNameFontFamily?: string;
+  orderNameFontColor?: string;
+  orderQtyFontSize?: number;
+  orderQtyFontFamily?: string;
+  orderQtyFontColor?: string;
+  orderStatusFontSize?: number;
+  orderStatusFontFamily?: string;
+  orderStatusFontColor?: string;
 }
 
 /* ── Product Catalog (for Price element navigator) ── */

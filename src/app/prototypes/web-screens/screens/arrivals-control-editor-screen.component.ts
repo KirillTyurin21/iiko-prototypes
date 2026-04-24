@@ -79,8 +79,45 @@ const BALANCER_STATUSES = [
               <span *ngIf="el.type === 'image'" class="el-placeholder">
                 <lucide-icon name="image" [size]="24"></lucide-icon>
               </span>
-              <span *ngIf="el.type !== 'text' && el.type !== 'image'"
+              <span *ngIf="el.type !== 'text' && el.type !== 'image' && el.type !== 'order-items'"
                 class="el-placeholder-label">{{ el.name }}</span>
+
+              <!-- Order items table preview -->
+              <div *ngIf="el.type === 'order-items'" class="el-order-table">
+                <div class="order-table-header" *ngIf="el.orderShowHeader !== false"
+                  [style.background]="el.orderHeaderBg || '#333333'"
+                  [style.height.px]="el.orderHeaderHeight || 28">
+                  <span *ngIf="el.orderShowName !== false" class="order-col-name"
+                    [style.color]="el.orderHeaderFontColor || '#fff'"
+                    [style.font-size.px]="el.orderHeaderFontSize || 11"
+                    [style.font-family]="el.orderHeaderFontFamily || 'Roboto'">{{ el.orderNameLabel || 'Наименование' }}</span>
+                  <span *ngIf="el.orderShowQty !== false" class="order-col-qty"
+                    [style.color]="el.orderHeaderFontColor || '#fff'"
+                    [style.font-size.px]="el.orderHeaderFontSize || 11"
+                    [style.font-family]="el.orderHeaderFontFamily || 'Roboto'">{{ el.orderQtyLabel || 'Кол-во' }}</span>
+                  <span *ngIf="el.orderShowStatus !== false" class="order-col-status"
+                    [style.color]="el.orderHeaderFontColor || '#fff'"
+                    [style.font-size.px]="el.orderHeaderFontSize || 11"
+                    [style.font-family]="el.orderHeaderFontFamily || 'Roboto'">{{ el.orderStatusLabel || 'Статус' }}</span>
+                </div>
+                <div *ngFor="let item of orderMockItems" class="order-table-row"
+                  [style.background]="item.ready ? (el.orderReadyColor || '#e8f5e9') : (el.orderNotReadyColor || 'transparent')"
+                  [style.height.px]="el.orderRowHeight || 24">
+                  <span *ngIf="el.orderShowName !== false" class="order-col-name"
+                    [style.color]="el.orderNameFontColor || '#333'"
+                    [style.font-size.px]="el.orderNameFontSize || 11"
+                    [style.font-family]="el.orderNameFontFamily || 'Roboto'">{{ item.name }}</span>
+                  <span *ngIf="el.orderShowQty !== false" class="order-col-qty"
+                    [style.color]="el.orderQtyFontColor || '#333'"
+                    [style.font-size.px]="el.orderQtyFontSize || 11"
+                    [style.font-family]="el.orderQtyFontFamily || 'Roboto'">{{ item.qty }}</span>
+                  <span *ngIf="el.orderShowStatus !== false" class="order-col-status"
+                    [style.color]="el.orderStatusFontColor || (item.ready ? '#2e7d32' : '#c62828')"
+                    [style.font-size.px]="el.orderStatusFontSize || 11"
+                    [style.font-family]="el.orderStatusFontFamily || 'Roboto'"
+                    [style.font-weight]="item.ready ? '600' : '400'">{{ item.status }}</span>
+                </div>
+              </div>
 
               <!-- Selection handles -->
               <ng-container *ngIf="selectedElementId === el.id">
@@ -378,6 +415,257 @@ const BALANCER_STATUSES = [
                   <div class="field-group">
                     <label class="field-label">Цвет</label>
                     <input type="color" [(ngModel)]="selectedElement.borderColor" class="field-color" />
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- ── Order items element ── -->
+            <ng-container *ngIf="selectedElement.type === 'order-items'">
+              <!-- Данные -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('order-data')">
+                  <span>Данные</span>
+                  <lucide-icon [name]="isSectionOpen('order-data') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('order-data')" class="section-content">
+                  <div class="field-group">
+                    <label class="field-label">Режим отображения</label>
+                    <select class="field-select" [(ngModel)]="selectedElement.orderDisplayMode">
+                      <option value="all">Все блюда</option>
+                      <option value="ready-only">Только готовые</option>
+                    </select>
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Триггерный статус</label>
+                    <select class="field-select" [(ngModel)]="selectedElement.orderTriggerStatus">
+                      <option value="">— Выберите статус —</option>
+                      <option *ngFor="let s of currentStatuses" [value]="s">{{ s }}</option>
+                    </select>
+                  </div>
+                  <label class="field-check" style="margin-top: 8px;">
+                    <input type="checkbox" [(ngModel)]="selectedElement.orderHideOnComplete" />
+                    Скрывать при полной готовности
+                  </label>
+                </div>
+              </div>
+
+              <!-- Колонки -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('order-columns')">
+                  <span>Колонки</span>
+                  <lucide-icon [name]="isSectionOpen('order-columns') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('order-columns')" class="section-content">
+                  <label class="field-check" style="margin-bottom: 6px;">
+                    <input type="checkbox" [(ngModel)]="selectedElement.orderShowName" /> Наименование
+                  </label>
+                  <label class="field-check" style="margin-bottom: 6px;">
+                    <input type="checkbox" [(ngModel)]="selectedElement.orderShowQty" /> Количество
+                  </label>
+                  <label class="field-check">
+                    <input type="checkbox" [(ngModel)]="selectedElement.orderShowStatus" /> Статус
+                  </label>
+                </div>
+              </div>
+
+              <!-- Макет -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('layout')">
+                  <span>Макет</span>
+                  <lucide-icon [name]="isSectionOpen('layout') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('layout')" class="section-content">
+                  <div class="fields-row">
+                    <div class="field-sm"><label>X</label><input type="number" [(ngModel)]="selectedElement.x" class="field-input-sm" /></div>
+                    <div class="field-sm"><label>Y</label><input type="number" [(ngModel)]="selectedElement.y" class="field-input-sm" /></div>
+                  </div>
+                  <div class="fields-row">
+                    <div class="field-sm"><label>Ширина</label><input type="number" [(ngModel)]="selectedElement.width" class="field-input-sm" /></div>
+                    <div class="field-sm"><label>Высота</label><input type="number" [(ngModel)]="selectedElement.height" class="field-input-sm" /></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Граница -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('border')">
+                  <span>Граница</span>
+                  <lucide-icon [name]="isSectionOpen('border') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('border')" class="section-content">
+                  <div class="fields-row">
+                    <div class="field-sm"><label>Толщина</label><input type="number" [(ngModel)]="selectedElement.borderWidth" class="field-input-sm" /></div>
+                    <div class="field-sm"><label>Радиус</label><input type="number" [(ngModel)]="selectedElement.borderRadius" class="field-input-sm" /></div>
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Цвет</label>
+                    <input type="color" [(ngModel)]="selectedElement.borderColor" class="field-color" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Настройки таблицы -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('order-table')">
+                  <span>Настройки таблицы</span>
+                  <lucide-icon [name]="isSectionOpen('order-table') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('order-table')" class="section-content">
+                  <div class="section-divider-bold">Ширина колонок</div>
+                  <div class="fields-row">
+                    <div class="field-sm"><label>Название</label><input type="number" [(ngModel)]="selectedElement.orderNameColWidth" class="field-input-sm" /></div>
+                    <div class="field-sm"><label>Кол-во</label><input type="number" [(ngModel)]="selectedElement.orderQtyColWidth" class="field-input-sm" /></div>
+                    <div class="field-sm"><label>Статус</label><input type="number" [(ngModel)]="selectedElement.orderStatusColWidth" class="field-input-sm" /></div>
+                  </div>
+                  <div class="section-divider-bold">Заголовок</div>
+                  <label class="field-check" style="margin-bottom: 8px;">
+                    <input type="checkbox" [(ngModel)]="selectedElement.orderShowHeader" />
+                    Показывать заголовок
+                  </label>
+                  <div class="fields-row">
+                    <div class="field-sm">
+                      <label>Фон</label>
+                      <input type="color" [(ngModel)]="selectedElement.orderHeaderBg" class="field-color" />
+                    </div>
+                    <div class="field-sm"><label>Высота</label><input type="number" [(ngModel)]="selectedElement.orderHeaderHeight" class="field-input-sm" /></div>
+                  </div>
+                  <div class="section-divider-bold">Заголовки колонок</div>
+                  <div class="field-group">
+                    <label class="field-label">Колонка названия</label>
+                    <input class="field-input" [(ngModel)]="selectedElement.orderNameLabel" />
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Колонка кол-ва</label>
+                    <input class="field-input" [(ngModel)]="selectedElement.orderQtyLabel" />
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Колонка статуса</label>
+                    <input class="field-input" [(ngModel)]="selectedElement.orderStatusLabel" />
+                  </div>
+                  <div class="section-divider-bold">Строка</div>
+                  <div class="field-sm"><label>Высота строки</label><input type="number" [(ngModel)]="selectedElement.orderRowHeight" class="field-input-sm" /></div>
+                </div>
+              </div>
+
+              <!-- Подсветка строк -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('order-highlight')">
+                  <span>Подсветка строк</span>
+                  <lucide-icon [name]="isSectionOpen('order-highlight') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('order-highlight')" class="section-content">
+                  <div class="field-group">
+                    <label class="field-label">Готовые строки</label>
+                    <input type="color" [(ngModel)]="selectedElement.orderReadyColor" class="field-color" />
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Неготовые строки</label>
+                    <input type="color" [(ngModel)]="selectedElement.orderNotReadyColor" class="field-color" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Шрифт заголовка -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('order-header-font')">
+                  <span>Шрифт заголовка</span>
+                  <lucide-icon [name]="isSectionOpen('order-header-font') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('order-header-font')" class="section-content">
+                  <div class="field-group">
+                    <label class="field-label">Цвет</label>
+                    <input type="color" [(ngModel)]="selectedElement.orderHeaderFontColor" class="field-color" />
+                  </div>
+                  <div class="fields-row">
+                    <div class="field-sm"><label>Размер</label><input type="number" [(ngModel)]="selectedElement.orderHeaderFontSize" class="field-input-sm" /></div>
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Шрифт</label>
+                    <select class="field-select" [(ngModel)]="selectedElement.orderHeaderFontFamily">
+                      <option value="Arial">Arial</option>
+                      <option value="Roboto">Roboto</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Courier New">Courier New</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Название шрифт -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('order-name-font')">
+                  <span>Название шрифт</span>
+                  <lucide-icon [name]="isSectionOpen('order-name-font') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('order-name-font')" class="section-content">
+                  <div class="field-group">
+                    <label class="field-label">Цвет</label>
+                    <input type="color" [(ngModel)]="selectedElement.orderNameFontColor" class="field-color" />
+                  </div>
+                  <div class="fields-row">
+                    <div class="field-sm"><label>Размер</label><input type="number" [(ngModel)]="selectedElement.orderNameFontSize" class="field-input-sm" /></div>
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Шрифт</label>
+                    <select class="field-select" [(ngModel)]="selectedElement.orderNameFontFamily">
+                      <option value="Arial">Arial</option>
+                      <option value="Roboto">Roboto</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Courier New">Courier New</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Количество шрифт -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('order-qty-font')">
+                  <span>Количество шрифт</span>
+                  <lucide-icon [name]="isSectionOpen('order-qty-font') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('order-qty-font')" class="section-content">
+                  <div class="field-group">
+                    <label class="field-label">Цвет</label>
+                    <input type="color" [(ngModel)]="selectedElement.orderQtyFontColor" class="field-color" />
+                  </div>
+                  <div class="fields-row">
+                    <div class="field-sm"><label>Размер</label><input type="number" [(ngModel)]="selectedElement.orderQtyFontSize" class="field-input-sm" /></div>
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Шрифт</label>
+                    <select class="field-select" [(ngModel)]="selectedElement.orderQtyFontFamily">
+                      <option value="Arial">Arial</option>
+                      <option value="Roboto">Roboto</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Courier New">Courier New</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Статус шрифт -->
+              <div class="collapsible-section">
+                <div class="section-header" (click)="toggleSection('order-status-font')">
+                  <span>Статус шрифт</span>
+                  <lucide-icon [name]="isSectionOpen('order-status-font') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                </div>
+                <div *ngIf="isSectionOpen('order-status-font')" class="section-content">
+                  <div class="field-group">
+                    <label class="field-label">Цвет</label>
+                    <input type="color" [(ngModel)]="selectedElement.orderStatusFontColor" class="field-color" />
+                  </div>
+                  <div class="fields-row">
+                    <div class="field-sm"><label>Размер</label><input type="number" [(ngModel)]="selectedElement.orderStatusFontSize" class="field-input-sm" /></div>
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Шрифт</label>
+                    <select class="field-select" [(ngModel)]="selectedElement.orderStatusFontFamily">
+                      <option value="Arial">Arial</option>
+                      <option value="Roboto">Roboto</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Courier New">Courier New</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -755,6 +1043,26 @@ const BALANCER_STATUSES = [
       font-size: 14px; font-weight: 500; color: #333;
       padding: 4px 0 8px; border-bottom: 1px solid #e0e0e0;
     }
+
+    /* ═══ Order items table preview ═══ */
+    .el-order-table {
+      display: flex; flex-direction: column;
+      width: 100%; height: 100%; overflow: hidden;
+      font-family: Roboto, sans-serif;
+    }
+    .order-table-header {
+      display: flex; align-items: center;
+      padding: 0 4px; flex-shrink: 0;
+      font-weight: 600;
+    }
+    .order-table-row {
+      display: flex; align-items: center;
+      padding: 0 4px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .order-col-name { flex: 3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+    .order-col-qty { flex: 1; text-align: center; padding: 0 2px; }
+    .order-col-status { flex: 2; text-align: center; padding: 0 2px; }
   `],
 })
 export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
@@ -835,6 +1143,14 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
     { type: 'cancel-comment', label: 'Комментарий к отмене заказа' },
     { type: 'cancel-time', label: 'Время отмены заказа' },
     { type: 'external-data', label: 'Внешние данные' },
+    { type: 'order-items', label: 'Состав заказа' },
+  ];
+
+  orderMockItems = [
+    { name: 'Шашлык из свинины', qty: 2, status: 'Готово', ready: true },
+    { name: 'Салат Цезарь', qty: 1, status: 'Готово', ready: true },
+    { name: 'Стейк Рибай', qty: 1, status: 'Готовится', ready: false },
+    { name: 'Картофель фри', qty: 3, status: 'Ожидает', ready: false },
   ];
 
   get currentStatuses(): string[] {
@@ -1023,6 +1339,41 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
       el.textAlign = 'left';
     }
 
+    if (type === 'order-items') {
+      el.width = 300;
+      el.height = 160;
+      el.orderDisplayMode = 'all';
+      el.orderTriggerStatus = '';
+      el.orderHideOnComplete = false;
+      el.orderShowName = true;
+      el.orderShowQty = true;
+      el.orderShowStatus = true;
+      el.orderNameColWidth = 150;
+      el.orderQtyColWidth = 50;
+      el.orderStatusColWidth = 80;
+      el.orderShowHeader = true;
+      el.orderHeaderBg = '#333333';
+      el.orderHeaderHeight = 28;
+      el.orderNameLabel = 'Наименование';
+      el.orderQtyLabel = 'Кол-во';
+      el.orderStatusLabel = 'Статус';
+      el.orderRowHeight = 24;
+      el.orderReadyColor = '#e8f5e9';
+      el.orderNotReadyColor = '#ffffff';
+      el.orderHeaderFontSize = 11;
+      el.orderHeaderFontFamily = 'Roboto';
+      el.orderHeaderFontColor = '#ffffff';
+      el.orderNameFontSize = 12;
+      el.orderNameFontFamily = 'Roboto';
+      el.orderNameFontColor = '#333333';
+      el.orderQtyFontSize = 12;
+      el.orderQtyFontFamily = 'Roboto';
+      el.orderQtyFontColor = '#333333';
+      el.orderStatusFontSize = 12;
+      el.orderStatusFontFamily = 'Roboto';
+      el.orderStatusFontColor = '#333333';
+    }
+
     this.control.elements.push(el);
     this.selectedElementId = el.id;
     this.panelView = 'element';
@@ -1056,7 +1407,7 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
   }
 
   isGenericElement(type: ArrivalsElementType): boolean {
-    return !['text', 'image'].includes(type);
+    return !['text', 'image', 'order-items'].includes(type);
   }
 
   save(): void {
