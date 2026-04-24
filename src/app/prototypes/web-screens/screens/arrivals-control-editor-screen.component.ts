@@ -1261,13 +1261,6 @@ const BALANCER_STATUSES = [
     .canvas-viewport {
       position: relative; transform-origin: top left;
       background-color: #fff;
-      background-image:
-        linear-gradient(45deg, #ccc 25%, transparent 25%),
-        linear-gradient(-45deg, #ccc 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #ccc 75%),
-        linear-gradient(-45deg, transparent 75%, #ccc 75%);
-      background-size: 20px 20px;
-      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
 
