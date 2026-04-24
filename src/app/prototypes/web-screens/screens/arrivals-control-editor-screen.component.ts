@@ -86,34 +86,34 @@ const BALANCER_STATUSES = [
               <div *ngIf="el.type === 'order-items'" class="el-order-table">
                 <div class="order-table-header" *ngIf="el.orderShowHeader !== false"
                   [style.background]="el.orderHeaderBg || '#333333'"
-                  [style.height.px]="el.orderHeaderHeight || 28">
+                  [style.height.px]="el.orderHeaderHeight || 36">
                   <span *ngIf="el.orderShowName !== false" class="order-col-name"
                     [style.color]="el.orderHeaderFontColor || '#fff'"
-                    [style.font-size.px]="el.orderHeaderFontSize || 11"
+                    [style.font-size.px]="el.orderHeaderFontSize || 14"
                     [style.font-family]="el.orderHeaderFontFamily || 'Roboto'">{{ el.orderNameLabel || 'Наименование' }}</span>
                   <span *ngIf="el.orderShowQty !== false" class="order-col-qty"
                     [style.color]="el.orderHeaderFontColor || '#fff'"
-                    [style.font-size.px]="el.orderHeaderFontSize || 11"
+                    [style.font-size.px]="el.orderHeaderFontSize || 14"
                     [style.font-family]="el.orderHeaderFontFamily || 'Roboto'">{{ el.orderQtyLabel || 'Кол-во' }}</span>
                   <span *ngIf="el.orderShowStatus !== false" class="order-col-status"
                     [style.color]="el.orderHeaderFontColor || '#fff'"
-                    [style.font-size.px]="el.orderHeaderFontSize || 11"
+                    [style.font-size.px]="el.orderHeaderFontSize || 14"
                     [style.font-family]="el.orderHeaderFontFamily || 'Roboto'">{{ el.orderStatusLabel || 'Статус' }}</span>
                 </div>
                 <div *ngFor="let item of orderMockItems" class="order-table-row"
                   [style.background]="item.ready ? (el.orderReadyColor || '#e8f5e9') : (el.orderNotReadyColor || 'transparent')"
-                  [style.height.px]="el.orderRowHeight || 24">
+                  [style.height.px]="el.orderRowHeight || 32">
                   <span *ngIf="el.orderShowName !== false" class="order-col-name"
                     [style.color]="el.orderNameFontColor || '#333'"
-                    [style.font-size.px]="el.orderNameFontSize || 11"
+                    [style.font-size.px]="el.orderNameFontSize || 14"
                     [style.font-family]="el.orderNameFontFamily || 'Roboto'">{{ item.name }}</span>
                   <span *ngIf="el.orderShowQty !== false" class="order-col-qty"
                     [style.color]="el.orderQtyFontColor || '#333'"
-                    [style.font-size.px]="el.orderQtyFontSize || 11"
+                    [style.font-size.px]="el.orderQtyFontSize || 14"
                     [style.font-family]="el.orderQtyFontFamily || 'Roboto'">{{ item.qty }}</span>
                   <span *ngIf="el.orderShowStatus !== false" class="order-col-status"
                     [style.color]="el.orderStatusFontColor || (item.ready ? '#2e7d32' : '#c62828')"
-                    [style.font-size.px]="el.orderStatusFontSize || 11"
+                    [style.font-size.px]="el.orderStatusFontSize || 14"
                     [style.font-family]="el.orderStatusFontFamily || 'Roboto'"
                     [style.font-weight]="item.ready ? '600' : '400'">{{ item.status }}</span>
                 </div>
@@ -1090,7 +1090,7 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
   selectedElementId: string | null = null;
   deleteElementTarget: ArrivalsThemeElement | null = null;
   toastMessage = '';
-  canvasScale = 0.65;
+  canvasScale = 1.0;
 
   // Drag & resize state
   dragState: {
@@ -1340,8 +1340,8 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
     }
 
     if (type === 'order-items') {
-      el.width = 300;
-      el.height = 160;
+      el.width = 400;
+      el.height = 200;
       el.orderDisplayMode = 'all';
       el.orderTriggerStatus = '';
       el.orderHideOnComplete = false;
@@ -1353,23 +1353,23 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
       el.orderStatusColWidth = 80;
       el.orderShowHeader = true;
       el.orderHeaderBg = '#333333';
-      el.orderHeaderHeight = 28;
+      el.orderHeaderHeight = 36;
       el.orderNameLabel = 'Наименование';
       el.orderQtyLabel = 'Кол-во';
       el.orderStatusLabel = 'Статус';
-      el.orderRowHeight = 24;
+      el.orderRowHeight = 32;
       el.orderReadyColor = '#e8f5e9';
       el.orderNotReadyColor = '#ffffff';
-      el.orderHeaderFontSize = 11;
+      el.orderHeaderFontSize = 14;
       el.orderHeaderFontFamily = 'Roboto';
       el.orderHeaderFontColor = '#ffffff';
-      el.orderNameFontSize = 12;
+      el.orderNameFontSize = 14;
       el.orderNameFontFamily = 'Roboto';
       el.orderNameFontColor = '#333333';
-      el.orderQtyFontSize = 12;
+      el.orderQtyFontSize = 14;
       el.orderQtyFontFamily = 'Roboto';
       el.orderQtyFontColor = '#333333';
-      el.orderStatusFontSize = 12;
+      el.orderStatusFontSize = 14;
       el.orderStatusFontFamily = 'Roboto';
       el.orderStatusFontColor = '#333333';
     }
