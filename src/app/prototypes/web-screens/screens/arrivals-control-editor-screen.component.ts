@@ -185,7 +185,7 @@ const BALANCER_STATUSES = [
 
             <!-- Status list -->
             <div class="status-list">
-              <div *ngFor="let status of currentStatuses; let i = index"
+              <div *ngFor="let status of currentStatuses; let i = index; trackBy: trackByIndex"
                 class="status-item"
                 [class.highlighted]="highlightedStatuses.has(status)">
                 <span class="status-name" [class.bold]="highlightedStatuses.has(status)">{{ status }}</span>
@@ -1175,6 +1175,9 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
       const found = allControls.find(c => c.id === numId);
       if (found) {
         this.control = JSON.parse(JSON.stringify(found));
+        if (!this.control.elements) {
+          this.control.elements = [];
+        }
       }
     } else {
       this.control.id = Date.now();
@@ -1189,6 +1192,10 @@ export class ArrivalsControlEditorScreenComponent implements OnInit, OnDestroy {
   onStatusTypeChange(value: ArrivalsControlStatusType): void {
     this.control.statusType = value;
     this.highlightedStatuses = new Set<string>();
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 
   toggleStatusHighlight(status: string): void {
