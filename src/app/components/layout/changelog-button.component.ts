@@ -125,6 +125,8 @@ export class ChangelogButtonComponent {
         return import('../../prototypes/demo-wizard/changelog.data');
       case 'comet':
         return import('../../prototypes/comet/changelog.data');
+      case 'wb-pay':
+        return import('../../prototypes/wb-pay/changelog.data');
       default:
         return Promise.reject('Unknown prototype');
     }

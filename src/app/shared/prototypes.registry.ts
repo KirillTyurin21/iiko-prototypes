@@ -58,5 +58,11 @@ export const PROTOTYPES: PrototypeEntry[] = [
     icon: 'qr-code',
     description: 'Панель управления QR-табличками и ключами платёжной системы',
   },
+  {
+    path: '/prototype/wb-pay',
+    label: 'WB Pay — Оплата кошельком',
+    icon: 'wallet',
+    description: 'Плагин оплаты WB-кошельком (Front) + панель управления credentials (Web)',
+  },
   // === Добавляй новые прототипы ВЫШЕ этой строки ===
 ];

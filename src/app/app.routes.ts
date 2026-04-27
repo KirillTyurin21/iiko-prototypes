@@ -75,6 +75,13 @@ export const routes: Routes = [
             m => m.COMET_ROUTES
           ),
       },
+      {
+        path: 'prototype/wb-pay',
+        loadChildren: () =>
+          import('./prototypes/wb-pay/wb-pay.routes').then(
+            m => m.WB_PAY_ROUTES
+          ),
+      },
       // Добавляй новые прототипы здесь
 
       // Wildcard — перенаправление на главную для несуществующих URL

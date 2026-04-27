@@ -137,6 +137,14 @@ import {
   Timer,
   Code2,
   Coffee,
+  // WB Pay prototype
+  Smartphone,
+  DownloadCloud,
+  ArrowLeftRight,
+  Square,
+  Store,
+  Play,
+  Download,
 } from 'lucide-angular';
 
 /**
@@ -282,6 +290,14 @@ const icons = {
   Timer,
   Code2,
   Coffee,
+  // WB Pay prototype
+  Smartphone,
+  DownloadCloud,
+  ArrowLeftRight,
+  Square,
+  Store,
+  Play,
+  Download,
 };
 
 @NgModule({
