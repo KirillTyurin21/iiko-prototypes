@@ -2,6 +2,24 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.1',
+    date: '2026-04-27',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Панель Web',
+        pageRoute: '/prototype/wb-pay/admin',
+        items: [
+          'Стилистика панели администрирования приведена к единому стилю с другими админ-панелями',
+          'Заменены UI-карточки на нативный split-panel layout (дерево + детали)',
+          'Обновлена цветовая схема: кнопки, фокусы и выделения в нейтральном стиле',
+          'Дерево организаций: улучшен стиль выделения активного ресторана',
+          'Форма credentials встроена напрямую (без отдельного компонента)',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.0',
     date: '2026-06-05',
     status: 'unreleased',

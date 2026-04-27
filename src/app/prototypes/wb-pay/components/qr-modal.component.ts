@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconsModule } from '@/shared/icons.module';
-import { UiModalComponent, UiButtonComponent } from '@/components/ui';
+import { UiModalComponent } from '@/components/ui';
 
 @Component({
   selector: 'app-qr-modal',
   standalone: true,
-  imports: [CommonModule, IconsModule, UiModalComponent, UiButtonComponent],
+  imports: [CommonModule, IconsModule, UiModalComponent],
   template: `
     <ui-modal
       [open]="open"
@@ -15,7 +15,7 @@ import { UiModalComponent, UiButtonComponent } from '@/components/ui';
       (modalClose)="close.emit()"
     >
       <div class="flex flex-col items-center gap-4 py-4">
-        <p class="text-sm text-text-secondary text-center">
+        <p class="text-sm text-gray-500 text-center">
           Отсканируйте QR-код на кассовом терминале для автоматической настройки плагина WB Pay
         </p>
 
@@ -85,15 +85,29 @@ import { UiModalComponent, UiButtonComponent } from '@/components/ui';
         </p>
 
         <div class="flex gap-3 pt-2">
-          <ui-button variant="outline" size="sm" iconName="printer" (click)="print.emit()">
+          <button
+            class="h-9 px-4 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700
+                   hover:bg-gray-50 transition-colors inline-flex items-center gap-1.5"
+            (click)="print.emit()"
+          >
+            <lucide-icon name="printer" [size]="14"></lucide-icon>
             Печать
-          </ui-button>
-          <ui-button variant="outline" size="sm" iconName="download" (click)="download.emit()">
+          </button>
+          <button
+            class="h-9 px-4 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700
+                   hover:bg-gray-50 transition-colors inline-flex items-center gap-1.5"
+            (click)="download.emit()"
+          >
+            <lucide-icon name="download" [size]="14"></lucide-icon>
             Скачать
-          </ui-button>
-          <ui-button variant="ghost" size="sm" (click)="close.emit()">
+          </button>
+          <button
+            class="h-9 px-4 text-sm font-medium rounded-md text-gray-500 hover:bg-gray-100
+                   transition-colors"
+            (click)="close.emit()"
+          >
             Закрыть
-          </ui-button>
+          </button>
         </div>
       </div>
     </ui-modal>

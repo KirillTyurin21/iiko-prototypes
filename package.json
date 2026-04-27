@@ -8,7 +8,9 @@
     "dev": "ng serve --port 3000 --open",
     "start": "ng serve --port 3000 --open",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "validate": "powershell -ExecutionPolicy Bypass -File scripts/validate.ps1",
+    "lint:proto": "powershell -ExecutionPolicy Bypass -File scripts/lint-proto.ps1"
   },
   "dependencies": {
     "@angular/animations": "^16.2.0",
