@@ -145,6 +145,7 @@ type FiscalStep = 'idle' | 'payment' | 'fiscal-error' | 'emergency-cancel' | 're
                 [class.text-green-400]="entry.method === 'GET'"
                 [class.text-yellow-400]="entry.method === 'POST'"
                 [class.text-red-400]="entry.method === 'ERROR'"
+                [class.text-cyan-400]="entry.method === 'SDK'"
               >{{ entry.method }}</span>
               <span class="text-gray-300">{{ entry.url }}</span>
               <span *ngIf="entry.result" class="text-gray-500">→</span>
@@ -240,9 +241,10 @@ export class PluginFiscalErrorScreenComponent {
   startSimulation(): void {
     this.apiLog = [];
     this.currentFiscalStep = 'payment';
-    this.addLog('POST', '/orders/offline/register', '200 → order_id: ord-fiscal');
-    this.addLog('POST', '/orders/do', '200');
-    this.addLog('GET', '/orders/ord-fiscal/status', 'succeeded');
+    this.addLog('POST', '/api/v1/orders/offline/register', '200 → order_id: ord-fiscal');
+    this.addLog('SDK', 'SetRollbackData()', 'order_id: ord-fiscal');
+    this.addLog('POST', '/api/v1/orders/do', '200');
+    this.addLog('GET', '/api/v1/orders/ord-fiscal/status', 'succeeded');
 
     setTimeout(() => {
       this.currentFiscalStep = 'fiscal-error';
@@ -250,16 +252,17 @@ export class PluginFiscalErrorScreenComponent {
 
       setTimeout(() => {
         this.currentFiscalStep = 'emergency-cancel';
-        this.addLog('POST', 'EmergencyCancelPayment()', 'initiated');
+        this.addLog('SDK', 'EmergencyCancelPayment()', 'initiated');
+        this.addLog('SDK', 'GetRollbackData()', 'order_id: ord-fiscal');
 
         setTimeout(() => {
           this.currentFiscalStep = 'refund';
-          this.addLog('POST', '/refunds/register', '200');
-          this.addLog('POST', '/refunds/do', '200');
+          this.addLog('POST', '/api/v1/refunds/register', '200');
+          this.addLog('POST', '/api/v1/refunds/do', '200');
 
           setTimeout(() => {
             this.currentFiscalStep = 'done';
-            this.addLog('GET', '/refunds/ref-fiscal/status', 'succeeded');
+            this.addLog('GET', '/api/v1/refunds/ref-fiscal/status', 'succeeded');
           }, 1200);
         }, 1000);
       }, 1500);

@@ -139,7 +139,7 @@ interface ApiLogEntry {
             <div *ngIf="currentStep === 'register'" class="text-center">
               <div class="flex items-center justify-center gap-2 text-sm text-text-secondary">
                 <div class="w-4 h-4 border-2 border-app-primary border-t-transparent rounded-full animate-spin"></div>
-                POST /orders/offline/register...
+                POST /api/v1/orders/offline/register...
               </div>
             </div>
 
@@ -147,7 +147,7 @@ interface ApiLogEntry {
             <div *ngIf="currentStep === 'do'" class="text-center">
               <div class="flex items-center justify-center gap-2 text-sm text-text-secondary">
                 <div class="w-4 h-4 border-2 border-app-primary border-t-transparent rounded-full animate-spin"></div>
-                POST /orders/do...
+                POST /api/v1/orders/do...
               </div>
             </div>
 
@@ -163,14 +163,14 @@ interface ApiLogEntry {
             <div *ngIf="currentStep === 'polling'" class="text-center">
               <div class="flex items-center justify-center gap-2 text-sm text-text-secondary">
                 <div class="w-4 h-4 border-2 border-app-primary border-t-transparent rounded-full animate-spin"></div>
-                GET /orders/{{ currentOrderId }}/status → polling...
+                GET /api/v1/orders/{{ currentOrderId }}/status → polling...
               </div>
             </div>
 
             <!-- Step: succeeded -->
             <div *ngIf="currentStep === 'succeeded'" class="text-center">
               <div class="flex items-center justify-center gap-2 text-sm text-green-600">
-                <lucide-icon name="check-circle" [size]="18" class="text-green-500"></lucide-icon>
+                <lucide-icon name="check-circle-2" [size]="18" class="text-green-500"></lucide-icon>
                 Оплата прошла успешно (order_id: {{ currentOrderId }}, сумма: {{ amount }} ₽)
               </div>
             </div>
@@ -200,10 +200,12 @@ interface ApiLogEntry {
                 class="font-semibold"
                 [class.text-green-400]="entry.method === 'GET'"
                 [class.text-yellow-400]="entry.method === 'POST'"
+                [class.text-cyan-400]="entry.method === 'SDK'"
               >{{ entry.method }}</span>
               <span class="text-gray-300">{{ entry.url }}</span>
               <span class="text-gray-500">→</span>
               <span
+                *ngIf="entry.statusCode > 0"
                 [class.text-green-400]="entry.statusCode === 200"
                 [class.text-red-400]="entry.statusCode !== 200"
               >{{ entry.statusCode }}</span>
@@ -393,12 +395,13 @@ export class PluginPaymentScreenComponent {
 
   onQrScanned(): void {
     this.showQrDialog = false;
-    this.addLog('POST', '/orders/offline/register', 200, `order_id: ${this.currentOrderId}`);
+    this.addLog('POST', '/api/v1/orders/offline/register', 200, `order_id: ${this.currentOrderId}`);
 
     this.currentStep = 'register';
     setTimeout(() => {
+      this.addLog('SDK', 'SetRollbackData()', 0, `order_id: ${this.currentOrderId}`);
       this.currentStep = 'do';
-      this.addLog('POST', '/orders/do', 200);
+      this.addLog('POST', '/api/v1/orders/do', 200);
 
       setTimeout(() => {
         this.currentStep = 'wait-confirmation';
@@ -413,15 +416,15 @@ export class PluginPaymentScreenComponent {
 
   confirmPayment(): void {
     this.currentStep = 'polling';
-    this.addLog('GET', `/orders/${this.currentOrderId}/status`, 200, 'pending');
+    this.addLog('GET', `/api/v1/orders/${this.currentOrderId}/status`, 200, 'pending');
 
     setTimeout(() => {
-      this.addLog('GET', `/orders/${this.currentOrderId}/status`, 200, 'pending');
+      this.addLog('GET', `/api/v1/orders/${this.currentOrderId}/status`, 200, 'pending');
 
       setTimeout(() => {
         if (this.resultMode === 'success') {
           this.currentStep = 'succeeded';
-          this.addLog('GET', `/orders/${this.currentOrderId}/status`, 200, 'succeeded');
+          this.addLog('GET', `/api/v1/orders/${this.currentOrderId}/status`, 200, 'succeeded');
           this.state.addPaymentRecord({
             id: 'pay-' + Date.now(),
             orderId: this.currentOrderId,
@@ -434,7 +437,7 @@ export class PluginPaymentScreenComponent {
           this.currentStep = 'failed';
           const errMsg = ERROR_MESSAGES.find(e => e.code === this.selectedErrorCode);
           this.failReasonText = errMsg?.text ?? 'Неизвестная ошибка';
-          this.addLog('GET', `/orders/${this.currentOrderId}/status`, 200, `failed: ${this.selectedErrorCode}`);
+          this.addLog('GET', `/api/v1/orders/${this.currentOrderId}/status`, 200, `failed: ${this.selectedErrorCode}`);
           this.state.addPaymentRecord({
             id: 'pay-' + Date.now(),
             orderId: this.currentOrderId,

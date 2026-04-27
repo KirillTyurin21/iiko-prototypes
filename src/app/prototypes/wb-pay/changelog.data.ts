@@ -2,6 +2,46 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.3',
+    date: '2026-06-05',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Плагин Front — Оплата',
+        pageRoute: '/prototype/wb-pay/plugin/payment',
+        items: [
+          'API-вызовы приведены к спецификации: добавлен префикс /api/v1/',
+          'Добавлен шаг SetRollbackData после регистрации оплаты (шаг 7 по спецификации)',
+          'SDK-вызовы (SetRollbackData) выделены отдельным цветом в API-логе',
+          'Исправлена иконка статуса успешной оплаты',
+        ],
+      },
+      {
+        page: 'Плагин Front — Возврат',
+        pageRoute: '/prototype/wb-pay/plugin/refund',
+        items: [
+          'GetRollbackData отображается как SDK-вызов (не HTTP-запрос) согласно спецификации',
+          'API-вызовы возврата приведены к спецификации: /api/v1/refunds/*',
+        ],
+      },
+      {
+        page: 'Плагин Front — Фискальная ошибка',
+        pageRoute: '/prototype/wb-pay/plugin/fiscal-error',
+        items: [
+          'EmergencyCancelPayment() отображается как SDK-вызов согласно спецификации',
+          'Добавлены шаги SetRollbackData и GetRollbackData в API-лог',
+          'API-вызовы приведены к спецификации: /api/v1/* префикс',
+        ],
+      },
+      {
+        items: [
+          'Добавлены недостающие коды ошибок: NO_AVAILABLE_PAYMENT_METHODS, ORDER_EXPIRED, UNABLE_TO_PROCESS, NOT_FOUND',
+          'Тексты ошибок HTTP_403 и TIMEOUT приведены в соответствие со спецификацией',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.2',
     date: '2026-06-05',
     status: 'unreleased',

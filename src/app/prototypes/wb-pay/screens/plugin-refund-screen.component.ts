@@ -117,7 +117,7 @@ interface ApiLogEntry {
             <div *ngIf="currentRefundStep === 'get-rollback'" class="text-center">
               <div class="flex items-center justify-center gap-2 text-sm text-text-secondary">
                 <div class="w-4 h-4 border-2 border-app-primary border-t-transparent rounded-full animate-spin"></div>
-                GetRollbackData → получение данных для возврата...
+                GetRollbackData → получение order_id для возврата...
               </div>
             </div>
 
@@ -125,7 +125,7 @@ interface ApiLogEntry {
             <div *ngIf="currentRefundStep === 'register'" class="text-center">
               <div class="flex items-center justify-center gap-2 text-sm text-text-secondary">
                 <div class="w-4 h-4 border-2 border-app-primary border-t-transparent rounded-full animate-spin"></div>
-                POST /refunds/register...
+                POST /api/v1/refunds/register...
               </div>
             </div>
 
@@ -133,7 +133,7 @@ interface ApiLogEntry {
             <div *ngIf="currentRefundStep === 'do'" class="text-center">
               <div class="flex items-center justify-center gap-2 text-sm text-text-secondary">
                 <div class="w-4 h-4 border-2 border-app-primary border-t-transparent rounded-full animate-spin"></div>
-                POST /refunds/do...
+                POST /api/v1/refunds/do...
               </div>
             </div>
 
@@ -141,7 +141,7 @@ interface ApiLogEntry {
             <div *ngIf="currentRefundStep === 'polling'" class="text-center">
               <div class="flex items-center justify-center gap-2 text-sm text-text-secondary">
                 <div class="w-4 h-4 border-2 border-app-primary border-t-transparent rounded-full animate-spin"></div>
-                GET /refunds/{{ refundId }}/status → polling...
+                GET /api/v1/refunds/{{ refundId }}/status → polling...
               </div>
             </div>
 
@@ -178,10 +178,12 @@ interface ApiLogEntry {
                 class="font-semibold"
                 [class.text-green-400]="entry.method === 'GET'"
                 [class.text-yellow-400]="entry.method === 'POST'"
+                [class.text-cyan-400]="entry.method === 'SDK'"
               >{{ entry.method }}</span>
               <span class="text-gray-300">{{ entry.url }}</span>
               <span class="text-gray-500">→</span>
               <span
+                *ngIf="entry.statusCode > 0"
                 [class.text-green-400]="entry.statusCode === 200"
                 [class.text-red-400]="entry.statusCode !== 200"
               >{{ entry.statusCode }}</span>
@@ -282,23 +284,23 @@ export class PluginRefundScreenComponent {
     this.apiLog = [];
     this.refundId = 'ref-' + Date.now().toString(36);
     this.currentRefundStep = 'get-rollback';
-    this.addLog('POST', '/rollback-data', 200, 'order_id: ' + this.selectedPayment.orderId);
+    this.addLog('SDK', 'GetRollbackData()', 0, 'order_id: ' + this.selectedPayment.orderId);
 
     setTimeout(() => {
       this.currentRefundStep = 'register';
-      this.addLog('POST', '/refunds/register', 200, `refund_id: ${this.refundId}`);
+      this.addLog('POST', '/api/v1/refunds/register', 200, `refund_id: ${this.refundId}`);
 
       setTimeout(() => {
         this.currentRefundStep = 'do';
-        this.addLog('POST', '/refunds/do', 200);
+        this.addLog('POST', '/api/v1/refunds/do', 200);
 
         setTimeout(() => {
           this.currentRefundStep = 'polling';
-          this.addLog('GET', `/refunds/${this.refundId}/status`, 200, 'pending');
+          this.addLog('GET', `/api/v1/refunds/${this.refundId}/status`, 200, 'pending');
 
           setTimeout(() => {
             this.currentRefundStep = 'succeeded';
-            this.addLog('GET', `/refunds/${this.refundId}/status`, 200, 'succeeded');
+            this.addLog('GET', `/api/v1/refunds/${this.refundId}/status`, 200, 'succeeded');
             if (this.selectedPayment) {
               this.state.updatePaymentStatus(this.selectedPayment.id, 'refunded');
             }
