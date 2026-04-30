@@ -154,15 +154,6 @@ export class NeptuneConfigScreenComponent {
 
   configGroups: ConfigGroup[] = [
     {
-      title: 'Подключение к MGS',
-      icon: 'monitor',
-      params: [
-        { name: 'server', type: 'string', required: true, defaultValue: '—', description: 'URL сервера MGS (например, https://192.168.90.19:8089)' },
-        { name: 'apiKey', type: 'string', required: true, defaultValue: '—', description: 'API-ключ для аутентификации в MGS (POST /v1/auth)' },
-        { name: 'terminal', type: 'string', required: true, defaultValue: '—', description: 'Идентификатор терминала (POS), передаётся в контексте операций' },
-      ],
-    },
-    {
       title: 'Таймауты и retry',
       icon: 'clock',
       params: [

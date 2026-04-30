@@ -134,11 +134,8 @@ export interface CatalogCard {
 /** Запись API-консоли */
 export interface ApiLogEntry {
   timestamp: string;
-  method: 'GET' | 'POST';
-  endpoint: string;
   requestBody: Record<string, any> | null;
   responseBody: Record<string, any> | null;
-  httpCode: number | null;
   isError: boolean;
   label: string;
 }

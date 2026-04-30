@@ -296,7 +296,7 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
           <div *ngIf="showApiConsole"
                class="mt-2 bg-[#1e1e1e] rounded-lg border border-gray-700 overflow-hidden animate-fade-in">
             <div class="flex items-center justify-between px-4 py-2 border-b border-gray-700">
-              <span class="text-xs text-gray-400 font-mono">MGS API Requests</span>
+              <span class="text-xs text-gray-400 font-mono">Журнал операций</span>
               <button (click)="apiLog = []"
                       class="text-xs text-gray-500 hover:text-gray-300 transition-colors">
                 Очистить
@@ -316,21 +316,10 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
                 <div class="flex items-center gap-2 mb-1">
                   <span class="font-bold"
                         [ngClass]="entry.isError ? 'text-red-400' : 'text-green-400'">
-                    {{ entry.method }}
+                    {{ entry.label }}
                   </span>
-                  <span class="text-blue-300">{{ entry.endpoint }}</span>
-                  <span *ngIf="entry.httpCode"
-                        class="ml-auto px-1.5 py-0.5 rounded text-[10px]"
-                        [ngClass]="entry.isError
-                          ? 'bg-red-900/40 text-red-300'
-                          : 'bg-green-900/40 text-green-300'">
-                    {{ entry.httpCode }}
-                  </span>
-                  <span class="text-gray-600 text-[10px]">{{ entry.timestamp }}</span>
+                  <span class="ml-auto text-gray-600 text-[10px]">{{ entry.timestamp }}</span>
                 </div>
-
-                <!-- Label -->
-                <div class="text-gray-400 mb-1">// {{ entry.label }}</div>
 
                 <!-- Request -->
                 <div *ngIf="entry.requestBody" class="mb-1">
@@ -577,11 +566,10 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     this.activeModal = 'loading';
 
     // API log (3.12)
-    const endpoint = method === 'card' ? '/v1/search/card' : '/v1/search/id';
     const reqBody = method === 'card'
       ? { card_track: '*4590123456789012*' }
       : { customer_id: this.currentGuest.customer_id };
-    this.addApiLog('POST', endpoint, reqBody, {
+    this.addApiLog(reqBody, {
       customer_id: this.currentGuest.customer_id,
       forename: this.currentGuest.forename,
       middlename: this.currentGuest.middlename,
@@ -590,7 +578,7 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
       color: this.currentGuest.color,
       balance_cash: this.currentGuest.balance_cash,
       points: this.currentGuest.points,
-    }, 200, false, `Идентификация (${method === 'card' ? 'карта' : 'ID'})`);
+    }, false, `Идентификация (${method === 'card' ? 'карта' : 'ID'})`);
   }
 
   // ── Guest list flow ──
@@ -601,9 +589,9 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     this.activeModal = 'loading';
 
     // API log
-    this.addApiLog('GET', '/v1/search/guests_in_casino', null,
+    this.addApiLog(null,
       this.guests.map(g => ({ customer_id: g.customer_id, forename: g.forename, surname: g.surname, status: g.status })),
-      200, false, 'Список гостей в казино');
+      false, 'Список гостей в казино');
   }
 
   // ── Guest selected from list ──
@@ -655,10 +643,10 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     this.activeModal = 'loading';
 
     // API log: get_token
-    this.addApiLog('POST', '/v1/payment/get_token',
+    this.addApiLog(
       { pin: '****', customer_id: this.currentGuest.customer_id },
       { token: 'eyJ***...masked', ttl: this.TOKEN_TTL },
-      200, false, 'Получение платёжного токена');
+      false, 'Получение платёжного токена');
 
     // (3.11) Start token TTL timer
     this.startTokenTimer();
@@ -675,15 +663,15 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
 
     // API log: payment
     if (this.currentPaymentType === 'cashless') {
-      this.addApiLog('POST', '/v1/payment/cash',
+      this.addApiLog(
         { amount: Number(amount.toFixed(2)), token: 'eyJ***', service: PLUGIN_CONFIG.service, items: this.mockOrder.items.map(i => i.name) },
         { status: 'OK', balance: this.successRemaining },
-        200, false, 'Оплата Cashless');
+        false, 'Оплата Cashless');
     } else {
-      this.addApiLog('POST', '/v1/payment/promo',
+      this.addApiLog(
         { point_service_id: PLUGIN_CONFIG.point_service_id, amount: Math.round(amount), token: 'eyJ***', description: `Оплата заказа #${this.mockOrder.order_number}` },
         { status: 'OK', remaining: this.successRemaining },
-        200, false, `Оплата ${this.getPaymentLabel()}`);
+        false, `Оплата ${this.getPaymentLabel()}`);
     }
   }
 
@@ -781,17 +769,14 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
 
   // ── API Log (3.12) ──
   private addApiLog(
-    method: 'GET' | 'POST',
-    endpoint: string,
     requestBody: Record<string, any> | null,
     responseBody: Record<string, any> | null,
-    httpCode: number | null,
     isError: boolean,
     label: string,
   ): void {
     const now = new Date();
     const timestamp = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-    this.apiLog.unshift({ timestamp, method, endpoint, requestBody, responseBody, httpCode, isError, label });
+    this.apiLog.unshift({ timestamp, requestBody, responseBody, isError, label });
   }
 
   formatJson(obj: any): string {
