@@ -112,7 +112,7 @@ export class NeptunePinEntryDialogComponent {
       this.pin = this.pin.slice(0, -1);
     } else if (key === '✕') {
       this.pin = '';
-    } else if (this.pin.length < 8) {
+    } else {
       this.pin += key;
     }
     this.state = this.pin.length > 0 ? 'entered' : 'input';

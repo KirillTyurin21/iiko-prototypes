@@ -575,13 +575,15 @@ import { PROTOTYPES, PrototypeEntry } from '@/shared/prototypes.registry';
 - [ ] Нет упоминаний «iiko», кодов доступа, хешей
 - [ ] Используется `*ngIf` / `*ngFor` (НЕ `@if` / `@for`)
 
-### Чеклист: Публикация DEV → MASTER (6 пунктов)
+### Чеклист: Публикация DEV → MASTER (8 пунктов)
 
 - [ ] Проверить локально (`npm run dev` — всё работает)
 - [ ] `npm run build` проходит без ошибок
 - [ ] changelog: `unreleased` → `released`, дата обновлена
 - [ ] Мерж `dev → master`
 - [ ] `git push origin master`
+- [ ] **Если новый прототип** — код доступа сгенерирован, хеш добавлен в `deploy.ps1`, `deploy.sh`, `env-vars.md`, `ACCESS_CODES.md`
+- [ ] **Если новый прототип** — Cloud Function задеплоена (`deploy.ps1`), деплой прошёл успешно
 - [ ] Вернуться в ветку `dev`
 
 ---

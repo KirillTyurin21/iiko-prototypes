@@ -2,6 +2,53 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '2.4',
+    date: '2026-04-30',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'POS-панель',
+        pageRoute: '/prototype/neptune/pos',
+        items: [
+          'Убрана кнопка «Оплата Comp» — остались только Cashless и Loyalty',
+          'Убрана роль «Comp» из ролей доступа и видимости',
+          'Упрощён расчёт остатка после оплаты Loyalty (суммарный баланс вместо отдельных типов)',
+        ],
+      },
+      {
+        page: 'Профиль гостя',
+        pageRoute: '/prototype/neptune/pos',
+        items: [
+          'Блок балансов: 2 колонки (Cashless + Loyalty) вместо 3',
+          'Убрана таблица детализации баллов по типам',
+        ],
+      },
+      {
+        page: 'Список гостей',
+        pageRoute: '/prototype/neptune/pos',
+        items: [
+          'Новый формат: сетка 2×N плиток вместо вертикального списка',
+          'Добавлены фото гостей на каждой плитке',
+          'Цветная рамка вокруг плитки (цвет = статус гостя) вместо тонкой полоски',
+        ],
+      },
+      {
+        page: 'Оплата Loyalty',
+        pageRoute: '/prototype/neptune/pos',
+        items: [
+          'Убраны табы выбора типа баллов — баланс теперь суммарный по всем типам',
+          'Упрощён заголовок и подпись (всегда «Оплата Loyalty»)',
+        ],
+      },
+      {
+        items: [
+          'PIN-код: снято ограничение длины (ранее максимум 8 символов)',
+          'Убран тип оплаты «comp» из типов данных и мок-данных',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.3',
     date: '2026-04-17',
     status: 'released',

@@ -15,7 +15,7 @@ export type ModalType =
   | null;
 
 /** Тип оплаты, инициированный из панели кнопок */
-export type PaymentType = 'cashless' | 'loyalty' | 'comp';
+export type PaymentType = 'cashless' | 'loyalty';
 
 /** Состояние панели кнопок */
 export type PanelState = 'no-guest' | 'identified' | 'unavailable';
@@ -52,6 +52,7 @@ export interface MockGuestListItem {
   surname: string;
   status: string;
   color: string;
+  image?: string;
 }
 
 /** Позиция заказа */
@@ -150,7 +151,6 @@ export interface DemoRoles {
   card_role: boolean;
   use_cashless_role: boolean;
   use_loyalty_role: boolean;
-  use_comp_role: boolean;
   show_all_guests_role: boolean;
   show_id_role: boolean;
   show_card_role: boolean;
@@ -160,5 +160,4 @@ export interface DemoRoles {
   show_photo_role: boolean;
   show_cashless_role: boolean;
   show_loyalty_role: boolean;
-  show_comp_role: boolean;
 }

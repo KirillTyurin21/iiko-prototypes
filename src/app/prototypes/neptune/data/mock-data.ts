@@ -24,14 +24,14 @@ export const MOCK_GUEST: MockGuest = {
 
 /** Список гостей в казино — по одному гостю на каждый реальный статус */
 export const MOCK_GUESTS: MockGuestListItem[] = [
-  { customer_id: 'CID-00089', forename: 'Дмитрий', middlename: 'Андреевич',  surname: 'Волков',     status: 'STANDARD', color: '#4CAF50' },
-  { customer_id: 'CID-00310', forename: 'Ольга',   middlename: 'Викторовна', surname: 'Кузнецова',  status: 'BRONZE',   color: '#CD7F32' },
-  { customer_id: 'CID-00512', forename: 'Алексей', middlename: 'Николаевич', surname: 'Сидоров',    status: 'SILVER',   color: '#C0C0C0' },
-  { customer_id: 'CID-00847', forename: 'Иван',    middlename: 'Иванович',   surname: 'Иванов',     status: 'GOLD',     color: '#FFD700' },
-  { customer_id: 'CID-01234', forename: 'Елена',   middlename: 'Сергеевна',  surname: 'Петрова',    status: 'PLATINUM', color: '#E5E4E2' },
-  { customer_id: 'CID-01587', forename: 'Андрей',  middlename: 'Павлович',   surname: 'Морозов',    status: 'DIAMOND',  color: '#4FC3F7' },
-  { customer_id: 'CID-02001', forename: 'Мария',   middlename: 'Дмитриевна', surname: 'Козлова',    status: 'VIP',      color: '#9C27B0' },
-  { customer_id: 'CID-02200', forename: 'Сергей',  middlename: 'Александрович', surname: 'Белов',   status: 'BLACK',    color: '#212121' },
+  { customer_id: 'CID-00089', forename: 'Дмитрий', middlename: 'Андреевич',  surname: 'Волков',     status: 'STANDARD', color: '#4CAF50', image: 'https://i.pravatar.cc/128?img=3' },
+  { customer_id: 'CID-00310', forename: 'Ольга',   middlename: 'Викторовна', surname: 'Кузнецова',  status: 'BRONZE',   color: '#CD7F32', image: 'https://i.pravatar.cc/128?img=5' },
+  { customer_id: 'CID-00512', forename: 'Алексей', middlename: 'Николаевич', surname: 'Сидоров',    status: 'SILVER',   color: '#C0C0C0', image: 'https://i.pravatar.cc/128?img=8' },
+  { customer_id: 'CID-00847', forename: 'Иван',    middlename: 'Иванович',   surname: 'Иванов',     status: 'GOLD',     color: '#FFD700', image: 'https://i.pravatar.cc/128?img=14' },
+  { customer_id: 'CID-01234', forename: 'Елена',   middlename: 'Сергеевна',  surname: 'Петрова',    status: 'PLATINUM', color: '#E5E4E2', image: 'https://i.pravatar.cc/128?img=9' },
+  { customer_id: 'CID-01587', forename: 'Андрей',  middlename: 'Павлович',   surname: 'Морозов',    status: 'DIAMOND',  color: '#4FC3F7', image: 'https://i.pravatar.cc/128?img=11' },
+  { customer_id: 'CID-02001', forename: 'Мария',   middlename: 'Дмитриевна', surname: 'Козлова',    status: 'VIP',      color: '#9C27B0', image: 'https://i.pravatar.cc/128?img=16' },
+  { customer_id: 'CID-02200', forename: 'Сергей',  middlename: 'Александрович', surname: 'Белов',   status: 'BLACK',    color: '#212121', image: 'https://i.pravatar.cc/128?img=12' },
 ];
 
 /** Контекст заказа */
@@ -70,7 +70,6 @@ export const DEMO_ROLES = {
   card_role: true,
   use_cashless_role: true,
   use_loyalty_role: true,
-  use_comp_role: true,
   show_all_guests_role: true,
   show_id_role: true,
   show_card_role: true,
@@ -80,7 +79,6 @@ export const DEMO_ROLES = {
   show_photo_role: true,
   show_cashless_role: true,
   show_loyalty_role: true,
-  show_comp_role: true,
 };
 
 /** Шаблон пречека */
@@ -123,8 +121,7 @@ export const CATALOG_SECTIONS: CatalogSection[] = [
     cells: [
       { id: 'pin-entry',     label: 'Ввод PIN-кода',     icon: 'key-round',  iconColor: '#ff6d00', description: 'PIN → POST /v1/payment/get_token → токен (TTL 5 мин)',  modalType: 'pin-entry', badge: '4 состояния', badgeColor: '#ff6d00' },
       { id: 'pay-cashless',  label: 'Оплата Cashless',   icon: 'wallet',     iconColor: '#2e7d32', description: 'POST /v1/payment/cash — списание кэш-поинтов',         modalType: 'payment-cashless', paymentType: 'cashless' },
-      { id: 'pay-loyalty',   label: 'Оплата Loyalty',    icon: 'star',       iconColor: '#1565c0', description: 'POST /v1/payment/promo — списание баллов (point_id=4)', modalType: 'payment-loyalty', paymentType: 'loyalty' },
-      { id: 'pay-comp',      label: 'Оплата Comp',       icon: 'gift',       iconColor: '#6a1b9a', description: 'POST /v1/payment/promo — комплиментарные (point_id=0)', modalType: 'payment-loyalty', paymentType: 'comp' },
+      { id: 'pay-loyalty',   label: 'Оплата Loyalty',    icon: 'star',       iconColor: '#1565c0', description: 'POST /v1/payment/promo — списание баллов',          modalType: 'payment-loyalty', paymentType: 'loyalty' },
     ],
   },
   {

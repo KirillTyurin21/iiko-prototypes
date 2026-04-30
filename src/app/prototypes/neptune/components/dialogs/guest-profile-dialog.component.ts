@@ -137,7 +137,7 @@ import { MockGuest, IdentifyMethod, DemoRoles } from '../../types';
 
         <!-- Block 2 — Balances -->
         <div class="bg-[#2d2d2d] p-5 my-4">
-          <div class="grid grid-cols-3 gap-4 text-center">
+          <div class="grid grid-cols-2 gap-4 text-center">
             <div [ngClass]="{'opacity-30': !roles.show_cashless_role}">
               <div class="text-2xl font-bold text-[#b8c959]">{{ roles.show_cashless_role ? (guest.balance_cash | number:'1.0-0') : '—' }}</div>
               <div class="text-xs text-gray-400">
@@ -152,25 +152,6 @@ import { MockGuest, IdentifyMethod, DemoRoles } from '../../types';
                 <span *ngIf="!roles.show_loyalty_role" class="block text-[10px] text-gray-500">show_loyalty_role</span>
               </div>
             </div>
-            <div [ngClass]="{'opacity-30': !roles.show_comp_role}">
-              <div class="text-2xl font-bold text-[#b8c959]">{{ roles.show_comp_role ? (compBalance | number:'1.0-0') : '—' }}</div>
-              <div class="text-xs text-gray-400">
-                Comp
-                <span *ngIf="!roles.show_comp_role" class="block text-[10px] text-gray-500">show_comp_role</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Block 3 — Points detail -->
-        <div *ngIf="roles.show_loyalty_role" class="bg-[#2d2d2d] p-4 mt-4">
-          <div
-            *ngFor="let pt of guest.points; let last = last"
-            class="flex justify-between py-2"
-            [class.border-b]="!last"
-            [class.border-[#555]]="!last">
-            <span class="text-sm text-gray-300">{{ pt.point_name }}</span>
-            <span class="text-sm font-semibold text-white">{{ pt.point_sum | number:'1.0-0' }}</span>
           </div>
         </div>
 
@@ -198,10 +179,10 @@ export class NeptuneGuestProfileDialogComponent {
   @Input() guest: MockGuest | null = null;
   @Input() identifyMethod: IdentifyMethod | null = null;
   @Input() roles: DemoRoles = {
-    card_role: true, use_cashless_role: true, use_loyalty_role: true, use_comp_role: true,
+    card_role: true, use_cashless_role: true, use_loyalty_role: true,
     show_all_guests_role: true, show_id_role: true, show_card_role: true, show_fio_role: true,
     show_birthday_role: true, show_state_role: true, show_photo_role: true,
-    show_cashless_role: true, show_loyalty_role: true, show_comp_role: true,
+    show_cashless_role: true, show_loyalty_role: true,
   };
 
   @Output() dialogClose = new EventEmitter<void>();
@@ -221,10 +202,6 @@ export class NeptuneGuestProfileDialogComponent {
 
   get loyaltyTotal(): number {
     return this.guest?.points.reduce((s, p) => s + p.point_sum, 0) ?? 0;
-  }
-
-  get compBalance(): number {
-    return this.guest?.points.find(p => p.point_id === 0)?.point_sum ?? 0;
   }
 
   onImageError(event: Event): void {

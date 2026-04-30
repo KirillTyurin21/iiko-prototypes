@@ -224,18 +224,6 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
               Loyalty
             </button>
 
-            <!-- Comp -->
-            <button (click)="onPaymentClick('comp')"
-                    class="h-14 rounded px-6 flex items-center gap-2 font-semibold transition-colors"
-                    [ngClass]="panelState === 'identified' && demoRoles.use_comp_role
-                      ? 'bg-[#6a1b9a] text-white hover:bg-[#7b1fa2]'
-                      : 'bg-[#1a1a1a] text-gray-600 opacity-50 cursor-not-allowed'"
-                    [disabled]="panelState !== 'identified' || !demoRoles.use_comp_role"
-                    [title]="!demoRoles.use_comp_role ? 'Требуется роль: use_comp_role' : ''">
-              <lucide-icon name="gift" [size]="18"></lucide-icon>
-              Comp
-            </button>
-
             <!-- Список гостей -->
             <button (click)="onGuestList()"
                     class="h-14 rounded px-6 flex items-center gap-2 font-semibold transition-colors"
@@ -405,12 +393,11 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
         (paymentConfirmed)="onPaymentConfirmed($event)">
       </neptune-payment-cashless-dialog>
 
-      <!-- Payment Loyalty / Comp -->
+      <!-- Payment Loyalty -->
       <neptune-payment-loyalty-dialog
         [open]="activeModal === 'payment-loyalty'"
         [guest]="currentGuest"
         [orderTotal]="mockOrder.order_total"
-        [paymentType]="currentPaymentType"
         (dialogClose)="closeDialog()"
         (paymentConfirmed)="onPaymentConfirmed($event)">
       </neptune-payment-loyalty-dialog>
@@ -465,7 +452,6 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     { key: 'card_role' as keyof DemoRoles, label: 'Идентификация' },
     { key: 'use_cashless_role' as keyof DemoRoles, label: 'Cashless' },
     { key: 'use_loyalty_role' as keyof DemoRoles, label: 'Loyalty' },
-    { key: 'use_comp_role' as keyof DemoRoles, label: 'Comp' },
     { key: 'show_all_guests_role' as keyof DemoRoles, label: 'Список гостей' },
   ];
 
@@ -478,7 +464,6 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     { key: 'show_photo_role' as keyof DemoRoles, label: 'Фото' },
     { key: 'show_cashless_role' as keyof DemoRoles, label: 'Баланс Cashless' },
     { key: 'show_loyalty_role' as keyof DemoRoles, label: 'Баланс Loyalty' },
-    { key: 'show_comp_role' as keyof DemoRoles, label: 'Баланс Comp' },
   ];
 
   // ── External Data (3.10) ──
@@ -695,9 +680,8 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
         { status: 'OK', balance: this.successRemaining },
         200, false, 'Оплата Cashless');
     } else {
-      const pointId = this.currentPaymentType === 'comp' ? PLUGIN_CONFIG.ComplimentaryPointId : PLUGIN_CONFIG.RestaurantPointId;
       this.addApiLog('POST', '/v1/payment/promo',
-        { point_id: pointId, point_service_id: PLUGIN_CONFIG.point_service_id, amount: Math.round(amount), token: 'eyJ***', description: `Оплата заказа #${this.mockOrder.order_number}` },
+        { point_service_id: PLUGIN_CONFIG.point_service_id, amount: Math.round(amount), token: 'eyJ***', description: `Оплата заказа #${this.mockOrder.order_number}` },
         { status: 'OK', remaining: this.successRemaining },
         200, false, `Оплата ${this.getPaymentLabel()}`);
     }
@@ -730,7 +714,6 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     switch (this.currentPaymentType) {
       case 'cashless': return 'Cashless';
       case 'loyalty': return 'Loyalty';
-      case 'comp': return 'Comp';
     }
   }
 
@@ -739,16 +722,8 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
       case 'cashless':
         return Math.max(0, this.currentGuest.balance_cash - amount);
       case 'loyalty': {
-        const restaurantPoints = this.currentGuest.points.find(
-          p => p.point_id === PLUGIN_CONFIG.RestaurantPointId
-        );
-        return Math.max(0, (restaurantPoints?.point_sum ?? 0) - amount);
-      }
-      case 'comp': {
-        const compPoints = this.currentGuest.points.find(
-          p => p.point_id === PLUGIN_CONFIG.ComplimentaryPointId
-        );
-        return Math.max(0, (compPoints?.point_sum ?? 0) - amount);
+        const loyaltyTotal = this.currentGuest.points.reduce((s, p) => s + p.point_sum, 0);
+        return Math.max(0, loyaltyTotal - amount);
       }
     }
   }

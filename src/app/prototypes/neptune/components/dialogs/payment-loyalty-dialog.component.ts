@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { IconsModule } from '@/shared/icons.module';
 import { NeptunePosDialogComponent } from '../pos-dialog.component';
-import { MockGuest, MockPoint, PaymentType } from '../../types';
+import { MockGuest, MockPoint } from '../../types';
 
 @Component({
   selector: 'neptune-payment-loyalty-dialog',
@@ -12,8 +12,8 @@ import { MockGuest, MockPoint, PaymentType } from '../../types';
     <neptune-pos-dialog [open]="open" maxWidth="md" (dialogClose)="dialogClose.emit()">
 
       <!-- Header -->
-      <h2 class="text-2xl text-[#b8c959] text-center">{{ title }}</h2>
-      <p class="text-base text-gray-300 text-center mb-6">{{ subtitle }}</p>
+      <h2 class="text-2xl text-[#b8c959] text-center">Оплата Loyalty</h2>
+      <p class="text-base text-gray-300 text-center mb-6">Списание баллов лояльности</p>
 
       <!-- Guest info card -->
       <div *ngIf="guest" class="bg-[#2d2d2d] p-4 mb-4 flex justify-between items-center">
@@ -26,21 +26,9 @@ import { MockGuest, MockPoint, PaymentType } from '../../types';
           </span>
         </div>
         <div class="text-right">
-          <p class="text-xs text-gray-400 uppercase tracking-wide">{{ isComp ? 'Comp баланс' : 'Баланс' }}</p>
+          <p class="text-xs text-gray-400 uppercase tracking-wide">Баланс</p>
           <p class="text-2xl font-bold text-[#b8c959]">{{ balance | number:'1.0-0' }}</p>
         </div>
-      </div>
-
-      <!-- Point type tabs (loyalty only) -->
-      <div *ngIf="!isComp && guest" class="flex gap-px bg-[#555] mb-4">
-        <button *ngFor="let pt of guest!.points; let i = index"
-          class="flex-1 h-10 text-sm font-semibold transition-colors"
-          [ngClass]="i === selectedPointIndex
-            ? 'bg-[#b8c959] text-black font-bold'
-            : 'bg-[#2d2d2d] text-white hover:bg-[#353535]'"
-          (click)="selectedPointIndex = i">
-          {{ pt.point_name }} ({{ pt.point_sum | number:'1.0-0' }})
-        </button>
       </div>
 
       <!-- Amount input -->
@@ -73,7 +61,7 @@ import { MockGuest, MockPoint, PaymentType } from '../../types';
           <span class="font-semibold">{{ orderTotal | number:'1.0-0' }}</span>
         </div>
         <div class="flex justify-between text-base text-[#b8c959]">
-          <span>{{ deductionLabel }}</span>
+          <span>Списание Loyalty:</span>
           <span class="font-semibold">-{{ amount | number:'1.0-0' }}</span>
         </div>
         <div class="border-t border-[#555] pt-2 flex justify-between text-base text-white">
@@ -107,36 +95,25 @@ export class NeptunePaymentLoyaltyDialogComponent implements OnChanges {
   @Input() open = false;
   @Input() guest: MockGuest | null = null;
   @Input() orderTotal = 4200;
-  @Input() paymentType: PaymentType = 'loyalty';
 
   @Output() dialogClose = new EventEmitter<void>();
   @Output() paymentConfirmed = new EventEmitter<number>();
 
   amountStr = '';
-  selectedPointIndex = 0;
 
   numpadKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open'] && this.open) {
       this.amountStr = '';
-      this.selectedPointIndex = 0;
     }
   }
 
-  get isComp(): boolean { return this.paymentType === 'comp'; }
-  get title(): string { return this.isComp ? 'Оплата Comp' : 'Оплата Loyalty'; }
-  get subtitle(): string { return this.isComp ? 'Списание комплиментарных баллов' : 'Списание баллов лояльности'; }
-  get deductionLabel(): string { return this.isComp ? 'Списание Comp:' : 'Списание Loyalty:'; }
   get amount(): number { return parseInt(this.amountStr, 10) || 0; }
 
   get balance(): number {
     if (!this.guest) return 0;
-    if (this.isComp) {
-      const compPt = this.guest.points.find(p => p.point_id === 0);
-      return compPt?.point_sum ?? 0;
-    }
-    return this.guest.points[this.selectedPointIndex]?.point_sum ?? 0;
+    return this.guest.points.reduce((sum, p) => sum + p.point_sum, 0);
   }
 
   get remaining(): number { return Math.max(0, this.orderTotal - this.amount); }

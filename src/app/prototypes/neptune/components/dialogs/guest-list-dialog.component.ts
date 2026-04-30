@@ -64,25 +64,30 @@ import { MockGuestListItem } from '../../types';
 
       <!-- Data state -->
       <div *ngIf="state === 'data'" class="max-h-[400px] overflow-y-auto">
-        <button *ngFor="let g of guests; let last = last"
-          class="w-full flex items-center gap-4 p-4 bg-[#2d2d2d] hover:bg-[#353535] transition-colors text-left"
-          [class.border-b]="!last"
-          [class.border-[#555]]="!last"
-          (click)="guestSelected.emit(g)">
-          <!-- Color indicator -->
-          <div class="w-1 h-10 flex-shrink-0" [style.background]="g.color"></div>
-          <!-- Name + ID -->
-          <div class="flex-1 min-w-0">
-            <p class="text-base font-medium text-white">{{ g.surname }} {{ g.forename }} {{ g.middlename }}</p>
-            <p class="text-sm text-gray-400">{{ g.customer_id }}</p>
-          </div>
-          <!-- Status badge -->
-          <span class="px-3 py-1 text-xs font-bold flex-shrink-0"
-                [style.background]="g.color + '33'"
-                [style.color]="g.color">
-            {{ g.status }}
-          </span>
-        </button>
+        <div class="grid grid-cols-2 gap-3">
+          <button *ngFor="let g of guests"
+            class="flex items-start gap-3 p-3 bg-[#2d2d2d] hover:bg-[#353535] transition-colors text-left border-2"
+            [style.border-color]="g.color"
+            (click)="guestSelected.emit(g)">
+            <!-- Photo -->
+            <img *ngIf="g.image" [src]="g.image" [alt]="g.surname"
+                 class="w-20 h-20 object-cover flex-shrink-0 bg-[#555]">
+            <div *ngIf="!g.image"
+                 class="w-20 h-20 flex-shrink-0 bg-[#555] flex items-center justify-center">
+              <lucide-icon name="user" [size]="32" class="text-gray-500"></lucide-icon>
+            </div>
+            <!-- Info -->
+            <div class="flex-1 min-w-0 py-1">
+              <p class="text-sm font-medium text-white leading-tight">{{ g.surname }} {{ g.forename }} {{ g.middlename }}</p>
+              <span class="inline-block mt-1 px-2 py-0.5 text-xs font-bold"
+                    [style.background]="g.color + '33'"
+                    [style.color]="g.color">
+                {{ g.status }}
+              </span>
+              <p class="text-xs text-gray-400 mt-1">{{ g.customer_id }}</p>
+            </div>
+          </button>
+        </div>
       </div>
 
       <!-- Footer -->
