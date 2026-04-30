@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { IconsModule } from '@/shared/icons.module';
-import { ModalType, PaymentType, PanelState, MockGuest, IdentifyMethod, ErrorScenario, ExternalDataEntry, DemoRoles, ApiLogEntry, ServiceContext } from '../types';
+import { ModalType, PaymentType, PanelState, MockGuest, IdentifyMethod, ErrorScenario, DemoRoles, ServiceContext } from '../types';
 import {
-  MOCK_GUEST, MOCK_GUESTS, MOCK_ORDER, ERROR_SCENARIOS, PLUGIN_CONFIG, DEMO_ROLES,
+  MOCK_GUEST, MOCK_GUESTS, MOCK_ORDER, ERROR_SCENARIOS, DEMO_ROLES,
 } from '../data/mock-data';
 import { NeptuneGuestProfileDialogComponent } from '../components/dialogs/guest-profile-dialog.component';
 import { NeptunePinEntryDialogComponent } from '../components/dialogs/pin-entry-dialog.component';
@@ -263,79 +263,7 @@ import { NeptuneIdentifyMethodDialogComponent } from '../components/dialogs/iden
           </div>
         </div>
 
-        <!-- External Data (демо) -->
-        <div *ngIf="panelState === 'identified'" class="mt-4 bg-white rounded-lg border border-gray-200 p-4">
-          <div class="flex items-center gap-2 mb-3">
-            <lucide-icon name="database" [size]="16" class="text-gray-400"></lucide-icon>
-            <span class="text-sm font-medium text-gray-600">External Data</span>
-            <span class="text-xs text-gray-400">данные, записываемые в заказ</span>
-          </div>
-
-          <div class="space-y-1 text-sm">
-            <div *ngFor="let entry of externalDataEntries" class="flex gap-2 items-center">
-              <span class="text-gray-400 w-44 shrink-0 font-mono">{{ entry.key }}</span>
-              <span class="text-gray-700 font-mono flex-1">{{ entry.value }}</span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded"
-                    [ngClass]="entry.isPublic ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'">
-                {{ entry.isPublic ? 'public' : 'private' }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- API Console (3.12) -->
-        <div class="mt-4">
-          <button (click)="showApiConsole = !showApiConsole"
-                  class="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors">
-            <lucide-icon name="code-2" [size]="14"></lucide-icon>
-            <span>API-консоль</span>
-            <span *ngIf="apiLog.length" class="text-xs bg-gray-200 text-gray-600 rounded-full px-1.5">{{ apiLog.length }}</span>
-            <lucide-icon [name]="showApiConsole ? 'chevron-up' : 'chevron-down'" [size]="14"></lucide-icon>
-          </button>
-
-          <div *ngIf="showApiConsole"
-               class="mt-2 bg-[#1e1e1e] rounded-lg border border-gray-700 overflow-hidden animate-fade-in">
-            <div class="flex items-center justify-between px-4 py-2 border-b border-gray-700">
-              <span class="text-xs text-gray-400 font-mono">Журнал операций</span>
-              <button (click)="apiLog = []"
-                      class="text-xs text-gray-500 hover:text-gray-300 transition-colors">
-                Очистить
-              </button>
-            </div>
-
-            <div *ngIf="!apiLog.length" class="px-4 py-6 text-center text-gray-500 text-sm">
-              Выполните действие (идентификация, оплата) — запросы появятся здесь
-            </div>
-
-            <div class="max-h-72 overflow-y-auto">
-              <div *ngFor="let entry of apiLog; let last = last"
-                   class="px-4 py-3 text-xs font-mono"
-                   [ngClass]="!last ? 'border-b border-gray-800' : ''">
-
-                <!-- Header line -->
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="font-bold"
-                        [ngClass]="entry.isError ? 'text-red-400' : 'text-green-400'">
-                    {{ entry.label }}
-                  </span>
-                  <span class="ml-auto text-gray-600 text-[10px]">{{ entry.timestamp }}</span>
-                </div>
-
-                <!-- Request -->
-                <div *ngIf="entry.requestBody" class="mb-1">
-                  <span class="text-gray-500">→ </span>
-                  <span class="text-yellow-200/80">{{ formatJson(entry.requestBody) }}</span>
-                </div>
-
-                <!-- Response -->
-                <div *ngIf="entry.responseBody">
-                  <span class="text-gray-500">← </span>
-                  <span [ngClass]="entry.isError ? 'text-red-300/80' : 'text-green-200/80'">{{ formatJson(entry.responseBody) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- API Console (3.12) removed -->
       </div>
 
       <!-- ===== DIALOGS ===== -->
@@ -455,8 +383,7 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     { key: 'show_loyalty_role' as keyof DemoRoles, label: 'Баланс Loyalty' },
   ];
 
-  // ── External Data (3.10) ──
-  externalDataEntries: ExternalDataEntry[] = [];
+  // ── External Data (3.10) ── removed
 
   // ── TTL Token (3.11) ──
   tokenActive = false;
@@ -472,9 +399,7 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     return String(this.tokenSecondsLeft % 60).padStart(2, '0');
   }
 
-  // ── API Console (3.12) ──
-  apiLog: ApiLogEntry[] = [];
-  showApiConsole = false;
+  // ── API Console (3.12) ── removed
 
   // ── Service Context (3.13) ──
   serviceContext: ServiceContext = 'restaurant';
@@ -564,21 +489,6 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
       : 'Поиск гостя по ID...';
     this.loadingTarget = 'guest-profile';
     this.activeModal = 'loading';
-
-    // API log (3.12)
-    const reqBody = method === 'card'
-      ? { card_track: '*4590123456789012*' }
-      : { customer_id: this.currentGuest.customer_id };
-    this.addApiLog(reqBody, {
-      customer_id: this.currentGuest.customer_id,
-      forename: this.currentGuest.forename,
-      middlename: this.currentGuest.middlename,
-      surname: this.currentGuest.surname,
-      status: this.currentGuest.status,
-      color: this.currentGuest.color,
-      balance_cash: this.currentGuest.balance_cash,
-      points: this.currentGuest.points,
-    }, false, `Идентификация (${method === 'card' ? 'карта' : 'ID'})`);
   }
 
   // ── Guest list flow ──
@@ -587,11 +497,6 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     this.loadingMessage = 'Загрузка списка гостей...';
     this.loadingTarget = 'guest-list';
     this.activeModal = 'loading';
-
-    // API log
-    this.addApiLog(null,
-      this.guests.map(g => ({ customer_id: g.customer_id, forename: g.forename, surname: g.surname, status: g.status })),
-      false, 'Список гостей в казино');
   }
 
   // ── Guest selected from list ──
@@ -642,12 +547,6 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     }
     this.activeModal = 'loading';
 
-    // API log: get_token
-    this.addApiLog(
-      { pin: '****', customer_id: this.currentGuest.customer_id },
-      { token: 'eyJ***...masked', ttl: this.TOKEN_TTL },
-      false, 'Получение платёжного токена');
-
     // (3.11) Start token TTL timer
     this.startTokenTimer();
   }
@@ -660,19 +559,6 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     this.loadingMessage = 'Обработка платежа...';
     this.loadingTarget = 'success';
     this.activeModal = 'loading';
-
-    // API log: payment
-    if (this.currentPaymentType === 'cashless') {
-      this.addApiLog(
-        { amount: Number(amount.toFixed(2)), token: 'eyJ***', service: PLUGIN_CONFIG.service, items: this.mockOrder.items.map(i => i.name) },
-        { status: 'OK', balance: this.successRemaining },
-        false, 'Оплата Cashless');
-    } else {
-      this.addApiLog(
-        { point_service_id: PLUGIN_CONFIG.point_service_id, amount: Math.round(amount), token: 'eyJ***', description: `Оплата заказа #${this.mockOrder.order_number}` },
-        { status: 'OK', remaining: this.successRemaining },
-        false, `Оплата ${this.getPaymentLabel()}`);
-    }
   }
 
   // ── Loading complete → go to target ──
@@ -681,10 +567,9 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
       this.activeModal = this.loadingTarget;
       if (this.loadingTarget === 'guest-profile') {
         this.panelState = 'identified';
-        this.populateIdentifyExternalData();
       }
       if (this.loadingTarget === 'success') {
-        this.populatePaymentExternalData();
+        // payment completed
       }
       this.loadingTarget = null;
     } else {
@@ -716,30 +601,6 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── External Data helpers (3.10) ──
-  private populateIdentifyExternalData(): void {
-    this.externalDataEntries = [
-      { key: 'MGS_customer_id', value: this.currentGuest.customer_id, isPublic: true },
-      { key: 'MGS_forename', value: this.currentGuest.forename, isPublic: true },
-      { key: 'MGS_middlename', value: this.currentGuest.middlename, isPublic: true },
-      { key: 'MGS_surname', value: this.currentGuest.surname, isPublic: true },
-      { key: 'MGS_status', value: this.currentGuest.status, isPublic: true },
-      { key: 'MGS_balance_cash', value: String(this.currentGuest.balance_cash), isPublic: false },
-    ];
-  }
-
-  private populatePaymentExternalData(): void {
-    const paymentEntries: ExternalDataEntry[] = [
-      { key: 'MGS_payment_type', value: this.currentPaymentType, isPublic: true },
-      { key: 'MGS_payment_amount', value: String(this.successAmount), isPublic: true },
-      { key: 'MGS_payment_remaining', value: String(this.successRemaining), isPublic: false },
-    ];
-    this.externalDataEntries = [
-      ...this.externalDataEntries.filter(e => !e.key.startsWith('MGS_payment_')),
-      ...paymentEntries,
-    ];
-  }
-
   // ── Token TTL (3.11) ──
   private startTokenTimer(): void {
     this.clearTokenTimer();
@@ -767,23 +628,5 @@ export class NeptunePosScreenComponent implements OnInit, OnDestroy {
     this.activeModal = 'pin-entry';
   }
 
-  // ── API Log (3.12) ──
-  private addApiLog(
-    requestBody: Record<string, any> | null,
-    responseBody: Record<string, any> | null,
-    isError: boolean,
-    label: string,
-  ): void {
-    const now = new Date();
-    const timestamp = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-    this.apiLog.unshift({ timestamp, requestBody, responseBody, isError, label });
-  }
-
-  formatJson(obj: any): string {
-    try {
-      return JSON.stringify(obj, null, 0);
-    } catch {
-      return String(obj);
-    }
-  }
+  // ── API Log (3.12) ── removed
 }

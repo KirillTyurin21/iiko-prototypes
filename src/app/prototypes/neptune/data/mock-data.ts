@@ -108,10 +108,10 @@ export const CATALOG_SECTIONS: CatalogSection[] = [
     icon: 'scan-line',
     description: 'поиск и профиль гостя',
     cells: [
-      { id: 'identify-card',  label: 'Поиск по карте',  icon: 'credit-card', iconColor: '#1565c0', description: 'POST /v1/search/card — сканирование карты гостя', modalType: 'identify-method' },
-      { id: 'identify-id',    label: 'Поиск по ID',     icon: 'hash',        iconColor: '#1565c0', description: 'POST /v1/search/id — ввод customer_id',          modalType: 'identify-method' },
+      { id: 'identify-card',  label: 'Поиск по карте',  icon: 'credit-card', iconColor: '#1565c0', description: 'Сканирование карты гостя', modalType: 'identify-method' },
+      { id: 'identify-id',    label: 'Поиск по ID',     icon: 'hash',        iconColor: '#1565c0', description: 'Ввод customer_id вручную',          modalType: 'identify-method' },
       { id: 'profile-data',   label: 'Профиль гостя',   icon: 'user',        iconColor: '#2e7d32', description: 'Карточка гостя с балансами (состояние: данные)',   modalType: 'guest-profile', badge: '4 состояния', badgeColor: '#2e7d32' },
-      { id: 'guest-list',     label: 'Список гостей',   icon: 'users',       iconColor: '#6a1b9a', description: 'GET /v1/search/guests_in_casino',                 modalType: 'guest-list', badge: '8 статусов', badgeColor: '#6a1b9a' },
+      { id: 'guest-list',     label: 'Список гостей',   icon: 'users',       iconColor: '#6a1b9a', description: 'Гости в казино',                 modalType: 'guest-list', badge: '8 статусов', badgeColor: '#6a1b9a' },
     ],
   },
   {
@@ -119,9 +119,9 @@ export const CATALOG_SECTIONS: CatalogSection[] = [
     icon: 'wallet',
     description: 'оплата заказа через MGS',
     cells: [
-      { id: 'pin-entry',     label: 'Ввод PIN-кода',     icon: 'key-round',  iconColor: '#ff6d00', description: 'PIN → POST /v1/payment/get_token → токен (TTL 5 мин)',  modalType: 'pin-entry', badge: '4 состояния', badgeColor: '#ff6d00' },
-      { id: 'pay-cashless',  label: 'Оплата Cashless',   icon: 'wallet',     iconColor: '#2e7d32', description: 'POST /v1/payment/cash — списание кэш-поинтов',         modalType: 'payment-cashless', paymentType: 'cashless' },
-      { id: 'pay-loyalty',   label: 'Оплата Loyalty',    icon: 'star',       iconColor: '#1565c0', description: 'POST /v1/payment/promo — списание баллов',          modalType: 'payment-loyalty', paymentType: 'loyalty' },
+      { id: 'pin-entry',     label: 'Ввод PIN-кода',     icon: 'key-round',  iconColor: '#ff6d00', description: 'PIN-код гостя → платёжный токен (TTL 5 мин)',  modalType: 'pin-entry', badge: '4 состояния', badgeColor: '#ff6d00' },
+      { id: 'pay-cashless',  label: 'Оплата Cashless',   icon: 'wallet',     iconColor: '#2e7d32', description: 'Списание кэш-поинтов',         modalType: 'payment-cashless', paymentType: 'cashless' },
+      { id: 'pay-loyalty',   label: 'Оплата Loyalty',    icon: 'star',       iconColor: '#1565c0', description: 'Списание баллов лояльности',          modalType: 'payment-loyalty', paymentType: 'loyalty' },
     ],
   },
   {
