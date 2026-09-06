@@ -286,13 +286,22 @@ export interface ArrivalsTheme {
 }
 
 export interface ArrivalsThemeMode {
-  /** 'order-screen', 'welcome-screen' или авто-ID кастомного (A1, A2, …) */
+  /** 'order-screen', 'idle-screen' или авто-ID кастомного (A1, A2, …) */
   id: string;
   name: string;
   /** Кастомные режимы можно удалять; стандартные — нет. */
   isCustom?: boolean;
   /** Свой набор элементов у режима. */
   elements: ArrivalsThemeElement[];
+  /** Переключатель «Активировать» (у стандартных, кроме главного экрана). */
+  activated?: boolean;
+  /** Условия показа кастомного режима (строки «Операция» AND/OR — как на стенде). */
+  conditions?: ModeCondition[];
+}
+
+/** Строка условия показа режима (как на стенде: «Операция» — AND/OR). */
+export interface ModeCondition {
+  operation: 'AND' | 'OR';
 }
 
 /* ── Arrivals Order Mock (для эмуляции в теме) ── */

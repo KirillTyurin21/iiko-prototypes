@@ -92,9 +92,33 @@ type PanelView = 'theme' | 'add-element' | 'element';
       <div class="control-panel">
         <div class="panel-body">
           <ng-container *ngIf="panelView === 'theme'">
-            <div class="panel-breadcrumb"><lucide-icon name="home" [size]="16" class="bc-home"></lucide-icon><span class="bc-link">Тема</span></div>
+            <div class="panel-breadcrumb"><lucide-icon name="home" [size]="16" class="bc-home"></lucide-icon><span class="bc-link">Тема</span><ng-container *ngIf="activeMode"><span class="bc-separator">/</span><span class="bc-current">{{ activeMode.name }}</span></ng-container></div>
             <div class="field-group"><label class="field-label">Имя темы</label><input class="field-input" [(ngModel)]="theme.name" /></div>
             <div class="field-group"><label class="field-label">Разрешение</label><select class="field-select" [(ngModel)]="theme.resolution" (ngModelChange)="onResolutionChange()"><option *ngFor="let r of resolutionOptions" [value]="r.value">{{ r.label }}</option></select></div>
+            <ng-container *ngIf="activeMode">
+              <div class="section-divider">Настройка режима</div>
+              <div class="field-group" *ngIf="activeMode.isCustom">
+                <label class="field-label">Название *</label>
+                <input class="field-input" [(ngModel)]="activeMode.name" placeholder="Название режима" />
+                <div class="condition-row" *ngFor="let c of activeMode.conditions ?? []; let i = index">
+                  <label class="field-label cond-label">Операция</label>
+                  <select class="field-select cond-select" [(ngModel)]="c.operation">
+                    <option value="AND">AND</option>
+                    <option value="OR">OR</option>
+                  </select>
+                  <button type="button" class="cond-remove" (click)="removeCondition(activeMode, i)" title="Убрать условие" aria-label="Убрать условие">
+                    <lucide-icon name="x" [size]="14"></lucide-icon>
+                  </button>
+                </div>
+                <button type="button" class="btn-add-condition" (click)="addCondition(activeMode)">Добавить условие</button>
+              </div>
+              <div class="field-group" *ngIf="!activeMode.isCustom && activeMode.id !== 'order-screen'">
+                <label class="field-check">
+                  <input type="checkbox" [(ngModel)]="activeMode.activated" />
+                  Активировать
+                </label>
+              </div>
+            </ng-container>
             <div class="section-divider">Элементы</div>
             <div *ngFor="let el of activeElements; let i = index" class="element-list-item" [class.active]="selectedElementId === el.id" [class.list-dragging]="listDragIndex === i" [class.list-drag-above]="listDragOverIndex === i && listDragIndex !== null && listDragIndex! > i" [class.list-drag-below]="listDragOverIndex === i && listDragIndex !== null && listDragIndex! < i" (click)="selectElementFromList(el.id)" (mousedown)="onListMouseDown(i, $event)"><span class="el-list-name">{{ el.name }}</span><span *ngIf="el.type === 'area'" class="premium-badge" title="Платный элемент — доступен при платной лицензии"><lucide-icon name="alert-circle" [size]="14"></lucide-icon></span><button class="el-list-delete" (click)="requestDeleteElement(el, $event)" title="Удалить"><lucide-icon name="x" [size]="14"></lucide-icon></button></div>
             <button class="btn-add-element" (click)="panelView = 'add-element'">Добавить элемент</button>
@@ -182,6 +206,15 @@ type PanelView = 'theme' | 'add-element' | 'element';
     .field-group { margin-bottom: 12px; } .field-label { display: block; font-size: 12px; color: #757575; margin-bottom: 4px; }
     .field-input { width: 100%; height: 36px; padding: 0 10px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 14px; font-family: Roboto, sans-serif; color: #333; box-sizing: border-box; }
     .field-input:focus { outline: none; border-color: #448aff; }
+    .field-check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #424242; cursor: pointer; user-select: none; }
+    .field-check input { width: 16px; height: 16px; accent-color: #1976d2; cursor: pointer; }
+    .condition-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .cond-label { margin-bottom: 0; flex-shrink: 0; width: 56px; }
+    .cond-select { width: 110px; }
+    .cond-remove { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: none; border-radius: 4px; background: transparent; color: #bdbdbd; cursor: pointer; flex-shrink: 0; }
+    .cond-remove:hover { background: #ffebee; color: #e53935; }
+    .btn-add-condition { height: 32px; padding: 0 12px; border: 1px dashed #bdbdbd; border-radius: 6px; background: transparent; color: #616161; font-size: 12px; font-family: Roboto, sans-serif; cursor: pointer; }
+    .btn-add-condition:hover { border-color: #1976d2; color: #1976d2; background: #f5f9ff; }
     .field-select { width: 100%; height: 36px; padding: 0 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 14px; font-family: Roboto, sans-serif; color: #333; background: #fff; cursor: pointer; box-sizing: border-box; }
     .section-divider { position: relative; text-align: center; margin: 20px 0 12px; font-size: 13px; font-weight: 500; color: #9e9e9e; }
     .section-divider::before, .section-divider::after { content: ''; position: absolute; top: 50%; width: calc(50% - 50px); height: 1px; background: #e0e0e0; }
@@ -338,23 +371,26 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
     return this.activeElements.some(e => e.type === 'area');
   }
 
-  /** Миграция старых тем (без modes) к модели режимов */
+  /** Миграция старых тем к модели режимов (стандартные: «Экран заказа» + «Режим ожидания») */
   private normalizeTheme(t: ArrivalsTheme): ArrivalsTheme {
     if (t.modes && t.modes.length > 0) {
+      // Миграция второго режима «Экран приветствия» → «Режим ожидания»
+      t.modes = t.modes.map(m => {
+        if (m.id === 'welcome-screen') return { ...m, id: 'idle-screen', name: 'Режим ожидания', activated: m.activated ?? false };
+        if (m.id === 'order-screen') return { ...m, activated: m.activated ?? true };
+        return m;
+      });
+      if (t.activeModeId === 'welcome-screen') t.activeModeId = 'idle-screen';
       if (!t.modes.some(m => m.id === t.activeModeId)) t.activeModeId = t.modes[0].id;
       return t;
     }
-    const standard: { id: string; name: string }[] = [
-      { id: 'order-screen', name: 'Экран заказа' },
-      { id: 'welcome-screen', name: 'Экран приветствия' },
-    ];
     const legacy = t.elements ?? [];
-    t.modes = standard.map(s => ({
-      id: s.id,
-      name: s.name,
-      elements: s.id === t.screenMode ? legacy : [],
-    }));
-    t.activeModeId = t.screenMode && standard.some(s => s.id === t.screenMode) ? t.screenMode : 'order-screen';
+    const legacyIsIdle = t.screenMode === 'welcome-screen' || t.screenMode === 'idle-screen';
+    t.modes = [
+      { id: 'order-screen', name: 'Экран заказа', activated: true, elements: legacyIsIdle ? [] : legacy },
+      { id: 'idle-screen', name: 'Режим ожидания', activated: false, elements: legacyIsIdle ? legacy : [] },
+    ];
+    t.activeModeId = legacyIsIdle ? 'idle-screen' : 'order-screen';
     return t;
   }
 
@@ -579,6 +615,17 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
   requestDeleteMode(modeId: string): void {
     const mode = this.theme.modes?.find(m => m.id === modeId);
     if (mode?.isCustom) this.deleteModeTarget = mode;
+  }
+
+  /** Добавить строку условия показа (как на стенде: «Операция» AND/OR) */
+  addCondition(mode: ArrivalsThemeMode): void {
+    if (!mode.conditions) mode.conditions = [];
+    mode.conditions.push({ operation: 'OR' });
+  }
+
+  /** Убрать строку условия */
+  removeCondition(mode: ArrivalsThemeMode, index: number): void {
+    if (mode.conditions) mode.conditions.splice(index, 1);
   }
 
   confirmDeleteMode(): void {
