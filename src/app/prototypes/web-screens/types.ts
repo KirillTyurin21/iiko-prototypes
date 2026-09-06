@@ -364,6 +364,44 @@ export interface ArrivalsControl {
   elements: ArrivalsThemeElement[];
 }
 
+/* ── Источники заказов (Arrivals): дерево настроек + справочник ── */
+
+/** Справочник источников заказов (ведётся в Web; в прототипе — мок) */
+export interface OrderSourceRef {
+  id: string;          // 'kiosk' | 'delivery' | 'front' | ...
+  name: string;        // «Киоск (Kiosk)»…
+}
+
+/** Настройка конкретного источника (перекрывает общую) */
+export interface OrderSourceSetting {
+  id: string;          // локальный ключ записи
+  sourceId: string;    // ссылка на OrderSourceRef
+  prefix: string;      // «Префикс номера заказа»
+  length: number;      // «Длина номера заказа»
+  fillSymbols: string; // «Символы заполнения»
+}
+
+/** Общая настройка источника заказов (поля как на стенде) */
+export interface CommonOrderSourceSetting {
+  prefix: string;
+  length: number;
+  fillSymbols: string;
+  sourceSettings: OrderSourceSetting[];
+}
+
+/** Ресторан: использует сетевую настройку или свою (одну) */
+export interface RestaurantOrderSourceConfig {
+  restaurantId: number;
+  usesNetwork: boolean;                  // true — сетевая, false — своя
+  own: CommonOrderSourceSetting | null;  // своя настройка (одна на ресторан)
+}
+
+/** Сеть целиком: общая настройка + назначения ресторанов */
+export interface NetworkOrderSourceConfig {
+  common: CommonOrderSourceSetting;
+  restaurants: RestaurantOrderSourceConfig[];
+}
+
 /* ── Sounds (Digital Voice) ── */
 
 export interface SoundEventHandler {

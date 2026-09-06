@@ -23,6 +23,8 @@ import {
   DvEventHandler,
   DvAudioFile,
   CheckListPickerItem,
+  OrderSourceRef,
+  NetworkOrderSourceConfig,
 } from '../types';
 
 /** Секции бокового меню Web */
@@ -42,6 +44,7 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
     items: [
       { icon: '', label: 'Контролы', route: 'arrivals-controls' },
       { icon: '', label: 'Темы', route: 'themes-arrivals' },
+      { icon: '', label: 'Источники заказов', route: 'arrivals-order-sources' },
       { icon: '', label: 'Настройка терминалов', route: 'cs-terminals' },
       { icon: '', label: 'Мультиэкранность', route: 'arrivals-multiscreen' },
     ],
@@ -947,6 +950,53 @@ export const MOCK_RMS_DISPLAYS: Record<number, DvArrivalsDisplay[]> = {
   ],
   // Группа 3: RMS офлайн — список дисплеев не загружается (демо Error-состояния)
   3: [],
+};
+
+/* ── Источники заказов (Arrivals): справочник и назначение ── */
+
+/** Справочник источников заказов (как заведён в Web) */
+export const MOCK_ORDER_SOURCES: OrderSourceRef[] = [
+  { id: 'front', name: 'Front' },
+  { id: 'kiosk', name: 'Киоск (Kiosk)' },
+  { id: 'delivery', name: 'Доставка (Delivery Club)' },
+  { id: 'website', name: 'Сайт (Website)' },
+  { id: 'app', name: 'Мобильное приложение (App)' },
+  { id: 'external', name: 'Внешний сервис' },
+  { id: 'pickup', name: 'Самовывоз (Pickup)' },
+];
+
+/**
+ * Настройки источников заказов сети.
+ * Ресторан 1 (Мой ресторан) — сетевая настройка (длина 5).
+ * Ресторан 2 (Ресторан «Центральный») — своя (длина 7) — кейс Вита.
+ * Ресторан 3 (Кафе «Утренняя звезда») — сетевая (длина 5).
+ */
+export const MOCK_NETWORK_ORDER_SOURCE_CONFIG: NetworkOrderSourceConfig = {
+  common: {
+    prefix: '',
+    length: 5,
+    fillSymbols: '',
+    sourceSettings: [
+      { id: 's1', sourceId: 'kiosk', prefix: 'K', length: 4, fillSymbols: '' },
+      { id: 's2', sourceId: 'delivery', prefix: 'DEL-', length: 6, fillSymbols: '0' },
+    ],
+  },
+  restaurants: [
+    { restaurantId: 1, usesNetwork: true, own: null },
+    {
+      restaurantId: 2,
+      usesNetwork: false,
+      own: {
+        prefix: '',
+        length: 7,
+        fillSymbols: '',
+        sourceSettings: [
+          { id: 's3', sourceId: 'kiosk', prefix: 'K', length: 7, fillSymbols: '' },
+        ],
+      },
+    },
+    { restaurantId: 3, usesNetwork: true, own: null },
+  ],
 };
 
 /** Терминалы в новой модели: у каждого — несколько устройств вывода */

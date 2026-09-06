@@ -91,6 +91,13 @@ export const WEB_SCREENS_ROUTES: Routes = [
           ),
       },
       {
+        path: 'arrivals-order-sources',
+        loadComponent: () =>
+          import('./screens/arrivals-order-sources-screen.component').then(
+            m => m.ArrivalsOrderSourcesScreenComponent
+          ),
+      },
+      {
         path: 'sounds-event-handlers',
         loadComponent: () =>
           import('./screens/sounds-event-handlers-screen.component').then(

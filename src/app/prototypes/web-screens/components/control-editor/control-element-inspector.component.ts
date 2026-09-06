@@ -1,8 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconsModule } from '@/shared/icons.module';
+import { StorageService } from '@/shared/storage.service';
 import { ArrivalsThemeElement, ArrivalsElementType } from '../../types';
+import { MOCK_ORDER_SOURCES } from '../../data/mock-data';
 import { CollapsibleSectionComponent } from '../inspector/collapsible-section.component';
 import { LayoutFieldsComponent } from '../inspector/layout-fields.component';
 import { BorderFieldsComponent } from '../inspector/border-fields.component';
@@ -109,8 +111,9 @@ import { AlignFieldsComponent } from '../inspector/align-fields.component';
           <label class="field-label">Источник заказов</label>
           <select class="field-select" [(ngModel)]="element.externalSource">
             <option value="">— Любой источник —</option>
-            <option *ngFor="let s of externalSources" [ngValue]="s.value">{{ s.label }}</option>
+            <option *ngFor="let s of orderSources" [ngValue]="s.id">{{ s.name }}</option>
           </select>
+          <p class="field-hint">Источник выбирается из справочника, заведённого в Web</p>
         </div>
         <div class="field-group">
           <label class="field-label">Демо-номер (для предпросмотра)</label>
@@ -644,6 +647,7 @@ import { AlignFieldsComponent } from '../inspector/align-fields.component';
 
     .field-group { margin-bottom: 12px; }
     .field-label { display: block; font-size: 12px; color: #757575; margin-bottom: 4px; }
+    .field-hint { margin: 4px 0 0; font-size: 11.5px; color: #9e9e9e; }
     .field-input {
       width: 100%; height: 36px; padding: 0 10px;
       border: 1px solid #e0e0e0; border-radius: 4px;
@@ -694,15 +698,12 @@ export class ControlElementInspectorComponent {
   }
 
   /* ── External Order Number Sources ── */
-  externalSources = [
-    { value: '', label: 'Любой источник' },
-    { value: 'delivery', label: 'Доставка (Delivery)' },
-    { value: 'kiosk', label: 'Киоск (Kiosk)' },
-    { value: 'website', label: 'Сайт (Website)' },
-    { value: 'app', label: 'Мобильное приложение (App)' },
-    { value: 'external', label: 'Внешний сервис' },
-    { value: 'magnit', label: 'Магнит' },
-  ];
+  /* Справочник источников заказов (ведётся в Web) */
+  private storage = inject(StorageService);
+
+  get orderSources() {
+    return this.storage.load('web-screens', 'order-sources-refs', [...MOCK_ORDER_SOURCES]);
+  }
 
   toggleCounterStatus(status: string, checked: boolean): void {
     const arr = this.element.counterStatuses ? [...this.element.counterStatuses] : [];
