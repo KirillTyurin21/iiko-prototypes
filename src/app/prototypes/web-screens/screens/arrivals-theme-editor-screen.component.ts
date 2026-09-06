@@ -9,7 +9,7 @@ import { StorageService } from '@/shared/storage.service';
 import { CsDataService } from '../cs-data.service';
 import { MOCK_ARRIVALS_THEMES, MOCK_ARRIVALS_CONTROLS, MOCK_ARRIVALS_ORDERS } from '../data/mock-data';
 import { ARRIVALS_THEME_CATEGORIES } from '../data/element-categories.data';
-import { ArrivalsTheme, ArrivalsThemeElement, ArrivalsElementType, ArrivalsControl, ArrivalsOrderMock, ElementCategory } from '../types';
+import { ArrivalsTheme, ArrivalsThemeElement, ArrivalsThemeMode, ArrivalsElementType, ArrivalsControl, ArrivalsOrderMock, ElementCategory } from '../types';
 import { AreaElementRendererComponent } from '../components/theme-editor/area-element-renderer.component';
 import { ThemeElementInspectorComponent } from '../components/theme-editor/theme-element-inspector.component';
 import { AreaElementInspectorComponent } from '../components/theme-editor/area-element-inspector.component';
@@ -18,26 +18,38 @@ import { AreaEmulationHelper } from '../components/theme-editor/area-emulation.s
 import { SimulatorHelper } from '../components/theme-editor/simulator.helper';
 import { ElementPaletteComponent } from '../components/element-palette/element-palette.component';
 import { CanvasZoomControlComponent } from '../components/theme-editor/canvas-zoom-control.component';
+import { ModePanelComponent } from '../components/theme-editor/mode-panel.component';
 
 type PanelView = 'theme' | 'add-element' | 'element';
 
 @Component({
   selector: 'app-arrivals-theme-editor-screen',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconsModule, UiConfirmDialogComponent, AreaElementRendererComponent, ThemeElementInspectorComponent, AreaElementInspectorComponent, OrderSimulatorComponent, ElementPaletteComponent, CanvasZoomControlComponent],
+  imports: [CommonModule, FormsModule, IconsModule, UiConfirmDialogComponent, AreaElementRendererComponent, ThemeElementInspectorComponent, AreaElementInspectorComponent, OrderSimulatorComponent, ElementPaletteComponent, CanvasZoomControlComponent, ModePanelComponent],
   template: `
     <div class="editor-layout">
+      <app-mode-panel
+        [modes]="theme.modes ?? []"
+        [activeModeId]="theme.activeModeId ?? null"
+        [collapsed]="modePanelCollapsed"
+        [canvasWidth]="resWidth"
+        [canvasHeight]="resHeight"
+        (selectMode)="selectMode($event)"
+        (toggleCollapse)="modePanelCollapsed = !modePanelCollapsed"
+        (addMode)="openNewModeModal()"
+        (deleteMode)="requestDeleteMode($event)">
+      </app-mode-panel>
       <div class="canvas-column">
         <div class="canvas-area" #canvasAreaRef>
         <div class="canvas-scroll">
           <div class="canvas-sizer" #canvasSizerRef [style.width.px]="resWidth * canvasScale" [style.height.px]="resHeight * canvasScale">
             <div class="canvas-viewport" [class.hide-grid]="!gridVisible" [class.hide-borders]="!bordersVisible" [style.width.px]="resWidth" [style.height.px]="resHeight" [style.transform]="'scale(' + canvasScale + ')'" (click)="onCanvasClick()">
-            <ng-container *ngFor="let el of theme.elements; let i = index">
-              <div *ngIf="el.type === 'area'" class="canvas-element area-element" [class.selected]="selectedElementId === el.id" [class.dragging]="dragState?.elementId === el.id" [style.z-index]="theme.elements.length - i" [style.left.px]="el.x" [style.top.px]="el.y" [style.width.px]="el.width" [style.height.px]="el.height" [style.border-width.px]="el.borderWidth" [style.border-color]="el.borderColor" [style.border-radius.px]="el.borderRadius" (click)="selectElement(el.id, $event)" (mousedown)="onElementMouseDown($event, el)">
+            <ng-container *ngFor="let el of activeElements; let i = index">
+              <div *ngIf="el.type === 'area'" class="canvas-element area-element" [class.selected]="selectedElementId === el.id" [class.dragging]="dragState?.elementId === el.id" [style.z-index]="activeElements.length - i" [style.left.px]="el.x" [style.top.px]="el.y" [style.width.px]="el.width" [style.height.px]="el.height" [style.border-width.px]="el.borderWidth" [style.border-color]="el.borderColor" [style.border-radius.px]="el.borderRadius" (click)="selectElement(el.id, $event)" (mousedown)="onElementMouseDown($event, el)">
                 <app-area-element-renderer [element]="el" [orderPositions]="areaHelper.getOrderPositions(el, sim.orders, sim.active, mockOrders, availableControls)" [emulationRunning]="areaHelper.isRunning(el.id)" [hasControl]="!!el.areaControlId" (toggleEmu)="areaHelper.toggle($event, getFilterSource(), availableControls)" (resetEmu)="areaHelper.reset($event.id)" (fillEmu)="areaHelper.fill($event, getFilterSource(), availableControls)"></app-area-element-renderer>
                 <ng-container *ngIf="selectedElementId === el.id"><div class="handle tl" (mousedown)="onHandleMouseDown($event, el, 'tl')"></div><div class="handle tr" (mousedown)="onHandleMouseDown($event, el, 'tr')"></div><div class="handle bl" (mousedown)="onHandleMouseDown($event, el, 'bl')"></div><div class="handle br" (mousedown)="onHandleMouseDown($event, el, 'br')"></div><div class="handle tm" (mousedown)="onHandleMouseDown($event, el, 'tm')"></div><div class="handle bm" (mousedown)="onHandleMouseDown($event, el, 'bm')"></div><div class="handle ml" (mousedown)="onHandleMouseDown($event, el, 'ml')"></div><div class="handle mr" (mousedown)="onHandleMouseDown($event, el, 'mr')"></div></ng-container>
               </div>
-              <div *ngIf="el.type !== 'area'" class="canvas-element" [class.selected]="selectedElementId === el.id" [class.dragging]="dragState?.elementId === el.id" [style.z-index]="theme.elements.length - i" [style.left.px]="el.x" [style.top.px]="el.y" [style.width.px]="el.width" [style.height.px]="el.height" [style.border-width.px]="el.borderWidth" [style.border-color]="el.borderColor" [style.border-radius.px]="el.borderRadius" (click)="selectElement(el.id, $event)" (mousedown)="onElementMouseDown($event, el)">
+              <div *ngIf="el.type !== 'area'" class="canvas-element" [class.selected]="selectedElementId === el.id" [class.dragging]="dragState?.elementId === el.id" [style.z-index]="activeElements.length - i" [style.left.px]="el.x" [style.top.px]="el.y" [style.width.px]="el.width" [style.height.px]="el.height" [style.border-width.px]="el.borderWidth" [style.border-color]="el.borderColor" [style.border-radius.px]="el.borderRadius" (click)="selectElement(el.id, $event)" (mousedown)="onElementMouseDown($event, el)">
                 <span *ngIf="el.type === 'text'" class="el-text" [style.font-family]="el.fontFamily" [style.font-size.px]="el.fontSize" [style.font-weight]="el.fontBold ? 'bold' : 'normal'" [style.font-style]="el.fontItalic ? 'italic' : 'normal'" [style.text-align]="el.textAlign">{{ el.text }}</span>
                 <span *ngIf="el.type === 'image'" class="el-placeholder"><lucide-icon name="image" [size]="24"></lucide-icon></span>
                 <span *ngIf="el.type === 'price'" class="el-text" [style.font-family]="el.fontFamily" [style.font-size.px]="el.fontSize" [style.font-weight]="el.fontBold ? 'bold' : 'normal'" [style.font-style]="el.fontItalic ? 'italic' : 'normal'" [style.text-align]="el.textAlign" [title]="getPriceTooltip(el)">{{ getPricePreview(el) }}</span>
@@ -83,10 +95,8 @@ type PanelView = 'theme' | 'add-element' | 'element';
             <div class="panel-breadcrumb"><lucide-icon name="home" [size]="16" class="bc-home"></lucide-icon><span class="bc-link">Тема</span></div>
             <div class="field-group"><label class="field-label">Имя темы</label><input class="field-input" [(ngModel)]="theme.name" /></div>
             <div class="field-group"><label class="field-label">Разрешение</label><select class="field-select" [(ngModel)]="theme.resolution" (ngModelChange)="onResolutionChange()"><option *ngFor="let r of resolutionOptions" [value]="r.value">{{ r.label }}</option></select></div>
-            <div class="section-divider">Настройка режима</div>
-            <div class="field-group"><select class="field-select" [(ngModel)]="theme.screenMode"><option *ngFor="let m of screenModeOptions" [value]="m.value">{{ m.label }}</option></select></div>
             <div class="section-divider">Элементы</div>
-            <div *ngFor="let el of theme.elements; let i = index" class="element-list-item" [class.active]="selectedElementId === el.id" [class.list-dragging]="listDragIndex === i" [class.list-drag-above]="listDragOverIndex === i && listDragIndex !== null && listDragIndex! > i" [class.list-drag-below]="listDragOverIndex === i && listDragIndex !== null && listDragIndex! < i" (click)="selectElementFromList(el.id)" (mousedown)="onListMouseDown(i, $event)"><span class="el-list-name">{{ el.name }}</span><span *ngIf="el.type === 'area'" class="premium-badge" title="Платный элемент — доступен при платной лицензии"><lucide-icon name="alert-circle" [size]="14"></lucide-icon></span><button class="el-list-delete" (click)="requestDeleteElement(el, $event)" title="Удалить"><lucide-icon name="x" [size]="14"></lucide-icon></button></div>
+            <div *ngFor="let el of activeElements; let i = index" class="element-list-item" [class.active]="selectedElementId === el.id" [class.list-dragging]="listDragIndex === i" [class.list-drag-above]="listDragOverIndex === i && listDragIndex !== null && listDragIndex! > i" [class.list-drag-below]="listDragOverIndex === i && listDragIndex !== null && listDragIndex! < i" (click)="selectElementFromList(el.id)" (mousedown)="onListMouseDown(i, $event)"><span class="el-list-name">{{ el.name }}</span><span *ngIf="el.type === 'area'" class="premium-badge" title="Платный элемент — доступен при платной лицензии"><lucide-icon name="alert-circle" [size]="14"></lucide-icon></span><button class="el-list-delete" (click)="requestDeleteElement(el, $event)" title="Удалить"><lucide-icon name="x" [size]="14"></lucide-icon></button></div>
             <button class="btn-add-element" (click)="panelView = 'add-element'">Добавить элемент</button>
           </ng-container>
           <app-element-palette
@@ -111,6 +121,20 @@ type PanelView = 'theme' | 'add-element' | 'element';
     </div>
       <div *ngIf="toastMessage" class="toast">{{ toastMessage }}</div>
       <ui-confirm-dialog *ngIf="deleteElementTarget" [open]="true" title="Удалить элемент" [message]="'Удалить элемент «' + deleteElementTarget.name + '»?'" confirmText="Удалить" variant="danger" (confirmed)="confirmDeleteElement()" (cancelled)="deleteElementTarget = null"></ui-confirm-dialog>
+      <ui-confirm-dialog *ngIf="deleteModeTarget" [open]="true" title="Удалить режим" [message]="'Удалить режим «' + deleteModeTarget.name + '»? Элементы режима будут удалены.'" confirmText="Удалить" variant="danger" (confirmed)="confirmDeleteMode()" (cancelled)="deleteModeTarget = null"></ui-confirm-dialog>
+      <div *ngIf="newModeModalOpen" class="mode-modal-overlay" (click)="closeNewModeModal()">
+        <div class="mode-modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Новый режим">
+          <div class="mode-modal-title">Новый режим</div>
+          <div class="field-group">
+            <label class="field-label">Название режима</label>
+            <input class="field-input" [(ngModel)]="newModeName" (keydown.enter)="confirmNewMode()" placeholder="Напр. Режим доставки" />
+          </div>
+          <div class="mode-modal-actions">
+            <button class="btn-save" (click)="confirmNewMode()">Создать</button>
+            <button class="btn-back" (click)="closeNewModeModal()">Отмена</button>
+          </div>
+        </div>
+      </div>
     </div>
   `,
   styles: [`
@@ -175,6 +199,14 @@ type PanelView = 'theme' | 'add-element' | 'element';
     .btn-add-element:hover { background: #2979ff; }
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 10px 24px; background: #333; color: #fff; border-radius: 6px; font-size: 14px; z-index: 9000; animation: toastIn 0.3s ease; }
     @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } }
+    .mode-modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: 8000; display: flex; align-items: center; justify-content: center; }
+    .mode-modal { width: 340px; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2); }
+    .mode-modal-title { font-size: 15px; font-weight: 500; color: #333; margin-bottom: 14px; }
+    .mode-modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+    .mode-modal .btn-save { flex: none; width: 120px; border: none; background: #448aff; color: #fff; }
+    .mode-modal .btn-save:hover { background: #2979ff; }
+    .mode-modal .btn-back { flex: none; width: 120px; background: transparent; border: 1px solid #e0e0e0; color: #616161; }
+    .mode-modal .btn-back:hover { background: #f5f5f5; }
   `],
 })
 export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -187,6 +219,10 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
   panelView: PanelView = 'theme';
   selectedElementId: string | null = null;
   deleteElementTarget: ArrivalsThemeElement | null = null;
+  modePanelCollapsed = false;
+  deleteModeTarget: ArrivalsThemeMode | null = null;
+  newModeModalOpen = false;
+  newModeName = '';
   toastMessage = '';
   canvasScale = 1;
   bordersVisible = true;
@@ -221,9 +257,6 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
   resolutionOptions: SelectOption[] = [
     { value: '1024x768', label: '1024px / 768px' }, { value: '1366x768', label: '1366px / 768px' },
     { value: '1366x1000', label: '1366px / 1000px' }, { value: '1920x1080', label: '1920px / 1080px' },
-  ];
-  screenModeOptions: SelectOption[] = [
-    { value: 'order-screen', label: 'Экран заказа' }, { value: 'welcome-screen', label: 'Экран приветствия' },
   ];
   elementTypes: { type: ArrivalsElementType; label: string }[] = [
     { type: 'text', label: 'Текст' }, { type: 'image', label: 'Изображение' },
@@ -277,8 +310,8 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
 
   private onListMouseUp(): void {
     if (this.listDragIndex !== null && this.listDragOverIndex !== null && this.listDragIndex !== this.listDragOverIndex) {
-      const el = this.theme.elements.splice(this.listDragIndex, 1)[0];
-      this.theme.elements.splice(this.listDragOverIndex, 0, el);
+      const el = this.activeElements.splice(this.listDragIndex, 1)[0];
+      this.activeElements.splice(this.listDragOverIndex, 0, el);
     }
     this.listDragIndex = null;
     this.listDragOverIndex = null;
@@ -288,12 +321,41 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
 
   get resWidth(): number { return parseInt(this.theme.resolution.split('x')[0]) || 1024; }
   get resHeight(): number { return parseInt(this.theme.resolution.split('x')[1]) || 768; }
+  /** Активный режим темы */
+  get activeMode(): ArrivalsThemeMode | null {
+    if (!this.theme.modes || this.theme.modes.length === 0) return null;
+    return this.theme.modes.find(m => m.id === this.theme.activeModeId) ?? this.theme.modes[0];
+  }
+  /** Элементы активного режима (для канваса и списка) */
+  get activeElements(): ArrivalsThemeElement[] {
+    return this.activeMode?.elements ?? [];
+  }
   get selectedElement(): ArrivalsThemeElement | null {
-    return this.selectedElementId ? (this.theme.elements.find(e => e.id === this.selectedElementId) ?? null) : null;
+    return this.selectedElementId ? (this.activeElements.find(e => e.id === this.selectedElementId) ?? null) : null;
   }
   /** Тема содержит платный элемент (для баннера) */
   get themeHasPremium(): boolean {
-    return this.theme.elements.some(e => e.type === 'area');
+    return this.activeElements.some(e => e.type === 'area');
+  }
+
+  /** Миграция старых тем (без modes) к модели режимов */
+  private normalizeTheme(t: ArrivalsTheme): ArrivalsTheme {
+    if (t.modes && t.modes.length > 0) {
+      if (!t.modes.some(m => m.id === t.activeModeId)) t.activeModeId = t.modes[0].id;
+      return t;
+    }
+    const standard: { id: string; name: string }[] = [
+      { id: 'order-screen', name: 'Экран заказа' },
+      { id: 'welcome-screen', name: 'Экран приветствия' },
+    ];
+    const legacy = t.elements ?? [];
+    t.modes = standard.map(s => ({
+      id: s.id,
+      name: s.name,
+      elements: s.id === t.screenMode ? legacy : [],
+    }));
+    t.activeModeId = t.screenMode && standard.some(s => s.id === t.screenMode) ? t.screenMode : 'order-screen';
+    return t;
   }
 
   ngOnInit(): void {
@@ -305,6 +367,7 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
     } else {
       this.theme.id = Date.now();
     }
+    this.theme = this.normalizeTheme(this.theme);
     this.availableControls = this.storage.load('web-screens', 'arrivals-controls', [...MOCK_ARRIVALS_CONTROLS]);
 
     // Handle return from control editor with newControlId (Save as Copy)
@@ -314,7 +377,7 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
       // Apply to the EXACT area element that was being edited
       const elementId = this.route.snapshot.queryParamMap.get('elementId');
       const targetEl = elementId
-        ? this.theme.elements.find(e => e.id === elementId && e.type === 'area')
+        ? (this.theme.modes ?? []).flatMap(m => m.elements).find(e => e.id === elementId && e.type === 'area')
         : null;
       if (targetEl) {
         targetEl.areaControlId = ncId;
@@ -453,14 +516,14 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
   private onDocMouseMove(event: MouseEvent): void {
     const s = this.canvasScale;
     if (this.dragState) {
-      const el = this.theme.elements.find(e => e.id === this.dragState!.elementId);
+      const el = this.activeElements.find(e => e.id === this.dragState!.elementId);
       if (el) {
         el.x = Math.max(0, Math.round(this.snapVal(this.dragState.startElX + (event.clientX - this.dragState.startMouseX) / s)));
         el.y = Math.max(0, Math.round(this.snapVal(this.dragState.startElY + (event.clientY - this.dragState.startMouseY) / s)));
       }
     }
     if (this.resizeState) {
-      const el = this.theme.elements.find(e => e.id === this.resizeState!.elementId);
+      const el = this.activeElements.find(e => e.id === this.resizeState!.elementId);
       if (el) {
         const dx = (event.clientX - this.resizeState.startMouseX) / s, dy = (event.clientY - this.resizeState.startMouseY) / s, h = this.resizeState.handle;
         if (h.includes('r')) el.width = this.snapVal(this.resizeState.startElW + dx);
@@ -488,6 +551,47 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
   selectElementFromList(id: string): void { this.selectedElementId = id; this.panelView = 'element'; }
   deselectElement(): void { this.selectedElementId = null; this.panelView = 'theme'; }
 
+  /* ── Режимы (левая панель) ── */
+  selectMode(id: string): void {
+    if (!this.theme.modes?.some(m => m.id === id)) return;
+    this.theme.activeModeId = id;
+    this.selectedElementId = null;
+    this.panelView = 'theme';
+    this.areaHelper.clearAll();
+  }
+
+  openNewModeModal(): void { this.newModeName = ''; this.newModeModalOpen = true; }
+  closeNewModeModal(): void { this.newModeModalOpen = false; }
+
+  confirmNewMode(): void {
+    const name = (this.newModeName || '').trim();
+    if (!name || !this.theme.modes) return;
+    const customCount = this.theme.modes.filter(m => m.isCustom).length;
+    const id = 'A' + (customCount + 1);
+    this.theme.modes.push({ id, name, isCustom: true, elements: [] });
+    this.theme.activeModeId = id;
+    this.newModeModalOpen = false;
+    this.selectedElementId = null;
+    this.panelView = 'theme';
+    this.showToast('Режим «' + name + '» создан');
+  }
+
+  requestDeleteMode(modeId: string): void {
+    const mode = this.theme.modes?.find(m => m.id === modeId);
+    if (mode?.isCustom) this.deleteModeTarget = mode;
+  }
+
+  confirmDeleteMode(): void {
+    if (!this.deleteModeTarget || !this.theme.modes) return;
+    const deletedId = this.deleteModeTarget.id;
+    this.theme.modes = this.theme.modes.filter(m => m.id !== deletedId);
+    if (this.theme.activeModeId === deletedId) this.theme.activeModeId = this.theme.modes[0]?.id ?? '';
+    this.selectedElementId = null;
+    this.panelView = 'theme';
+    this.deleteModeTarget = null;
+    this.showToast('Режим удалён');
+  }
+
   /* ── Add / Delete ── */
   getPricePreview(el: ArrivalsThemeElement): string {
     const value = String(el.previewPrice ?? 350);
@@ -509,18 +613,19 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
     if (type === 'area' && !this.dataService.hasPremiumLicense) {
       this.showToast('Вы добавляете платный элемент. Он будет недоступен на экране без платной лицензии.');
     }
-    const el: ArrivalsThemeElement = { id: Date.now().toString() + Math.random().toString(36).slice(2, 6), type, name: label, x: 20 + this.theme.elements.length * 20, y: 20 + this.theme.elements.length * 20, width: 120, height: 60, borderWidth: 1, borderColor: '#000000', borderRadius: 0 };
+    const el: ArrivalsThemeElement = { id: Date.now().toString() + Math.random().toString(36).slice(2, 6), type, name: label, x: 20 + this.activeElements.length * 20, y: 20 + this.activeElements.length * 20, width: 120, height: 60, borderWidth: 1, borderColor: '#000000', borderRadius: 0 };
     if (type === 'text') { el.text = 'Type something'; el.fontFamily = 'Arial'; el.fontSize = 14; el.fontBold = false; el.fontItalic = false; el.textAlign = 'left'; }
     if (type === 'price') { el.name = 'Цена блюда'; el.fontFamily = 'Arial'; el.fontSize = 14; el.fontBold = false; el.fontItalic = false; el.textAlign = 'left'; el.productId = undefined; el.productName = undefined; el.sizeId = null; el.sizeName = undefined; el.showCurrency = true; el.currencySymbol = '₽'; el.currencyPosition = 'after'; }
     if (type === 'area') { el.name = 'Область контрола'; el.width = 300; el.height = 500; el.borderWidth = 2; el.borderColor = '#90CAF9'; el.borderRadius = 4; el.areaBgColor = '#ffffff'; el.areaControlId = this.availableControls.length > 0 ? this.availableControls[0].id : undefined; el.areaMode = 'list'; el.areaListDirection = 'top'; el.areaMaxColumns = 1; el.areaStatusType = 'kitchen'; el.areaStatuses = []; el.areaOrderTypes = ['ordinary', 'courier', 'pickup']; el.areaOrderSources = []; el.areaSortOrder = 'oldest-first'; el.areaInterlineSpacing = 0; }
-    this.theme.elements.push(el);
+    this.activeElements.push(el);
     this.selectedElementId = el.id; this.panelView = 'element';
   }
 
   requestDeleteElement(el: ArrivalsThemeElement, event: Event): void { event.stopPropagation(); this.deleteElementTarget = el; }
   confirmDeleteElement(): void {
     if (this.deleteElementTarget) {
-      this.theme.elements = this.theme.elements.filter(e => e.id !== this.deleteElementTarget!.id);
+      const mode = this.activeMode;
+      if (mode) mode.elements = mode.elements.filter(e => e.id !== this.deleteElementTarget!.id);
       if (this.selectedElementId === this.deleteElementTarget.id) this.deselectElement();
       this.deleteElementTarget = null;
     }

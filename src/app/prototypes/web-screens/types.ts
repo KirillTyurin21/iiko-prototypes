@@ -279,6 +279,20 @@ export interface ArrivalsTheme {
   resolution: string;
   screenMode: string;
   elements: ArrivalsThemeElement[];
+  /** Режимы темы (панель слева). При отсутствии — миграция из elements/screenMode. */
+  modes?: ArrivalsThemeMode[];
+  /** Активный режим (id). */
+  activeModeId?: string;
+}
+
+export interface ArrivalsThemeMode {
+  /** 'order-screen', 'welcome-screen' или авто-ID кастомного (A1, A2, …) */
+  id: string;
+  name: string;
+  /** Кастомные режимы можно удалять; стандартные — нет. */
+  isCustom?: boolean;
+  /** Свой набор элементов у режима. */
+  elements: ArrivalsThemeElement[];
 }
 
 /* ── Arrivals Order Mock (для эмуляции в теме) ── */
