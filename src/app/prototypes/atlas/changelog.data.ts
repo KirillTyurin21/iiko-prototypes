@@ -2,6 +2,22 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '3.8',
+    date: '2026-09-07',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Страница интеграции (СберЧаевые)',
+        pageRoute: '/prototype/atlas/sber-tips',
+        items: [
+          'При подключении добавлено информирование: «Тип оплаты будет подключен во всех ресторанах» — на странице и в окне подтверждения',
+          'На странице отмечено, что тип оплаты создаётся для всей сети, с указанием количества ресторанов',
+          'Отображается количество ресторанов, к которым применено подключение (по аналогии с Kaspi)',
+        ],
+      },
+    ],
+  },
+  {
     version: '3.7',
     date: '2026-08-20',
     status: 'released',
