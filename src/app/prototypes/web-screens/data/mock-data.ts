@@ -44,7 +44,6 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
     items: [
       { icon: '', label: 'Контролы', route: 'arrivals-controls' },
       { icon: '', label: 'Темы', route: 'themes-arrivals' },
-      { icon: '', label: 'Источники заказов', route: 'arrivals-order-sources' },
       { icon: '', label: 'Настройка терминалов', route: 'cs-terminals' },
       { icon: '', label: 'Мультиэкранность', route: 'arrivals-multiscreen' },
     ],
@@ -954,48 +953,36 @@ export const MOCK_RMS_DISPLAYS: Record<number, DvArrivalsDisplay[]> = {
 
 /* ── Источники заказов (Arrivals): справочник и назначение ── */
 
-/** Справочник источников заказов (как заведён в Web) */
+/** Справочник источников заказов (как заведён в Web: Название + Код) */
 export const MOCK_ORDER_SOURCES: OrderSourceRef[] = [
-  { id: 'front', name: 'Front' },
-  { id: 'kiosk', name: 'Киоск (Kiosk)' },
-  { id: 'delivery', name: 'Доставка (Delivery Club)' },
-  { id: 'website', name: 'Сайт (Website)' },
-  { id: 'app', name: 'Мобильное приложение (App)' },
-  { id: 'external', name: 'Внешний сервис' },
-  { id: 'pickup', name: 'Самовывоз (Pickup)' },
+  { id: 'front', name: 'Front', code: 'FRONT' },
+  { id: 'kiosk', name: 'Киоск (Kiosk)', code: 'KIOSK' },
+  { id: 'delivery', name: 'Доставка (Delivery Club)', code: 'DELIVERY' },
+  { id: 'website', name: 'Сайт (Website)', code: 'WEB' },
+  { id: 'app', name: 'Мобильное приложение (App)', code: 'APP' },
+  { id: 'external', name: 'Внешний сервис', code: 'EXTERNAL' },
+  { id: 'pickup', name: 'Самовывоз (Pickup)', code: 'PICKUP' },
 ];
 
 /**
- * Настройки источников заказов сети.
- * Ресторан 1 (Мой ресторан) — сетевая настройка (длина 5).
- * Ресторан 2 (Ресторан «Центральный») — своя (длина 7) — кейс Вита.
- * Ресторан 3 (Кафе «Утренняя звезда») — сетевая (длина 5).
+ * Настройки источников заказов сети (модель v2).
+ * Глобальная настройка (длина 5) + справочник дочерних («Своя 7» — кейс Вита).
+ * Настройки конкретных источников — единые на сеть (не копируются в ресторан).
  */
 export const MOCK_NETWORK_ORDER_SOURCE_CONFIG: NetworkOrderSourceConfig = {
-  common: {
-    prefix: '',
-    length: 5,
-    fillSymbols: '',
-    sourceSettings: [
-      { id: 's1', sourceId: 'kiosk', prefix: 'K', length: 4, fillSymbols: '' },
-      { id: 's2', sourceId: 'delivery', prefix: 'DEL-', length: 6, fillSymbols: '0' },
-    ],
-  },
+  global: { id: 'global', name: 'Общая настройка (сеть)', prefix: '', length: 5, fillSymbols: '' },
+  commonSettings: [
+    { id: 'c1', name: 'Своя 7 (Вит)', prefix: '', length: 7, fillSymbols: '' },
+    { id: 'c2', name: 'Доставка 6', prefix: 'D-', length: 6, fillSymbols: '0' },
+  ],
+  sourceSettings: [
+    { id: 's1', sourceId: 'kiosk', prefix: 'K', length: 4, fillSymbols: '' },
+    { id: 's2', sourceId: 'delivery', prefix: 'DEL-', length: 6, fillSymbols: '0' },
+  ],
   restaurants: [
-    { restaurantId: 1, usesNetwork: true, own: null },
-    {
-      restaurantId: 2,
-      usesNetwork: false,
-      own: {
-        prefix: '',
-        length: 7,
-        fillSymbols: '',
-        sourceSettings: [
-          { id: 's3', sourceId: 'kiosk', prefix: 'K', length: 7, fillSymbols: '' },
-        ],
-      },
-    },
-    { restaurantId: 3, usesNetwork: true, own: null },
+    { restaurantId: 1, commonSettingId: null },
+    { restaurantId: 2, commonSettingId: 'c1' },
+    { restaurantId: 3, commonSettingId: 'c2' },
   ],
 };
 

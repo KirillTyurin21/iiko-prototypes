@@ -364,41 +364,44 @@ export interface ArrivalsControl {
   elements: ArrivalsThemeElement[];
 }
 
-/* ── Источники заказов (Arrivals): дерево настроек + справочник ── */
+/* ── Источники заказов (Arrivals): настройки + справочник ── */
 
-/** Справочник источников заказов (ведётся в Web; в прототипе — мок) */
+/** Справочник источников заказов (ведётся в Web: Название* + Код*) */
 export interface OrderSourceRef {
   id: string;          // 'kiosk' | 'delivery' | 'front' | ...
   name: string;        // «Киоск (Kiosk)»…
+  code?: string;       // код из справочника Web
 }
 
-/** Настройка конкретного источника (перекрывает общую) */
+/** Настройка конкретного источника (перекрывает общую; единая на сеть) */
 export interface OrderSourceSetting {
   id: string;          // локальный ключ записи
   sourceId: string;    // ссылка на OrderSourceRef
   prefix: string;      // «Префикс номера заказа»
-  length: number;      // «Длина номера заказа»
-  fillSymbols: string; // «Символы заполнения»
+  length: number;      // «Длина номера заказа» (общая, С УЧЁТОМ префикса)
+  fillSymbols: string; // «Символы заполнения» (между префиксом и номером)
 }
 
-/** Общая настройка источника заказов (поля как на стенде) */
+/** Общая настройка источника заказов — С ИМЕНЕМ (справочник) */
 export interface CommonOrderSourceSetting {
+  id: string;
+  name: string;
   prefix: string;
   length: number;
   fillSymbols: string;
-  sourceSettings: OrderSourceSetting[];
 }
 
-/** Ресторан: использует сетевую настройку или свою (одну) */
+/** Ресторан: одна общая настройка (null — глобальная/сетевая) */
 export interface RestaurantOrderSourceConfig {
   restaurantId: number;
-  usesNetwork: boolean;                  // true — сетевая, false — своя
-  own: CommonOrderSourceSetting | null;  // своя настройка (одна на ресторан)
+  commonSettingId: string | null;
 }
 
-/** Сеть целиком: общая настройка + назначения ресторанов */
+/** Сеть: глобальная настройка + справочник дочерних + единые настройки источников + назначения */
 export interface NetworkOrderSourceConfig {
-  common: CommonOrderSourceSetting;
+  global: CommonOrderSourceSetting;
+  commonSettings: CommonOrderSourceSetting[];
+  sourceSettings: OrderSourceSetting[];
   restaurants: RestaurantOrderSourceConfig[];
 }
 

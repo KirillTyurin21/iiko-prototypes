@@ -23,20 +23,21 @@ import { CommonOrderSourceSetting } from '../../types';
           [value]="setting.prefix"
           (valueChange)="setting.prefix = $event; changed.emit()"
           placeholder="Напр. DEL-"
+          hint="Добавляется перед номером заказа"
         ></ui-input>
         <ui-input
           label="Длина номера заказа"
           [value]="setting.length ? setting.length.toString() : ''"
           (valueChange)="onLength($event)"
           type="number"
-          hint="Символов"
+          hint="Общая длина номера с учётом префикса"
         ></ui-input>
         <ui-input
           label="Символы заполнения"
           [value]="setting.fillSymbols"
           (valueChange)="setting.fillSymbols = $event; changed.emit()"
           placeholder="Напр. 0"
-          hint="Дополняют номер до нужной длины"
+          hint="Дополняют номер, добавляются между префиксом и номером заказа"
         ></ui-input>
       </div>
     </div>

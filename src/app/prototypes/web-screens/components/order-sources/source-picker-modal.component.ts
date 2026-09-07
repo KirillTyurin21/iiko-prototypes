@@ -42,20 +42,20 @@ export interface OrderSourceDraft {
           label="Префикс номера заказа"
           [(value)]="prefix"
           placeholder="Напр. DEL-"
-          hint="Подставляется перед номером заказа"
+          hint="Добавляется перед номером заказа"
         ></ui-input>
         <ui-input
           label="Длина номера заказа"
           [(value)]="lengthText"
           type="number"
           placeholder="Напр. 5"
-          hint="Длина номера заказа (символов)"
+          hint="Общая длина номера с учётом префикса"
         ></ui-input>
         <ui-input
           label="Символы заполнения"
           [(value)]="fillSymbols"
           placeholder="Напр. 0"
-          hint="Символ, которым дополняется номер до нужной длины"
+          hint="Дополняют номер, добавляются между префиксом и номером заказа"
         ></ui-input>
       </div>
 
