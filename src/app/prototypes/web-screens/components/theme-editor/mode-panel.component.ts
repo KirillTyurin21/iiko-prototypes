@@ -95,7 +95,7 @@ import { ArrivalsThemeMode } from '../../types';
       display: flex;
       flex-direction: column;
       background: #fff;
-      border-right: 1px solid #e0e0e0;
+      border-right: 1px solid #D6D6D6;
       font-family: Roboto, sans-serif;
     }
     .mode-panel.collapsed {
@@ -111,9 +111,9 @@ import { ArrivalsThemeMode } from '../../types';
       padding: 12px 10px 8px 12px;
     }
     .mp-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
-      color: #424242;
+      color: #616161;
       text-transform: uppercase;
       letter-spacing: 0.4px;
     }
@@ -121,15 +121,15 @@ import { ArrivalsThemeMode } from '../../types';
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border: none;
-      border-radius: 6px;
+      border-radius: 4px;
       background: transparent;
       color: #616161;
       cursor: pointer;
     }
-    .mp-collapse:hover, .mp-expand:hover { background: #f5f5f5; }
+    .mp-collapse:hover, .mp-expand:hover { background: #EBEBEB; }
     .mp-list {
       flex: 1;
       overflow-y: auto;
@@ -144,23 +144,26 @@ import { ArrivalsThemeMode } from '../../types';
       flex-direction: column;
       gap: 6px;
       padding: 6px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid #D6D6D6;
       border-radius: 8px;
       background: #fff;
       cursor: pointer;
       transition: box-shadow 0.12s ease-out, border-color 0.12s ease-out;
     }
-    .mp-card:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.12); border-color: #bdbdbd; }
+    .mp-card:hover {
+      box-shadow: 0 2px 2px 0 rgba(224, 224, 224, 1), 0 1px 1px 0 rgba(214, 214, 214, 1);
+      border-color: #9E9E9E;
+    }
     .mp-card.active {
-      border-color: #1976d2;
-      background: #e3f2fd;
+      border-color: #448AFF;
+      background: #F0F5FF;
       box-shadow: none;
     }
     .mp-thumb {
       position: relative;
       overflow: hidden;
-      background: #fafafa;
-      border: 1px solid #eeeeee;
+      background: #F8F9FC;
+      border: 1px solid #E0E0E0;
       border-radius: 4px;
       align-self: center;
     }
@@ -183,7 +186,7 @@ import { ArrivalsThemeMode } from '../../types';
       align-items: center;
       justify-content: center;
       font-size: 10px;
-      color: #9e9e9e;
+      color: #9E9E9E;
     }
     .mp-card-body {
       display: flex;
@@ -198,17 +201,18 @@ import { ArrivalsThemeMode } from '../../types';
       text-overflow: ellipsis;
       white-space: nowrap;
       font-size: 12px;
-      color: #424242;
+      color: #333333;
     }
     .mp-id {
-      font-size: 10px;
-      color: #1976d2;
-      background: #e3f2fd;
-      border-radius: 4px;
-      padding: 1px 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #448AFF;
+      background: rgba(68, 138, 255, 0.12);
+      border-radius: 999px;
+      padding: 1px 7px;
       flex-shrink: 0;
     }
-    .mp-card.active .mp-id { background: #fff; }
+    .mp-card.active .mp-id { background: #FFFFFF; }
     .mp-delete {
       position: absolute;
       top: 4px;
@@ -221,35 +225,36 @@ import { ArrivalsThemeMode } from '../../types';
       border: none;
       border-radius: 4px;
       background: rgba(255,255,255,0.9);
-      color: #bdbdbd;
+      color: #9E9E9E;
       cursor: pointer;
     }
-    .mp-delete:hover { background: #ffebee; color: #e53935; }
-    .mp-footer { padding: 8px; border-top: 1px solid #f0f0f0; }
+    .mp-delete:hover { background: #FFF2F2; color: #FF5252; }
+    .mp-footer { padding: 8px; border-top: 1px solid #D6D6D6; }
     .mp-add {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
       width: 100%;
-      height: 32px;
-      border: 1px dashed #bdbdbd;
-      border-radius: 6px;
-      background: transparent;
-      color: #616161;
-      font-size: 12px;
+      height: 36px;
+      border: 1px solid #448AFF;
+      border-radius: 4px;
+      background: #FFFFFF;
+      color: #448AFF;
+      font-size: 13px;
+      font-weight: 500;
       font-family: Roboto, sans-serif;
       cursor: pointer;
     }
-    .mp-add:hover { border-color: #1976d2; color: #1976d2; background: #f5f9ff; }
+    .mp-add:hover { background: rgba(68, 138, 255, 0.06); }
     .mp-mini, .mp-add-mini {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 26px;
-      height: 26px;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      border: 1px solid #D6D6D6;
+      border-radius: 4px;
       background: #fff;
       color: #616161;
       font-size: 12px;
@@ -257,8 +262,8 @@ import { ArrivalsThemeMode } from '../../types';
       font-family: Roboto, sans-serif;
       cursor: pointer;
     }
-    .mp-mini:hover, .mp-add-mini:hover { background: #f5f5f5; }
-    .mp-mini.active { border-color: #1976d2; background: #e3f2fd; color: #1976d2; }
+    .mp-mini:hover, .mp-add-mini:hover { background: #EBEBEB; }
+    .mp-mini.active { border-color: #448AFF; background: #F0F5FF; color: #448AFF; }
     .mp-collapse:focus-visible, .mp-expand:focus-visible, .mp-card:focus-visible,
     .mp-add:focus-visible, .mp-mini:focus-visible, .mp-add-mini:focus-visible, .mp-delete:focus-visible {
       outline: 2px solid #448aff;
@@ -285,17 +290,17 @@ export class ModePanelComponent {
   }
   get thumbScale(): number { return this.thumbWidth / Math.max(1, this.canvasWidth); }
 
-  /** Цвет заполнителя элемента в миниатюре по типу */
+  /** Цвет заполнителя элемента в миниатюре по типу (пастель WFDS) */
   elementColor(type: string): string {
     switch (type) {
-      case 'area': return '#bbdefb';
-      case 'text': return '#e0e0e0';
-      case 'image': return '#c8e6c9';
-      case 'price': return '#fff3e0';
-      case 'menulist': return '#ffe0b2';
-      case 'advertise': return '#e1bee7';
-      case 'counter': return '#b2dfdb';
-      default: return '#eceff1';
+      case 'area': return '#A8C9FF';
+      case 'text': return '#E0E0E0';
+      case 'image': return '#97E8B9';
+      case 'price': return '#FFD9A8';
+      case 'menulist': return '#FFE0B2';
+      case 'advertise': return '#E1BEE7';
+      case 'counter': return '#A8C9FF';
+      default: return '#ECEFF1';
     }
   }
 }

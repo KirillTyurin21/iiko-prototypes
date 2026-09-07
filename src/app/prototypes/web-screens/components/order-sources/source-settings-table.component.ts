@@ -4,7 +4,7 @@ import { IconsModule } from '@/shared/icons.module';
 import { OrderSourceSetting, OrderSourceRef } from '../../types';
 
 /**
- * Таблица настроек источников: приоритетные настройки поверх общей.
+ * Таблица настроек источников (стиль WFDS): приоритетные настройки поверх настройки отображения.
  */
 @Component({
   selector: 'app-source-settings-table',
@@ -31,12 +31,12 @@ import { OrderSourceSetting, OrderSourceRef } from '../../types';
             <td class="sst-actions">
               <button
                 type="button"
-                class="sst-delete"
+                class="ds-icon-btn ds-icon-btn--danger"
                 (click)="delete.emit(s.id)"
                 [attr.aria-label]="'Удалить настройку: ' + sourceName(s.sourceId)"
                 title="Удалить"
               >
-                <lucide-icon name="trash-2" [size]="14"></lucide-icon>
+                <lucide-icon name="trash-2" [size]="16"></lucide-icon>
               </button>
             </td>
           </tr>
@@ -45,54 +45,57 @@ import { OrderSourceSetting, OrderSourceRef } from '../../types';
 
       <div class="sst-empty" *ngIf="sourceSettings.length === 0">
         <lucide-icon name="list" [size]="16"></lucide-icon>
-        <span>Нет настроек источников — действует общая настройка</span>
+        <span>Нет настроек источников — действует настройка отображения</span>
       </div>
     </div>
   `,
   styles: [
     `
-      .sst { border: 1px solid #d6d6d6; border-radius: 4px; overflow: hidden; }
+      .sst { border: 1px solid #D6D6D6; border-radius: 4px; overflow: hidden; background: #FFFFFF; }
       .sst-table { width: 100%; border-collapse: collapse; }
       .sst-table th {
-        padding: 10px 12px;
+        padding: 12px 16px;
         text-align: left;
         font-size: 12px;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.3px;
-        color: var(--dt-text-secondary);
-        background: var(--dt-table-head);
+        color: #616161;
+        background: #F0F5FF;
       }
       .sst-table td {
-        padding: 10px 12px;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 12px 16px;
+        border-top: 1px solid #E0E0E0;
         font-size: 13.5px;
-        color: var(--dt-text-primary);
+        color: #333333;
       }
-      .sst-table tbody tr:last-child td { border-bottom: none; }
+      .sst-table tbody tr:hover td { background: #EBEBEB; }
       .sst-name { font-weight: 500; }
       .sst-actions { text-align: right; white-space: nowrap; }
-      .sst-delete {
+
+      .ds-icon-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 26px;
-        height: 26px;
+        width: 32px;
+        height: 32px;
         border: none;
         border-radius: 4px;
         background: none;
-        color: var(--dt-text-disable);
+        color: #616161;
         cursor: pointer;
       }
-      .sst-delete:hover { background: var(--dt-brand-negative-lighter); color: var(--dt-brand-negative); }
+      .ds-icon-btn:hover { background: #EBEBEB; }
+      .ds-icon-btn--danger:hover { background: #FFF2F2; color: #FF5252; }
 
       .sst-empty {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 18px 14px;
+        padding: 18px 16px;
         font-size: 13px;
-        color: var(--dt-text-disable);
+        color: #9E9E9E;
+        border-top: 1px solid #E0E0E0;
       }
     `,
   ],
