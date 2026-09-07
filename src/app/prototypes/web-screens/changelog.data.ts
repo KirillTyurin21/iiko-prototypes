@@ -2,6 +2,22 @@ import { ChangelogRelease } from '@/shared/changelog.types';
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.48',
+    date: '2026-09-07',
+    status: 'unreleased',
+    changes: [
+      {
+        page: 'Доска меню — Редактор темы',
+        pageRoute: '/prototype/web-screens/menuboard-theme-editor/101',
+        items: [
+          'Рекламный блок темы получил Advertise-панели: добавление, удаление панелей',
+          'Каждой панели назначается компания из справочника (Select Single)',
+          'Рекламные кампании назначаются на уровне панели; прежние кампании переносятся на первую панель',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.47',
     date: '2026-09-07',
     status: 'unreleased',

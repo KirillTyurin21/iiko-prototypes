@@ -97,6 +97,22 @@ export type ArrivalsElementType =
   | 'advertise'
   | 'menulist';
 
+/* ── Advertise-панели (мини-борды: компании в рекламных блоках) ── */
+
+/** Компания — справочник (мок). В реальности приходит с бэкенда (маппинги тем). */
+export interface AdvertiseCompany {
+  id: number;
+  name: string;
+}
+
+/** Advertise-панель внутри рекламного блока темы мини-борда */
+export interface AdvertisePanelConfig {
+  id: number;
+  name: string;
+  companyId: number | null;
+  campaignIds: number[];
+}
+
 export interface ArrivalsThemeElement {
   id: string;
   type: ArrivalsElementType;
@@ -225,6 +241,8 @@ export interface ArrivalsThemeElement {
   areaBgColor?: string;
   // Advertise (MenuBoard dynamic region)
   campaignIds?: number[];
+  /** Advertise-панели рекламного блока (каждой панели — своя компания и кампании) */
+  panels?: AdvertisePanelConfig[];
   // MenuList
   productIds?: string[];
   rowHeight?: number;

@@ -24,6 +24,7 @@ import {
   DvAudioFile,
   CheckListPickerItem,
   OrderSourceRef,
+  AdvertiseCompany,
   NetworkOrderSourceConfig,
 } from '../types';
 
@@ -319,6 +320,16 @@ export const MOCK_ARRIVALS_THEMES: ArrivalsTheme[] = [
   { id: 103, name: 'Крупный шрифт', resolution: '1024x768', screenMode: 'order-screen', elements: [] },
   { id: 104, name: 'Тёмный режим', resolution: '1366x768', screenMode: 'order-screen', elements: [] },
   { id: 105, name: 'Доставка (от 25-10-09)', resolution: '1024x768', screenMode: 'order-screen', elements: [] },
+];
+
+/* ── Компании (мини-борды: назначение в рекламные блоки) ── */
+
+export const MOCK_COMPANIES: AdvertiseCompany[] = [
+  { id: 1, name: 'Кофейня «Арома»' },
+  { id: 2, name: 'Пекарня «Колосок»' },
+  { id: 3, name: 'Мороженое «Снежок»' },
+  { id: 4, name: 'Соки «Фруктовый сад»' },
+  { id: 5, name: 'Снеки «Хруст»' },
 ];
 
 /* ── Kiosk theme list ── */
