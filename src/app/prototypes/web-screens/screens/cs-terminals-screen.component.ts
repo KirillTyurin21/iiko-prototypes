@@ -2653,7 +2653,10 @@ export class CsTerminalsScreenComponent {
 
   private loadDisplaySettings(): DisplaySetting[] {
     const fallback = JSON.parse(JSON.stringify(MOCK_DISPLAY_SETTINGS)) as DisplaySetting[];
-    return this.storage.load<DisplaySetting[]>('web-screens', 'display-settings', fallback);
+    const stored = this.storage.load<DisplaySetting[]>('web-screens', 'display-settings', fallback);
+    // Нормализация: дополняем поля, добавленные позже (миграция старой схемы справочника)
+    const defaults = fallback[0] || ({} as DisplaySetting);
+    return (stored || []).map(d => ({ ...(defaults as object), ...(d as object) }) as DisplaySetting);
   }
 
   private loadDisplayAssignments(): Map<number, string> {

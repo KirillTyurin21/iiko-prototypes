@@ -1002,6 +1002,14 @@ export const MOCK_NETWORK_ORDER_SOURCE_CONFIG: NetworkOrderSourceConfig = {
 /** Опции селектов формы настройки отображения (как на стенде) */
 export const DISPLAY_FILTER_OPTIONS = ['Не использовать', 'Ресторан', 'Доставка', 'Самовывоз'];
 export const DISPLAY_SORTING_OPTIONS = ['Не использовать', 'По времени создания', 'По времени готовности'];
+export const DISPLAY_TABLE_VISIBILITY_OPTIONS = ['Не использовать', 'Показывать столы', 'Скрыть столы'];
+export const DISPLAY_CLIENT_NAME_OPTIONS = [
+  'Фамилия И. О.',
+  'Имя',
+  'Имя + первая буква фамилии',
+  'Полное имя',
+  'Скрыть имя',
+];
 
 /**
  * Справочник настроек отображения уровня дисплея («Основные настройки» стенда).
@@ -1016,6 +1024,16 @@ export const MOCK_DISPLAY_SETTINGS: DisplaySetting[] = [
     sorting: 'Не использовать',
     popupIntervalSec: 30,
     popupDurationSec: 5,
+    tableVisibility: 'Не использовать',
+    selectedTables: '',
+    startCookingTimeFormat: 'HH:mm',
+    waitingTimeFormat: 'HH:mm',
+    deliveryTimeFormat: 'HH:mm',
+    clientNameType: 'Имя',
+    clientNameDefault: 'Гость',
+    queueType: '1',
+    showQueues: '1, 2',
+    hideQueues: '',
   },
   {
     id: 'd2',
@@ -1025,6 +1043,16 @@ export const MOCK_DISPLAY_SETTINGS: DisplaySetting[] = [
     sorting: 'По времени готовности',
     popupIntervalSec: 60,
     popupDurationSec: 8,
+    tableVisibility: 'Показывать столы',
+    selectedTables: '1, 2, 5, 6',
+    startCookingTimeFormat: 'YYYY:MM:dd HH.mm.Sec',
+    waitingTimeFormat: 'HH:mm',
+    deliveryTimeFormat: 'HH:mm',
+    clientNameType: 'Имя + первая буква фамилии',
+    clientNameDefault: '',
+    queueType: '2',
+    showQueues: '1, 2, 3',
+    hideQueues: '4',
   },
   {
     id: 'd3',
@@ -1034,6 +1062,16 @@ export const MOCK_DISPLAY_SETTINGS: DisplaySetting[] = [
     sorting: 'По времени создания',
     popupIntervalSec: 45,
     popupDurationSec: 6,
+    tableVisibility: 'Скрыть столы',
+    selectedTables: '',
+    startCookingTimeFormat: 'HH:mm',
+    waitingTimeFormat: 'HH:mm',
+    deliveryTimeFormat: 'HH:mm',
+    clientNameType: 'Фамилия И. О.',
+    clientNameDefault: '',
+    queueType: '1',
+    showQueues: '',
+    hideQueues: '',
   },
 ];
 

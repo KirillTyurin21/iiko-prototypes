@@ -9,7 +9,7 @@ import {
   OrderSourceRef,
   DisplaySetting,
 } from '../../types';
-import { DISPLAY_FILTER_OPTIONS, DISPLAY_SORTING_OPTIONS } from '../../data/mock-data';
+import { DISPLAY_FILTER_OPTIONS, DISPLAY_SORTING_OPTIONS, DISPLAY_TABLE_VISIBILITY_OPTIONS, DISPLAY_CLIENT_NAME_OPTIONS } from '../../data/mock-data';
 import { CommonSettingFieldsComponent } from './common-setting-fields.component';
 import { SourceSettingsTableComponent } from './source-settings-table.component';
 import { SourcePickerModalComponent, OrderSourceDraft } from './source-picker-modal.component';
@@ -287,19 +287,172 @@ export interface OrderSourceRestaurantInfo {
                     </div>
                   </div>
 
-                  <!-- Прочие секции стенда: свёрнутые, без наполнения -->
-                  <div class="ssm-acc" *ngFor="let s of displayExtraSections">
+                  <!-- Секция: Настройка видимости столов -->
+                  <div class="ssm-acc">
                     <button
                       type="button"
                       class="ssm-acc-head"
-                      [class.ssm-acc-head--open]="displayAccordion.has(s.key)"
-                      (click)="toggleDisplayAccordion(s.key)"
+                      [class.ssm-acc-head--open]="displayAccordion.has('tables')"
+                      (click)="toggleDisplayAccordion('tables')"
                     >
-                      <span>{{ s.label }}</span>
-                      <lucide-icon [name]="displayAccordion.has(s.key) ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                      <span>Настройка видимости столов</span>
+                      <lucide-icon [name]="displayAccordion.has('tables') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
                     </button>
-                    <div class="ssm-acc-body" *ngIf="displayAccordion.has(s.key)">
-                      <p class="ssm-acc-stub">Параметры появятся в следующих версиях</p>
+                    <div class="ssm-acc-body" *ngIf="displayAccordion.has('tables')">
+                      <div class="ssm-grid">
+                        <div class="ds-field">
+                          <label class="ds-field-label">Настройка видимости столов</label>
+                          <select class="ds-select" [ngModel]="selectedDisplay.tableVisibility" (ngModelChange)="markDirty()">
+                            <option *ngFor="let o of tableVisibilityOptions" [ngValue]="o">{{ o }}</option>
+                          </select>
+                        </div>
+                        <div class="ds-field">
+                          <label class="ds-field-label">Выбор столов</label>
+                          <input
+                            class="ds-field-input"
+                            type="text"
+                            [ngModel]="selectedDisplay.selectedTables"
+                            (ngModelChange)="onDisplayFieldText('selectedTables', $event)"
+                            placeholder="Напр. 1, 2, 5"
+                          />
+                          <p class="ds-field-hint">Номера столов через запятую</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Секция: Формат даты и времени -->
+                  <div class="ssm-acc">
+                    <button
+                      type="button"
+                      class="ssm-acc-head"
+                      [class.ssm-acc-head--open]="displayAccordion.has('datetime')"
+                      (click)="toggleDisplayAccordion('datetime')"
+                    >
+                      <span>Формат даты и времени</span>
+                      <lucide-icon [name]="displayAccordion.has('datetime') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                    </button>
+                    <div class="ssm-acc-body" *ngIf="displayAccordion.has('datetime')">
+                      <div class="ssm-grid">
+                        <div class="ds-field">
+                          <label class="ds-field-label">Время начала приготовления заказа</label>
+                          <input
+                            class="ds-field-input"
+                            type="text"
+                            [ngModel]="selectedDisplay.startCookingTimeFormat"
+                            (ngModelChange)="onDisplayFieldText('startCookingTimeFormat', $event)"
+                            placeholder="HH:mm"
+                          />
+                        </div>
+                        <div class="ds-field">
+                          <label class="ds-field-label">Время ожидания заказа</label>
+                          <input
+                            class="ds-field-input"
+                            type="text"
+                            [ngModel]="selectedDisplay.waitingTimeFormat"
+                            (ngModelChange)="onDisplayFieldText('waitingTimeFormat', $event)"
+                            placeholder="HH:mm"
+                          />
+                        </div>
+                        <div class="ds-field">
+                          <label class="ds-field-label">Время доставки заказа</label>
+                          <input
+                            class="ds-field-input"
+                            type="text"
+                            [ngModel]="selectedDisplay.deliveryTimeFormat"
+                            (ngModelChange)="onDisplayFieldText('deliveryTimeFormat', $event)"
+                            placeholder="HH:mm"
+                          />
+                        </div>
+                      </div>
+                      <div class="ssm-hint ssm-hint--mt">
+                        <lucide-icon name="info" [size]="14"></lucide-icon>
+                        <span>Примеры значения: YYYY — год, MM — месяц, dd — день, HH — часы, mm — минуты, Sec — секунды. Пример формата: YYYY:MM:dd HH.mm.Sec</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Секция: Тип отображения имени клиента -->
+                  <div class="ssm-acc">
+                    <button
+                      type="button"
+                      class="ssm-acc-head"
+                      [class.ssm-acc-head--open]="displayAccordion.has('clientName')"
+                      (click)="toggleDisplayAccordion('clientName')"
+                    >
+                      <span>Тип отображения имени клиента</span>
+                      <lucide-icon [name]="displayAccordion.has('clientName') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                    </button>
+                    <div class="ssm-acc-body" *ngIf="displayAccordion.has('clientName')">
+                      <div class="ssm-grid">
+                        <div class="ds-field">
+                          <label class="ds-field-label">Тип отображения имени клиента</label>
+                          <select class="ds-select" [ngModel]="selectedDisplay.clientNameType" (ngModelChange)="markDirty()">
+                            <option *ngFor="let o of clientNameOptions" [ngValue]="o">{{ o }}</option>
+                          </select>
+                        </div>
+                        <div class="ds-field">
+                          <label class="ds-field-label">Имя по умолчанию</label>
+                          <input
+                            class="ds-field-input"
+                            type="text"
+                            [ngModel]="selectedDisplay.clientNameDefault"
+                            (ngModelChange)="onDisplayFieldText('clientNameDefault', $event)"
+                            placeholder="Напр. Гость"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Секция: Отображение заказов по очередям -->
+                  <div class="ssm-acc">
+                    <button
+                      type="button"
+                      class="ssm-acc-head"
+                      [class.ssm-acc-head--open]="displayAccordion.has('queues')"
+                      (click)="toggleDisplayAccordion('queues')"
+                    >
+                      <span>Отображение заказов по очередям</span>
+                      <lucide-icon [name]="displayAccordion.has('queues') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                    </button>
+                    <div class="ssm-acc-body" *ngIf="displayAccordion.has('queues')">
+                      <div class="ssm-grid">
+                        <div class="ds-field">
+                          <label class="ds-field-label">Тип очереди</label>
+                          <input
+                            class="ds-field-input"
+                            type="text"
+                            [ngModel]="selectedDisplay.queueType"
+                            (ngModelChange)="onDisplayFieldText('queueType', $event)"
+                            placeholder="Напр. 1"
+                          />
+                        </div>
+                        <div class="ds-field">
+                          <label class="ds-field-label">Показать очереди</label>
+                          <input
+                            class="ds-field-input"
+                            type="text"
+                            [ngModel]="selectedDisplay.showQueues"
+                            (ngModelChange)="onDisplayFieldText('showQueues', $event)"
+                            placeholder="Напр. 1, 2"
+                          />
+                        </div>
+                        <div class="ds-field">
+                          <label class="ds-field-label">Скрыть очереди</label>
+                          <input
+                            class="ds-field-input"
+                            type="text"
+                            [ngModel]="selectedDisplay.hideQueues"
+                            (ngModelChange)="onDisplayFieldText('hideQueues', $event)"
+                            placeholder="Напр. 4"
+                          />
+                        </div>
+                      </div>
+                      <div class="ssm-hint ssm-hint--mt">
+                        <lucide-icon name="info" [size]="14"></lucide-icon>
+                        <span>Коды очередей через запятую</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -612,7 +765,6 @@ export interface OrderSourceRestaurantInfo {
       .ssm-acc-head:hover { background: #EBEBEB; }
       .ssm-acc-head lucide-icon { color: #616161; }
       .ssm-acc-body { padding: 16px; border-top: 1px solid #E0E0E0; }
-      .ssm-acc-stub { margin: 0; font-size: 12.5px; color: #9E9E9E; }
 
       .ssm-notice {
         display: flex;
@@ -660,6 +812,7 @@ export interface OrderSourceRestaurantInfo {
         font-size: 12.5px;
         color: #616161;
       }
+      .ssm-hint--mt { margin-top: 12px; }
       .ssm-hint lucide-icon { flex: none; margin-top: 1px; }
 
       .ssm-mass { display: flex; align-items: center; gap: 10px; }
@@ -856,16 +1009,12 @@ export class SystemSettingsModalComponent implements OnChanges {
 
   filterOptions = DISPLAY_FILTER_OPTIONS;
   sortingOptions = DISPLAY_SORTING_OPTIONS;
+  tableVisibilityOptions = DISPLAY_TABLE_VISIBILITY_OPTIONS;
+  clientNameOptions = DISPLAY_CLIENT_NAME_OPTIONS;
 
   get sourceFilterOptions(): string[] {
     return ['Не использовать', ...this.sources.map(s => s.name)];
   }
-  displayExtraSections = [
-    { key: 'tables', label: 'Настройка видимости столов' },
-    { key: 'datetime', label: 'Формат даты и времени' },
-    { key: 'clientName', label: 'Тип отображения имени клиента' },
-    { key: 'queues', label: 'Отображение заказов по очередям' },
-  ];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open'] && this.open && this.config) {
@@ -1046,6 +1195,16 @@ export class SystemSettingsModalComponent implements OnChanges {
       sorting: 'Не использовать',
       popupIntervalSec: 30,
       popupDurationSec: 5,
+      tableVisibility: 'Не использовать',
+      selectedTables: '',
+      startCookingTimeFormat: 'HH:mm',
+      waitingTimeFormat: 'HH:mm',
+      deliveryTimeFormat: 'HH:mm',
+      clientNameType: 'Имя',
+      clientNameDefault: '',
+      queueType: '',
+      showQueues: '',
+      hideQueues: '',
     };
     this.displayDraft.push(d);
     this.selectedDisplayId = d.id;
@@ -1119,6 +1278,15 @@ export class SystemSettingsModalComponent implements OnChanges {
     if (!this.selectedDisplay) return;
     const parsed = parseInt(val, 10);
     this.selectedDisplay[field] = isNaN(parsed) || parsed < 0 ? 0 : parsed;
+    this.markDirty();
+  }
+
+  onDisplayFieldText(
+    field: 'selectedTables' | 'startCookingTimeFormat' | 'waitingTimeFormat' | 'deliveryTimeFormat' | 'clientNameDefault' | 'queueType' | 'showQueues' | 'hideQueues',
+    val: string
+  ): void {
+    if (!this.selectedDisplay) return;
+    this.selectedDisplay[field] = val;
     this.markDirty();
   }
 

@@ -435,6 +435,16 @@ export interface DisplaySetting {
   sorting: string;                    // «Сортировка заказов»
   popupIntervalSec: number;           // «Интервал всплывающих окон», сек
   popupDurationSec: number;           // «Время отображения всплывающего окна», сек
+  tableVisibility: string;            // «Настройка видимости столов»: Не использовать / Показывать столы / Скрыть столы
+  selectedTables: string;             // «Выбор столов»
+  startCookingTimeFormat: string;     // «Время начала приготовления заказа» (формат даты/времени)
+  waitingTimeFormat: string;          // «Время ожидания заказа»
+  deliveryTimeFormat: string;         // «Время доставки заказа»
+  clientNameType: string;             // «Тип отображения имени клиента»
+  clientNameDefault: string;          // «Имя по умолчанию»
+  queueType: string;                  // «Тип очереди»
+  showQueues: string;                 // «Показать очереди»
+  hideQueues: string;                 // «Скрыть очереди»
 }
 
 /* ── Sounds (Digital Voice) ── */
