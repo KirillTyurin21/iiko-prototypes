@@ -103,9 +103,7 @@ type DetailMode = 'view' | 'connect';
                   <span class="text-sm" [class.text-green-600]="isConnected" [class.text-gray-500]="!isConnected">
                     {{ isConnected ? 'Подключен' : 'Не подключен' }}
                   </span>
-                  <span *ngIf="isConnected && !networkWide" class="text-sm text-gray-400 ml-2">
-                    {{ connectedCount }} из {{ totalRestaurantCount }} ресторанов
-                  </span>
+                  <span *ngIf="isConnected" class="text-sm text-gray-400 ml-2">{{ restaurantCountLabel }}</span>
                 </div>
               </div>
             </div>
@@ -182,6 +180,9 @@ type DetailMode = 'view' | 'connect';
               <div *ngIf="!selectedRestaurantId" class="p-6 animate-fade-in">
                 <div class="max-w-2xl space-y-6">
                   <ui-alert *ngIf="integration?.connectedNote" variant="info">{{ integration?.connectedNote }}</ui-alert>
+                  <ui-alert *ngIf="networkWide" variant="info">
+                    Тип оплаты создан для всей сети и подключен во всех ресторанах ({{ totalRestaurantCount }}).
+                  </ui-alert>
                   <div>
                     <h2 class="text-xl font-semibold text-gray-900">Общие настройки</h2>
                     <p *ngIf="!networkWide" class="text-sm text-gray-500 mt-1">Выберите ресторан в дереве слева для просмотра индивидуальных настроек.</p>
@@ -442,11 +443,20 @@ type DetailMode = 'view' | 'connect';
                       <span class="text-gray-500">Рестораны</span>
                       <span class="font-medium">{{ accountType === 'rms' ? '1 (RMS)' : 'выбрано ' + wizSelectedCount + ' из ' + wizTotalCount }}</span>
                     </div>
+                    <div *ngIf="networkWide" class="flex justify-between py-1.5 border-b border-gray-100">
+                      <span class="text-gray-500">Рестораны</span>
+                      <span class="font-medium">Все рестораны сети ({{ totalRestaurantCount }})</span>
+                    </div>
                     <div *ngIf="hasWizRequiredFields" class="flex justify-between py-1.5 border-b border-gray-100">
                       <span class="text-gray-500">Реквизиты</span>
                       <span class="font-medium text-green-600">заполнены</span>
                     </div>
                   </div>
+
+                  <!-- Network-wide info: тип оплаты создаётся для всей сети -->
+                  <ui-alert *ngIf="networkWide" variant="info" class="mb-4">
+                    Тип оплаты будет создан для всей сети и подключен во всех ресторанах ({{ totalRestaurantCount }}).
+                  </ui-alert>
 
                   <!-- Access scopes (read-only, informational) -->
                   <ui-alert variant="info" class="mb-4">
@@ -516,7 +526,7 @@ type DetailMode = 'view' | 'connect';
                   <div class="flex gap-2">
                     <ui-button *ngIf="connectStep > 1" variant="outline" (click)="wizPrev()">Назад</ui-button>
                     <ui-button *ngIf="connectStep < totalWizSteps" [disabled]="!canWizNext" (click)="wizNext()">Далее</ui-button>
-                    <ui-button *ngIf="connectStep === totalWizSteps" [disabled]="!canWizNext" [loading]="wizSubmitting" (click)="wizSubmit()">{{ integration?.submitLabel || 'Подтвердить и подключить' }}</ui-button>
+                    <ui-button *ngIf="connectStep === totalWizSteps" [disabled]="!canWizNext" [loading]="wizSubmitting" (click)="submitConnect()">{{ integration?.submitLabel || 'Подтвердить и подключить' }}</ui-button>
                   </div>
                 </div>
 
@@ -534,6 +544,14 @@ type DetailMode = 'view' | 'connect';
       message="Тип оплаты будет отключен для всех ресторанов."
       confirmText="Отключить" variant="danger"
       (confirmed)="confirmDisconnect()" (cancelled)="showDisconnectConfirm = false">
+    </ui-confirm-dialog>
+
+    <!-- Connect Confirm (для интеграций на всю сеть) -->
+    <ui-confirm-dialog
+      [open]="showConnectConfirm" title="Подключить {{ integration?.name }}?"
+      message="Тип оплаты будет подключен во всех ресторанах."
+      confirmText="Подключить"
+      (confirmed)="confirmConnect()" (cancelled)="showConnectConfirm = false">
     </ui-confirm-dialog>
 
     <!-- Toast -->
@@ -571,6 +589,7 @@ export class AtlasDetailScreenComponent implements OnInit {
 
   // UI
   showDisconnectConfirm = false;
+  showConnectConfirm = false;
   toastMessage = '';
 
 
@@ -578,6 +597,11 @@ export class AtlasDetailScreenComponent implements OnInit {
 
   get isConnected(): boolean { return this.integration?.status === 'connected'; }
   get connectedCount(): number { return this.integration?.connectedRestaurantIds?.length ?? 0; }
+  get restaurantCountLabel(): string {
+    const n = this.totalRestaurantCount;
+    if (this.networkWide) { return n === 1 ? 'в 1 ресторане' : 'во всех ' + n + ' ресторанах'; }
+    return this.connectedCount + ' из ' + n + ' ресторанов';
+  }
   get totalRestaurantCount(): number { let c = 0; const f = (n: RestaurantNode[]) => { for (const x of n) { if (!x.children) c++; if (x.children) f(x.children); } }; f(this.restaurantTree); return c; }
   get customSettingsCount(): number { let c = 0; const f = (n: RestaurantNode[]) => { for (const x of n) { if (!x.children && x.useCustomSettings) c++; if (x.children) f(x.children); } }; f(this.restaurantTree); return c; }
 
@@ -844,6 +868,16 @@ export class AtlasDetailScreenComponent implements OnInit {
     if (this.connectStep > 1) this.connectStep--;
   }
 
+  /** Нажатие кнопки подтверждения мастера: для сети — окно подтверждения, иначе сразу сабмит */
+  submitConnect(): void {
+    if (this.networkWide) { this.showConnectConfirm = true; } else { this.wizSubmit(); }
+  }
+
+  confirmConnect(): void {
+    this.showConnectConfirm = false;
+    this.wizSubmit();
+  }
+
   wizSubmit(): void {
     this.wizSubmitting = true;
     setTimeout(() => {
@@ -853,7 +887,16 @@ export class AtlasDetailScreenComponent implements OnInit {
       if (!t) return;
       t.status = 'connected';
       const ids: string[] = [];
-      if (!this.networkWide) { for (const i of this.wizFlatRestaurantList) { if (!i.isGroup && i.checked) ids.push(i.id); } }
+      if (!this.networkWide) {
+        for (const i of this.wizFlatRestaurantList) { if (!i.isGroup && i.checked) ids.push(i.id); }
+      } else {
+        // На всю сеть: подключаются все рестораны текущего контекста (Чейн / RMS)
+        const source = this.accountType === 'rms' ? MOCK_RMS_RESTAURANT : MOCK_CHAIN_RESTAURANTS;
+        const collect = (ns: RestaurantNode[]) => {
+          for (const n of ns) { if (!n.children?.length) ids.push(n.id); if (n.children) collect(n.children); }
+        };
+        collect(source);
+      }
       t.connectedRestaurantIds = ids;
       for (const c of t.operationCategories) c.allowed = this.networkWide ? true : ids.length > 0;
       this.storage.save('atlas', 'integrations', all);
