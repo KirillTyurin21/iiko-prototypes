@@ -6,11 +6,15 @@ import { CSRestaurant, CSTerminalV2, TerminalTableRow, TerminalRowKind, Terminal
 import { IconsModule } from '@/shared/icons.module';
 import { CsTableRowComponent } from '../components/cs-table-row.component';
 import { CsComboboxComponent } from '../components/cs-combobox.component';
+import { StorageService } from '@/shared/storage.service';
+import { NetworkOrderSourceConfig, OrderSourceRef } from '../types';
+import { MOCK_NETWORK_ORDER_SOURCE_CONFIG, MOCK_ORDER_SOURCES } from '../data/mock-data';
+import { SystemSettingsModalComponent, OrderSourceRestaurantInfo } from '../components/order-sources/system-settings-modal.component';
 
 @Component({
   selector: 'app-cs-terminals-screen',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconsModule, CsTableRowComponent, CsComboboxComponent],
+  imports: [CommonModule, FormsModule, IconsModule, CsTableRowComponent, CsComboboxComponent, SystemSettingsModalComponent],
   template: `
     <!-- Toast -->
     <div
@@ -73,7 +77,6 @@ import { CsComboboxComponent } from '../components/cs-combobox.component';
           <label class="cs-search-label">Поиск по терминалу</label>
           <input type="text" class="cs-search-input" placeholder="Поиск по терминалу" [(ngModel)]="searchTerminal" (ngModelChange)="invalidateCache()" />
         </div>
-        <button class="cs-btn cs-btn-system" (click)="showSystemSettingsModal = true">Системные настройки</button>
       </div>
 
       <!-- Restaurants accordions -->
@@ -81,6 +84,11 @@ import { CsComboboxComponent } from '../components/cs-combobox.component';
         <div class="cs-accordion-header" (click)="toggleRestaurant(restaurant.id)">
           <span class="cs-accordion-name">{{ restaurant.name }}</span>
           <div class="cs-accordion-right">
+            <span
+              class="cs-accordion-badge"
+              [class.cs-accordion-badge--own]="isOwnOrderSourceSetting(restaurant.id)"
+              title="Общая настройка источника заказов"
+            >{{ orderSourceBadge(restaurant.id) }}</span>
             <span class="cs-accordion-count">{{ getRowCount(restaurant) }} {{ getTerminalWord(getRowCount(restaurant)) }}</span>
             <lucide-icon
               [name]="expandedRestaurants.has(restaurant.id) ? 'chevron-up' : 'chevron-down'"
@@ -169,6 +177,7 @@ import { CsComboboxComponent } from '../components/cs-combobox.component';
           <label class="cs-search-label">Поиск по терминалу</label>
           <input type="text" class="cs-search-input" placeholder="Поиск по терминалу" [(ngModel)]="searchTerminal" (ngModelChange)="invalidateCache()" />
         </div>
+        <button class="cs-btn cs-btn-system" (click)="showSystemSettingsModal = true">Системные настройки</button>
       </div>
 
       <!-- Restaurants accordions (Variant B) -->
@@ -176,6 +185,11 @@ import { CsComboboxComponent } from '../components/cs-combobox.component';
         <div class="cs-accordion-header" (click)="toggleRestaurant(restaurant.id)">
           <span class="cs-accordion-name">{{ restaurant.name }}</span>
           <div class="cs-accordion-right">
+            <span
+              class="cs-accordion-badge"
+              [class.cs-accordion-badge--own]="isOwnOrderSourceSetting(restaurant.id)"
+              title="Общая настройка источника заказов"
+            >{{ orderSourceBadge(restaurant.id) }}</span>
             <span class="cs-accordion-count">{{ getKioskCountB(restaurant) }} {{ getTerminalWord(getKioskCountB(restaurant)) }}</span>
             <lucide-icon
               [name]="expandedRestaurants.has(restaurant.id) ? 'chevron-up' : 'chevron-down'"
@@ -428,6 +442,11 @@ import { CsComboboxComponent } from '../components/cs-combobox.component';
         <div class="cs-accordion-header" (click)="toggleRestaurant(restaurant.id)">
           <span class="cs-accordion-name">{{ restaurant.name }}</span>
           <div class="cs-accordion-right">
+            <span
+              class="cs-accordion-badge"
+              [class.cs-accordion-badge--own]="isOwnOrderSourceSetting(restaurant.id)"
+              title="Общая настройка источника заказов"
+            >{{ orderSourceBadge(restaurant.id) }}</span>
             <span class="cs-accordion-count">{{ getRowCount(restaurant) }} {{ getTerminalWord(getRowCount(restaurant)) }}</span>
             <lucide-icon
               [name]="expandedRestaurants.has(restaurant.id) ? 'chevron-up' : 'chevron-down'"
@@ -1008,23 +1027,15 @@ import { CsComboboxComponent } from '../components/cs-combobox.component';
       </div>
     </div>
 
-    <!-- System Settings Modal (only Variant A) -->
-    <div class="cs-modal-overlay" *ngIf="activeVariant === 'A' && showSystemSettingsModal" (click)="showSystemSettingsModal = false">
-      <div class="cs-modal" (click)="$event.stopPropagation()">
-        <div class="cs-modal-header">
-          <h3 class="cs-modal-title">Системные настройки</h3>
-          <button class="cs-icon-btn" (click)="showSystemSettingsModal = false">
-            <lucide-icon name="x" [size]="20"></lucide-icon>
-          </button>
-        </div>
-        <div class="cs-modal-body">
-          <p class="cs-modal-text">Настройки системного уровня будут доступны в следующей версии.</p>
-        </div>
-        <div class="cs-modal-footer">
-          <button class="cs-btn cs-btn-outline" (click)="showSystemSettingsModal = false">Закрыть</button>
-        </div>
-      </div>
-    </div>
+    <!-- System Settings Modal: «Настройки экрана Arrivals» (источники заказов) -->
+    <app-system-settings-modal
+      [open]="showSystemSettingsModal"
+      [config]="networkConfig"
+      [restaurants]="orderSourceRestaurants"
+      [sources]="orderSources"
+      (close)="showSystemSettingsModal = false"
+      (save)="onOrderSourceSettingsSave($event)"
+    ></app-system-settings-modal>
 
   `,
   styles: [`
@@ -1266,6 +1277,21 @@ import { CsComboboxComponent } from '../components/cs-combobox.component';
       display: flex;
       align-items: center;
       gap: 12px;
+    }
+    .cs-accordion-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 8px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 500;
+      white-space: nowrap;
+      background: var(--dt-brand-accent-lighter);
+      color: var(--dt-brand-accent-dark);
+    }
+    .cs-accordion-badge--own {
+      background: var(--dt-brand-warning-lighter);
+      color: var(--dt-brand-warning-darker);
     }
     .cs-accordion-count {
       font-size: 13px;
@@ -2527,6 +2553,56 @@ import { CsComboboxComponent } from '../components/cs-combobox.component';
 })
 export class CsTerminalsScreenComponent {
   dataService = inject(CsDataService);
+  private storage = inject(StorageService);
+
+  // ─── Настройки источников заказов (системные, «Настройки экрана Arrivals») ───
+  networkConfig: NetworkOrderSourceConfig = this.loadNetworkConfig();
+  orderSources: OrderSourceRef[] = this.storage.load(
+    'web-screens',
+    'order-sources-refs',
+    JSON.parse(JSON.stringify(MOCK_ORDER_SOURCES))
+  );
+
+  private loadNetworkConfig(): NetworkOrderSourceConfig {
+    const raw = this.storage.load<NetworkOrderSourceConfig | null>('web-screens', 'order-sources-network', null);
+    // Миграция схемы v1 (без справочника) → мок v2
+    if (raw && raw.global && Array.isArray(raw.commonSettings) && Array.isArray(raw.sourceSettings) && Array.isArray(raw.restaurants)) {
+      return raw;
+    }
+    return JSON.parse(JSON.stringify(MOCK_NETWORK_ORDER_SOURCE_CONFIG));
+  }
+
+  /** Стабильный список ресторанов для модалки (пересобирается при сохранении) */
+  orderSourceRestaurants: OrderSourceRestaurantInfo[] = [];
+
+  private refreshOrderSourceRestaurants(): void {
+    this.orderSourceRestaurants = this.dataService.restaurants.map(r => ({ id: r.id, name: r.name }));
+  }
+
+  orderSourceBadge(restaurantId: number): string {
+    const cfg = this.networkConfig.restaurants.find(r => r.restaurantId === restaurantId);
+    if (!cfg || cfg.commonSettingId === null) return 'Сетевая';
+    const c = this.networkConfig.commonSettings.find(x => x.id === cfg.commonSettingId);
+    return c ? 'Своя: ' + c.name : 'Своя';
+  }
+
+  isOwnOrderSourceSetting(restaurantId: number): boolean {
+    const cfg = this.networkConfig.restaurants.find(r => r.restaurantId === restaurantId);
+    return !!cfg && cfg.commonSettingId !== null;
+  }
+
+  onOrderSourceSettingsSave(config: NetworkOrderSourceConfig): void {
+    this.networkConfig = config;
+    this.storage.save('web-screens', 'order-sources-network', config);
+    this.showToast = true;
+    this.toastType = 'success';
+    this.toastMessage = 'Системные настройки сохранены';
+    setTimeout(() => (this.showToast = false), 3200);
+  }
+
+  ngOnInit(): void {
+    this.refreshOrderSourceRestaurants();
+  }
 
   // ─── Variant switcher ───
   activeVariant: 'A' | 'B' | 'C' | 'D' = 'A';

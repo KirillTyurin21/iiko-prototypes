@@ -97,6 +97,22 @@ export type ArrivalsElementType =
   | 'advertise'
   | 'menulist';
 
+/* ── Advertise-панели (мини-борды: компании в рекламных блоках) ── */
+
+/** Компания — справочник (мок). В реальности приходит с бэкенда (маппинги тем). */
+export interface AdvertiseCompany {
+  id: number;
+  name: string;
+}
+
+/** Advertise-панель внутри рекламного блока темы мини-борда */
+export interface AdvertisePanelConfig {
+  id: number;
+  name: string;
+  companyId: number | null;
+  campaignIds: number[];
+}
+
 export interface ArrivalsThemeElement {
   id: string;
   type: ArrivalsElementType;
@@ -225,6 +241,8 @@ export interface ArrivalsThemeElement {
   areaBgColor?: string;
   // Advertise (MenuBoard dynamic region)
   campaignIds?: number[];
+  /** Advertise-панели рекламного блока (каждой панели — своя компания и кампании) */
+  panels?: AdvertisePanelConfig[];
   // MenuList
   productIds?: string[];
   rowHeight?: number;
@@ -279,6 +297,29 @@ export interface ArrivalsTheme {
   resolution: string;
   screenMode: string;
   elements: ArrivalsThemeElement[];
+  /** Режимы темы (панель слева). При отсутствии — миграция из elements/screenMode. */
+  modes?: ArrivalsThemeMode[];
+  /** Активный режим (id). */
+  activeModeId?: string;
+}
+
+export interface ArrivalsThemeMode {
+  /** 'order-screen', 'idle-screen' или авто-ID кастомного (A1, A2, …) */
+  id: string;
+  name: string;
+  /** Кастомные режимы можно удалять; стандартные — нет. */
+  isCustom?: boolean;
+  /** Свой набор элементов у режима. */
+  elements: ArrivalsThemeElement[];
+  /** Переключатель «Активировать» (у стандартных, кроме главного экрана). */
+  activated?: boolean;
+  /** Условия показа кастомного режима (строки «Операция» AND/OR — как на стенде). */
+  conditions?: ModeCondition[];
+}
+
+/** Строка условия показа режима (как на стенде: «Операция» — AND/OR). */
+export interface ModeCondition {
+  operation: 'AND' | 'OR';
 }
 
 /* ── Arrivals Order Mock (для эмуляции в теме) ── */
@@ -339,6 +380,47 @@ export interface ArrivalsControl {
   name: string;
   statusType: ArrivalsControlStatusType;
   elements: ArrivalsThemeElement[];
+}
+
+/* ── Источники заказов (Arrivals): настройки + справочник ── */
+
+/** Справочник источников заказов (ведётся в Web: Название* + Код*) */
+export interface OrderSourceRef {
+  id: string;          // 'kiosk' | 'delivery' | 'front' | ...
+  name: string;        // «Киоск (Kiosk)»…
+  code?: string;       // код из справочника Web
+}
+
+/** Настройка конкретного источника (перекрывает общую; единая на сеть) */
+export interface OrderSourceSetting {
+  id: string;          // локальный ключ записи
+  sourceId: string;    // ссылка на OrderSourceRef
+  prefix: string;      // «Префикс номера заказа»
+  length: number;      // «Длина номера заказа» (общая, С УЧЁТОМ префикса)
+  fillSymbols: string; // «Символы заполнения» (между префиксом и номером)
+}
+
+/** Общая настройка источника заказов — С ИМЕНЕМ (справочник) */
+export interface CommonOrderSourceSetting {
+  id: string;
+  name: string;
+  prefix: string;
+  length: number;
+  fillSymbols: string;
+}
+
+/** Ресторан: одна общая настройка (null — глобальная/сетевая) */
+export interface RestaurantOrderSourceConfig {
+  restaurantId: number;
+  commonSettingId: string | null;
+}
+
+/** Сеть: глобальная настройка + справочник дочерних + единые настройки источников + назначения */
+export interface NetworkOrderSourceConfig {
+  global: CommonOrderSourceSetting;
+  commonSettings: CommonOrderSourceSetting[];
+  sourceSettings: OrderSourceSetting[];
+  restaurants: RestaurantOrderSourceConfig[];
 }
 
 /* ── Sounds (Digital Voice) ── */

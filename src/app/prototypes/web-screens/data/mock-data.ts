@@ -23,6 +23,9 @@ import {
   DvEventHandler,
   DvAudioFile,
   CheckListPickerItem,
+  OrderSourceRef,
+  AdvertiseCompany,
+  NetworkOrderSourceConfig,
 } from '../types';
 
 /** Секции бокового меню Web */
@@ -317,6 +320,16 @@ export const MOCK_ARRIVALS_THEMES: ArrivalsTheme[] = [
   { id: 103, name: 'Крупный шрифт', resolution: '1024x768', screenMode: 'order-screen', elements: [] },
   { id: 104, name: 'Тёмный режим', resolution: '1366x768', screenMode: 'order-screen', elements: [] },
   { id: 105, name: 'Доставка (от 25-10-09)', resolution: '1024x768', screenMode: 'order-screen', elements: [] },
+];
+
+/* ── Компании (мини-борды: назначение в рекламные блоки) ── */
+
+export const MOCK_COMPANIES: AdvertiseCompany[] = [
+  { id: 1, name: 'Кофейня «Арома»' },
+  { id: 2, name: 'Пекарня «Колосок»' },
+  { id: 3, name: 'Мороженое «Снежок»' },
+  { id: 4, name: 'Соки «Фруктовый сад»' },
+  { id: 5, name: 'Снеки «Хруст»' },
 ];
 
 /* ── Kiosk theme list ── */
@@ -947,6 +960,41 @@ export const MOCK_RMS_DISPLAYS: Record<number, DvArrivalsDisplay[]> = {
   ],
   // Группа 3: RMS офлайн — список дисплеев не загружается (демо Error-состояния)
   3: [],
+};
+
+/* ── Источники заказов (Arrivals): справочник и назначение ── */
+
+/** Справочник источников заказов (как заведён в Web: Название + Код) */
+export const MOCK_ORDER_SOURCES: OrderSourceRef[] = [
+  { id: 'front', name: 'Front', code: 'FRONT' },
+  { id: 'kiosk', name: 'Киоск (Kiosk)', code: 'KIOSK' },
+  { id: 'delivery', name: 'Доставка (Delivery Club)', code: 'DELIVERY' },
+  { id: 'website', name: 'Сайт (Website)', code: 'WEB' },
+  { id: 'app', name: 'Мобильное приложение (App)', code: 'APP' },
+  { id: 'external', name: 'Внешний сервис', code: 'EXTERNAL' },
+  { id: 'pickup', name: 'Самовывоз (Pickup)', code: 'PICKUP' },
+];
+
+/**
+ * Настройки источников заказов сети (модель v2).
+ * Глобальная настройка (длина 5) + справочник дочерних («Своя 7» — кейс Вита).
+ * Настройки конкретных источников — единые на сеть (не копируются в ресторан).
+ */
+export const MOCK_NETWORK_ORDER_SOURCE_CONFIG: NetworkOrderSourceConfig = {
+  global: { id: 'global', name: 'Общая настройка (сеть)', prefix: '', length: 5, fillSymbols: '' },
+  commonSettings: [
+    { id: 'c1', name: 'Своя 7 (Вит)', prefix: '', length: 7, fillSymbols: '' },
+    { id: 'c2', name: 'Доставка 6', prefix: 'D-', length: 6, fillSymbols: '0' },
+  ],
+  sourceSettings: [
+    { id: 's1', sourceId: 'kiosk', prefix: 'K', length: 4, fillSymbols: '' },
+    { id: 's2', sourceId: 'delivery', prefix: 'DEL-', length: 6, fillSymbols: '0' },
+  ],
+  restaurants: [
+    { restaurantId: 1, commonSettingId: null },
+    { restaurantId: 2, commonSettingId: 'c1' },
+    { restaurantId: 3, commonSettingId: 'c2' },
+  ],
 };
 
 /** Терминалы в новой модели: у каждого — несколько устройств вывода */

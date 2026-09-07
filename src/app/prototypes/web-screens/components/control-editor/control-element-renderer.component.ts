@@ -482,7 +482,7 @@ export class ControlElementRendererComponent {
     if (el.externalDemoNumber) return el.externalDemoNumber;
     const prefix = el.externalPrefix || '';
     const suffix = el.externalSuffix || '';
-    const sourceMap: Record<string, string> = { delivery: 'DEL-', kiosk: 'K-', website: 'WEB-', app: 'APP-', external: 'EXT-', magnit: 'MGN-' };
+    const sourceMap: Record<string, string> = { front: 'FR-', kiosk: 'K-', delivery: 'DEL-', website: 'WEB-', app: 'APP-', external: 'EXT-', pickup: 'PK-' };
     const demo = el.externalSource ? (sourceMap[el.externalSource] || 'EXT-') : 'EXT-';
     return prefix + demo + '12345' + suffix;
   }

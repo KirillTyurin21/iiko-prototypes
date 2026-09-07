@@ -5,6 +5,8 @@ import {
   Puzzle,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Plus,
   Trash2,
   Search,
@@ -207,6 +209,8 @@ import {
   ArrowUp,
   ArrowDown,
   FolderOpen,
+  // Arrivals theme editor toolbar
+  Magnet,
 } from 'lucide-angular';
 
 /**
@@ -220,6 +224,8 @@ const icons = {
   Puzzle,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Plus,
   Trash2,
   Search,
@@ -420,6 +426,8 @@ const icons = {
   ArrowUp,
   ArrowDown,
   FolderOpen,
+  // Arrivals theme editor toolbar
+  Magnet,
 };
 
 @NgModule({
