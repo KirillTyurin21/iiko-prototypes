@@ -147,9 +147,10 @@ import { TerminalTableRow } from '../cs-types';
         *ngIf="row.kind !== 'advertise'"
         placeholder="Выбрать"
         [options]="settingsOptions"
-        [value]="null"
+        [value]="settingValue"
         displayKey="name"
         valueKey="id"
+        (valueChange)="onSettingsChange($event)"
       ></app-cs-combobox>
     </td>
 
@@ -396,7 +397,8 @@ export class CsTableRowComponent {
   /** Опции для селекта кампаний */
   @Input() campaignOptions: { id: number; name: string }[] = [];
   /** Опции для селекта настроек */
-  @Input() settingsOptions: { id: number; name: string }[] = [];
+  @Input() settingsOptions: { id: string; name: string }[] = [];
+  @Input() settingValue: string | null = null;
 
   // ─── Outputs ───
 
@@ -416,6 +418,8 @@ export class CsTableRowComponent {
   @Output() deleteRow = new EventEmitter<number>();
   /** Добавить экран к кассе */
   @Output() addScreen = new EventEmitter<number>();
+  /** Изменение настройки отображения */
+  @Output() settingsChange = new EventEmitter<{ rowId: number; settingId: string | null }>();
 
   // ─── Handlers ───
 
@@ -425,6 +429,10 @@ export class CsTableRowComponent {
 
   onTerminalGroupsChange(value: number[]): void {
     this.terminalGroupsChange.emit({ rowId: this.row.id, groupIds: value });
+  }
+
+  onSettingsChange(value: string | null): void {
+    this.settingsChange.emit({ rowId: this.row.id, settingId: value });
   }
 
   onCampaignChangeForAdvertise(value: number[]): void {

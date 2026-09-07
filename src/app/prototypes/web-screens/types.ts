@@ -423,6 +423,20 @@ export interface NetworkOrderSourceConfig {
   restaurants: RestaurantOrderSourceConfig[];
 }
 
+/**
+ * Настройка отображения уровня дисплея — справочник «Основные настройки» стенда
+ * («Настройки экрана Arrivals» → «Добавить настройки»). Назначается на дисплеи.
+ */
+export interface DisplaySetting {
+  id: string;
+  name: string;                       // «Название настройки»
+  serviceTypeFilter: string;          // «Фильтр по режиму обслуживания»
+  orderSourceFilter: string;          // «Фильтр по источнику заказов»
+  sorting: string;                    // «Сортировка заказов»
+  popupIntervalSec: number;           // «Интервал всплывающих окон», сек
+  popupDurationSec: number;           // «Время отображения всплывающего окна», сек
+}
+
 /* ── Sounds (Digital Voice) ── */
 
 export interface SoundEventHandler {

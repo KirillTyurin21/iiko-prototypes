@@ -26,6 +26,7 @@ import {
   OrderSourceRef,
   AdvertiseCompany,
   NetworkOrderSourceConfig,
+  DisplaySetting,
 } from '../types';
 
 /** Секции бокового меню Web */
@@ -997,6 +998,44 @@ export const MOCK_NETWORK_ORDER_SOURCE_CONFIG: NetworkOrderSourceConfig = {
     { restaurantId: 3, commonSettingId: 'c2' },
   ],
 };
+
+/** Опции селектов формы настройки отображения (как на стенде) */
+export const DISPLAY_FILTER_OPTIONS = ['Не использовать', 'Ресторан', 'Доставка', 'Самовывоз'];
+export const DISPLAY_SORTING_OPTIONS = ['Не использовать', 'По времени создания', 'По времени готовности'];
+
+/**
+ * Справочник настроек отображения уровня дисплея («Основные настройки» стенда).
+ * Назначаются на дисплеи в строках «Настройка терминалов».
+ */
+export const MOCK_DISPLAY_SETTINGS: DisplaySetting[] = [
+  {
+    id: 'd1',
+    name: 'Моя настройка',
+    serviceTypeFilter: 'Не использовать',
+    orderSourceFilter: 'Не использовать',
+    sorting: 'Не использовать',
+    popupIntervalSec: 30,
+    popupDurationSec: 5,
+  },
+  {
+    id: 'd2',
+    name: 'Настройка для Вани',
+    serviceTypeFilter: 'Ресторан',
+    orderSourceFilter: 'Киоск (Kiosk)',
+    sorting: 'По времени готовности',
+    popupIntervalSec: 60,
+    popupDurationSec: 8,
+  },
+  {
+    id: 'd3',
+    name: 'тест',
+    serviceTypeFilter: 'Доставка',
+    orderSourceFilter: 'Доставка (Delivery Club)',
+    sorting: 'По времени создания',
+    popupIntervalSec: 45,
+    popupDurationSec: 6,
+  },
+];
 
 /** Терминалы в новой модели: у каждого — несколько устройств вывода */
 export const MOCK_SOUND_TERMINAL_GROUPS_V2: SoundTerminalGroupV2[] = [

@@ -7,7 +7,9 @@ import {
   CommonOrderSourceSetting,
   OrderSourceSetting,
   OrderSourceRef,
+  DisplaySetting,
 } from '../../types';
+import { DISPLAY_FILTER_OPTIONS, DISPLAY_SORTING_OPTIONS } from '../../data/mock-data';
 import { CommonSettingFieldsComponent } from './common-setting-fields.component';
 import { SourceSettingsTableComponent } from './source-settings-table.component';
 import { SourcePickerModalComponent, OrderSourceDraft } from './source-picker-modal.component';
@@ -36,9 +38,12 @@ export interface OrderSourceRestaurantInfo {
   ],
   template: `
     <div class="ssm-overlay" *ngIf="open" (click)="onOverlayClick($event)">
-      <div class="ssm-modal" role="dialog" aria-label="Настройки экрана Arrivals">
+      <div class="ssm-modal" role="dialog" aria-label="Настройки отображения">
         <div class="ssm-header">
-          <h3 class="ssm-title">Настройки экрана Arrivals</h3>
+          <div class="ssm-header-text">
+            <h3 class="ssm-title">Настройки отображения</h3>
+            <p class="ssm-subtitle">Настройте вид номера заказа на экранах: общий для сети или свой для ресторана — в зависимости от источника</p>
+          </div>
           <div class="ssm-header-right">
             <span class="ssm-dirty" *ngIf="dirty">Есть несохранённые изменения</span>
             <button type="button" class="ds-icon-btn" (click)="requestClose()" aria-label="Закрыть" title="Закрыть">
@@ -51,21 +56,27 @@ export interface OrderSourceRestaurantInfo {
           <button
             type="button"
             class="ssm-seg-btn"
-            [class.ssm-seg-btn--active]="activeTab === 'settings'"
-            (click)="activeTab = 'settings'"
-          >Настройки</button>
+            [class.ssm-seg-btn--active]="activeTab === 'number'"
+            (click)="switchTab('number')"
+          >Номер заказа</button>
+          <button
+            type="button"
+            class="ssm-seg-btn"
+            [class.ssm-seg-btn--active]="activeTab === 'displays'"
+            (click)="switchTab('displays')"
+          >Дисплеи</button>
           <button
             type="button"
             class="ssm-seg-btn"
             [class.ssm-seg-btn--active]="activeTab === 'assignment'"
-            (click)="activeTab = 'assignment'"
-          >Назначение настроек</button>
+            (click)="switchTab('assignment')"
+          >Назначение</button>
         </div>
 
         <div class="ssm-body" *ngIf="draft">
 
-          <!-- ═══ Вкладка: Настройки ═══ -->
-          <ng-container *ngIf="activeTab === 'settings'">
+          <!-- ═══ Вкладка: Номер заказа ═══ -->
+          <ng-container *ngIf="activeTab === 'number'">
             <div class="ssm-section">
               <div class="ssm-sub">
                 <span class="ssm-sub-label">Настройки отображения заказов</span>
@@ -98,56 +109,223 @@ export interface OrderSourceRestaurantInfo {
                 </div>
               </div>
 
-              <div class="ssm-selected" *ngIf="selectedCommon">
-                <div class="ds-field">
-                  <label class="ds-field-label">Название настройки</label>
-                  <input
-                    class="ds-field-input"
-                    type="text"
-                    [ngModel]="selectedCommon.name"
-                    (ngModelChange)="onNameChange($event)"
-                  />
+              <ng-container *ngIf="selectedCommon">
+                <div class="ssm-sub-tabs">
+                  <button
+                    type="button"
+                    class="ssm-sub-tab"
+                    [class.ssm-sub-tab--active]="commonDetailTab === 'params'"
+                    (click)="commonDetailTab = 'params'"
+                  >Параметры</button>
+                  <button
+                    type="button"
+                    class="ssm-sub-tab"
+                    [class.ssm-sub-tab--active]="commonDetailTab === 'sources'"
+                    (click)="commonDetailTab = 'sources'"
+                  >Источники</button>
                 </div>
-                <app-common-setting-fields
-                  [setting]="selectedCommon"
-                  [title]="selectedCommon.isGlobal ? 'Настройка по умолчанию (сеть)' : 'Параметры настройки'"
-                  (changed)="markDirty()"
-                ></app-common-setting-fields>
-              </div>
 
-              <div class="ssm-sub ssm-sub--mt">
-                <span class="ssm-sub-label">Настройки источников</span>
-                <button type="button" class="ds-btn ds-btn--outlined" (click)="pickerOpen = true">
+                <ng-container *ngIf="commonDetailTab === 'params'">
+                  <div class="ssm-selected">
+                    <div class="ds-field">
+                      <label class="ds-field-label">Название настройки</label>
+                      <input
+                        class="ds-field-input"
+                        type="text"
+                        [ngModel]="selectedCommon.name"
+                        [disabled]="!!selectedCommon.isGlobal"
+                        (ngModelChange)="onNameChange($event)"
+                      />
+                    </div>
+                    <app-common-setting-fields
+                      [setting]="selectedCommon"
+                      [title]="selectedCommon.isGlobal ? 'Настройка по умолчанию (сеть)' : 'Параметры настройки'"
+                      (changed)="markDirty()"
+                    ></app-common-setting-fields>
+                  </div>
+                </ng-container>
+
+                <ng-container *ngIf="commonDetailTab === 'sources'">
+                  <div class="ssm-sub">
+                    <span class="ssm-sub-label">Настройки источников</span>
+                    <button type="button" class="ds-btn ds-btn--outlined" (click)="pickerOpen = true">
+                      <lucide-icon name="plus" [size]="16"></lucide-icon>
+                      Добавить источник
+                    </button>
+                  </div>
+                  <app-source-settings-table
+                    [sourceSettings]="draft.sourceSettings"
+                    [sources]="sources"
+                    (delete)="onDeleteSourceSetting($event)"
+                  ></app-source-settings-table>
+                  <div class="ssm-hint">
+                    <lucide-icon name="info" [size]="14"></lucide-icon>
+                    <span>Источники выбираются из справочника, заведённого в Web. Настройка источника перекрывает настройку отображения; настройка отображения применяется к остальным источникам.</span>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </div>
+          </ng-container>
+
+          <!-- ═══ Вкладка: Дисплеи ═══ -->
+          <ng-container *ngIf="activeTab === 'displays'">
+            <div class="ssm-section">
+              <p class="ssm-subtitle-inline">Именованные настройки, которые назначаются на дисплеи: фильтры, сортировка, всплывающие окна</p>
+              <div class="ssm-sub">
+                <span class="ssm-sub-label">Настройки отображения</span>
+                <button type="button" class="ds-btn ds-btn--outlined" (click)="addDisplaySetting()">
                   <lucide-icon name="plus" [size]="16"></lucide-icon>
-                  Добавить источник
+                  Добавить настройку
                 </button>
               </div>
-              <app-source-settings-table
-                [sourceSettings]="draft.sourceSettings"
-                [sources]="sources"
-                (delete)="onDeleteSourceSetting($event)"
-              ></app-source-settings-table>
-              <div class="ssm-hint">
-                <lucide-icon name="info" [size]="14"></lucide-icon>
-                <span>Настройка источника перекрывает настройку отображения; настройка отображения применяется к остальным источникам.</span>
+
+              <div class="ssm-list" *ngIf="displayDraft.length > 0">
+                <div
+                  class="ssm-list-item"
+                  *ngFor="let d of displayDraft"
+                  [class.ssm-list-item--active]="selectedDisplayId === d.id"
+                  (click)="selectDisplay(d.id)"
+                >
+                  <span class="ssm-list-name">{{ d.name }}</span>
+                  <span class="ssm-list-meta">{{ displayMeta(d) }}</span>
+                  <button
+                    type="button"
+                    class="ds-icon-btn ds-icon-btn--danger"
+                    (click)="requestDeleteDisplay(d.id, $event)"
+                    [attr.aria-label]="'Удалить настройку ' + d.name"
+                    title="Удалить"
+                  >
+                    <lucide-icon name="trash-2" [size]="16"></lucide-icon>
+                  </button>
+                </div>
               </div>
+
+              <div class="ssm-empty" *ngIf="displayDraft.length === 0">
+                <lucide-icon name="list" [size]="16"></lucide-icon>
+                <span>Настроек пока нет — добавьте первую</span>
+              </div>
+
+              <ng-container *ngIf="selectedDisplay">
+                <div class="ssm-selected">
+                  <div class="ds-field">
+                    <label class="ds-field-label">Название настройки</label>
+                    <input
+                      class="ds-field-input"
+                      type="text"
+                      [ngModel]="selectedDisplay.name"
+                      (ngModelChange)="onDisplayNameChange($event)"
+                    />
+                  </div>
+
+                  <!-- Секция: Настройка отображения заказов -->
+                  <div class="ssm-acc">
+                    <button
+                      type="button"
+                      class="ssm-acc-head"
+                      [class.ssm-acc-head--open]="displayAccordion.has('orders')"
+                      (click)="toggleDisplayAccordion('orders')"
+                    >
+                      <span>Настройка отображения заказов</span>
+                      <lucide-icon [name]="displayAccordion.has('orders') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                    </button>
+                    <div class="ssm-acc-body" *ngIf="displayAccordion.has('orders')">
+                      <div class="ssm-grid">
+                        <div class="ds-field">
+                          <label class="ds-field-label">Фильтр по режиму обслуживания</label>
+                          <select class="ds-select" [ngModel]="selectedDisplay.serviceTypeFilter" (ngModelChange)="markDirty()">
+                            <option *ngFor="let o of filterOptions" [ngValue]="o">{{ o }}</option>
+                          </select>
+                        </div>
+                        <div class="ds-field">
+                          <label class="ds-field-label">Фильтр по источнику заказов</label>
+                          <select class="ds-select" [ngModel]="selectedDisplay.orderSourceFilter" (ngModelChange)="markDirty()">
+                            <option *ngFor="let o of sourceFilterOptions" [ngValue]="o">{{ o }}</option>
+                          </select>
+                        </div>
+                        <div class="ds-field">
+                          <label class="ds-field-label">Сортировка заказов</label>
+                          <select class="ds-select" [ngModel]="selectedDisplay.sorting" (ngModelChange)="markDirty()">
+                            <option *ngFor="let o of sortingOptions" [ngValue]="o">{{ o }}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Секция: Общие -->
+                  <div class="ssm-acc">
+                    <button
+                      type="button"
+                      class="ssm-acc-head"
+                      [class.ssm-acc-head--open]="displayAccordion.has('general')"
+                      (click)="toggleDisplayAccordion('general')"
+                    >
+                      <span>Общие</span>
+                      <lucide-icon [name]="displayAccordion.has('general') ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                    </button>
+                    <div class="ssm-acc-body" *ngIf="displayAccordion.has('general')">
+                      <div class="ssm-grid">
+                        <div class="ds-field">
+                          <label class="ds-field-label">Интервал всплывающих окон, сек</label>
+                          <input
+                            class="ds-field-input"
+                            type="number"
+                            [ngModel]="selectedDisplay.popupIntervalSec"
+                            (ngModelChange)="onDisplayNumberChange('popupIntervalSec', $event)"
+                          />
+                        </div>
+                        <div class="ds-field">
+                          <label class="ds-field-label">Время отображения всплывающего окна, сек</label>
+                          <input
+                            class="ds-field-input"
+                            type="number"
+                            [ngModel]="selectedDisplay.popupDurationSec"
+                            (ngModelChange)="onDisplayNumberChange('popupDurationSec', $event)"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Прочие секции стенда: свёрнутые, без наполнения -->
+                  <div class="ssm-acc" *ngFor="let s of displayExtraSections">
+                    <button
+                      type="button"
+                      class="ssm-acc-head"
+                      [class.ssm-acc-head--open]="displayAccordion.has(s.key)"
+                      (click)="toggleDisplayAccordion(s.key)"
+                    >
+                      <span>{{ s.label }}</span>
+                      <lucide-icon [name]="displayAccordion.has(s.key) ? 'chevron-up' : 'chevron-down'" [size]="16"></lucide-icon>
+                    </button>
+                    <div class="ssm-acc-body" *ngIf="displayAccordion.has(s.key)">
+                      <p class="ssm-acc-stub">Параметры появятся в следующих версиях</p>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
             </div>
           </ng-container>
 
           <!-- ═══ Вкладка: Назначение настроек ═══ -->
           <ng-container *ngIf="activeTab === 'assignment'">
             <div class="ssm-section">
+              <p class="ssm-subtitle-inline">Выберите настройку отображения заказов и назначьте её на рестораны. У ресторана без своей настройки действует настройка сети</p>
               <div class="ssm-sub">
                 <span class="ssm-sub-label">Массовое назначение</span>
               </div>
               <div class="ssm-mass">
-                <select class="ds-select" [(ngModel)]="massSettingId">
+                <select class="ds-select" [(ngModel)]="massSettingId" (ngModelChange)="markDirty()">
                   <option [ngValue]="null">{{ globalSettingName() }}</option>
                   <option *ngFor="let c of childSettings" [ngValue]="c.id">{{ c.name }}</option>
                 </select>
                 <button type="button" class="ds-btn ds-btn--outlined" (click)="applyToAll()">
                   Применить ко всем ресторанам
                 </button>
+              </div>
+              <div class="ssm-notice" *ngIf="appliedNotice">
+                <lucide-icon name="check-circle-2" [size]="14"></lucide-icon>
+                <span>{{ appliedNotice }}</span>
               </div>
 
               <div class="ssm-table-wrap">
@@ -229,6 +407,20 @@ export interface OrderSourceRestaurantInfo {
           <div class="ssm-confirm-actions">
             <button type="button" class="ds-btn ds-btn--neutral" (click)="deleteCommonId = null">Отмена</button>
             <button type="button" class="ds-btn ds-btn--danger" (click)="confirmDeleteCommon()">Удалить</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Подтверждение удаления настройки отображения (дисплеи) -->
+      <div class="ssm-confirm-overlay" *ngIf="deleteDisplayId !== null" (click)="deleteDisplayId = null">
+        <div class="ssm-confirm-card" (click)="$event.stopPropagation()">
+          <h4 class="ssm-confirm-title">Удалить настройку?</h4>
+          <p class="ssm-confirm-text">
+            {{ displayDeleteText() }}
+          </p>
+          <div class="ssm-confirm-actions">
+            <button type="button" class="ds-btn ds-btn--neutral" (click)="deleteDisplayId = null">Отмена</button>
+            <button type="button" class="ds-btn ds-btn--danger" (click)="confirmDeleteDisplay()">Удалить</button>
           </div>
         </div>
       </div>
@@ -345,6 +537,92 @@ export interface OrderSourceRestaurantInfo {
         text-transform: uppercase;
         letter-spacing: 0.3px;
         color: #616161;
+      }
+
+      .ssm-header-text { display: flex; flex-direction: column; gap: 4px; }
+      .ssm-subtitle { margin: 0; font-size: 12.5px; color: #616161; line-height: 1.4; }
+      .ssm-subtitle-inline { margin: 0 0 4px; font-size: 12.5px; color: #616161; line-height: 1.4; }
+
+      /* Под-переключатель внутри выбранной настройки (Параметры / Источники) */
+      .ssm-sub-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid #D6D6D6;
+      }
+      .ssm-sub-tab {
+        border: none;
+        background: none;
+        cursor: pointer;
+        padding: 8px 16px;
+        font-family: Roboto, sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: #616161;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .ssm-sub-tab:hover { color: #333333; }
+      .ssm-sub-tab--active {
+        color: #448AFF;
+        border-bottom-color: #448AFF;
+      }
+
+      .ssm-empty {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 18px 16px;
+        border: 1px dashed #D6D6D6;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #9E9E9E;
+      }
+
+      .ssm-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      @media (max-width: 900px) {
+        .ssm-grid { grid-template-columns: 1fr; }
+      }
+
+      .ssm-acc {
+        border: 1px solid #D6D6D6;
+        border-radius: 4px;
+        overflow: hidden;
+        background: #FFFFFF;
+      }
+      .ssm-acc-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 12px 16px;
+        border: none;
+        background: #FAFAFA;
+        cursor: pointer;
+        font-family: Roboto, sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: #333333;
+        text-align: left;
+      }
+      .ssm-acc-head:hover { background: #EBEBEB; }
+      .ssm-acc-head lucide-icon { color: #616161; }
+      .ssm-acc-body { padding: 16px; border-top: 1px solid #E0E0E0; }
+      .ssm-acc-stub { margin: 0; font-size: 12.5px; color: #9E9E9E; }
+
+      .ssm-notice {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 4px;
+        background: rgba(46, 164, 79, 0.1);
+        color: #2E9E4F;
+        font-size: 13px;
       }
 
       .ssm-list {
@@ -550,42 +828,81 @@ export class SystemSettingsModalComponent implements OnChanges {
   @Input() config!: NetworkOrderSourceConfig;
   @Input() restaurants: OrderSourceRestaurantInfo[] = [];
   @Input() sources: OrderSourceRef[] = [];
+  @Input() displaySettings: DisplaySetting[] = [];
+  @Input() assignedDisplayCounts: Record<string, number> = {};
+  @Input() initialTab: 'number' | 'displays' | 'assignment' = 'number';
 
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<NetworkOrderSourceConfig>();
+  @Output() displaySettingsSave = new EventEmitter<DisplaySetting[]>();
 
   draft: NetworkOrderSourceConfig | null = null;
-  activeTab: 'settings' | 'assignment' = 'settings';
+  displayDraft: DisplaySetting[] = [];
+  activeTab: 'number' | 'displays' | 'assignment' = 'number';
+  commonDetailTab: 'params' | 'sources' = 'params';
   selectedCommonId: string | null = null;
+  selectedDisplayId: string | null = null;
   massSettingId: string | null = null;
   checkedRestaurantIds = new Set<number>();
   pickerOpen = false;
   deleteCommonId: string | null = null;
+  deleteDisplayId: string | null = null;
   dirty = false;
   unsavedOpen = false;
   unsavedMode: 'close' | 'switch' = 'close';
   unsavedPendingSwitchId: string | null = null;
+  appliedNotice = '';
+  displayAccordion = new Set<string>(['orders', 'general']);
+
+  filterOptions = DISPLAY_FILTER_OPTIONS;
+  sortingOptions = DISPLAY_SORTING_OPTIONS;
+
+  get sourceFilterOptions(): string[] {
+    return ['Не использовать', ...this.sources.map(s => s.name)];
+  }
+  displayExtraSections = [
+    { key: 'tables', label: 'Настройка видимости столов' },
+    { key: 'datetime', label: 'Формат даты и времени' },
+    { key: 'clientName', label: 'Тип отображения имени клиента' },
+    { key: 'queues', label: 'Отображение заказов по очередям' },
+  ];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open'] && this.open && this.config) {
       const clone = JSON.parse(JSON.stringify(this.config)) as NetworkOrderSourceConfig;
       this.draft = clone;
+      this.displayDraft = JSON.parse(JSON.stringify(this.displaySettings || [])) as DisplaySetting[];
       const g = clone.commonSettings.find(c => c.isGlobal);
       this.selectedCommonId = g ? g.id : (clone.commonSettings.length > 0 ? clone.commonSettings[0].id : null);
-      this.activeTab = 'settings';
+      this.selectedDisplayId = this.displayDraft.length > 0 ? this.displayDraft[0].id : null;
+      this.activeTab = this.initialTab;
+      this.commonDetailTab = 'params';
+      this.displayAccordion = new Set<string>(['orders', 'general']);
       this.massSettingId = null;
       this.checkedRestaurantIds = new Set();
       this.pickerOpen = false;
       this.deleteCommonId = null;
+      this.deleteDisplayId = null;
+      this.appliedNotice = '';
       this.dirty = false;
       this.unsavedOpen = false;
       this.unsavedPendingSwitchId = null;
     }
   }
 
+  switchTab(tab: 'number' | 'displays' | 'assignment'): void {
+    this.activeTab = tab;
+    this.appliedNotice = '';
+  }
+
   get selectedCommon(): CommonOrderSourceSetting | null {
     if (!this.draft || !this.selectedCommonId) return null;
     return this.draft.commonSettings.find(c => c.id === this.selectedCommonId) ?? null;
+  }
+
+  get selectedDisplay(): DisplaySetting | null {
+    if (!this.selectedDisplayId) return null;
+    return this.displayDraft.find(d => d.id === this.selectedDisplayId) ?? null;
   }
 
   get globalSetting(): CommonOrderSourceSetting | null {
@@ -717,6 +1034,94 @@ export class SystemSettingsModalComponent implements OnChanges {
     this.markDirty();
   }
 
+  /* ── Настройки отображения уровня дисплея (справочник «Дисплеи») ── */
+
+  addDisplaySetting(): void {
+    const idx = this.displayDraft.length + 1;
+    const d: DisplaySetting = {
+      id: 'd' + Date.now(),
+      name: 'Новая настройка ' + idx,
+      serviceTypeFilter: 'Не использовать',
+      orderSourceFilter: 'Не использовать',
+      sorting: 'Не использовать',
+      popupIntervalSec: 30,
+      popupDurationSec: 5,
+    };
+    this.displayDraft.push(d);
+    this.selectedDisplayId = d.id;
+    this.displayAccordion = new Set<string>(['orders', 'general']);
+    this.markDirty();
+  }
+
+  selectDisplay(id: string): void {
+    if (id === this.selectedDisplayId) return;
+    this.selectedDisplayId = id;
+    this.displayAccordion = new Set<string>(['orders', 'general']);
+  }
+
+  requestDeleteDisplay(id: string, event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.deleteDisplayId = id;
+  }
+
+  confirmDeleteDisplay(): void {
+    const id = this.deleteDisplayId;
+    if (id === null) return;
+    this.displayDraft = this.displayDraft.filter(d => d.id !== id);
+    if (this.selectedDisplayId === id) {
+      this.selectedDisplayId = this.displayDraft.length > 0 ? this.displayDraft[0].id : null;
+    }
+    this.deleteDisplayId = null;
+    this.markDirty();
+  }
+
+  displayDeleteText(): string {
+    const id = this.deleteDisplayId;
+    if (id === null) return '';
+    const d = this.displayDraft.find(x => x.id === id);
+    const count = this.assignedDisplayCounts[id] || 0;
+    const base = 'Настройка «' + (d?.name ?? '') + '» будет удалена.';
+    if (count > 0) {
+      return base + ' Она назначена на ' + count + ' ' + this.displayWord(count) + ' — на них будет применена настройка по умолчанию.';
+    }
+    return base;
+  }
+
+  displayWord(n: number): string {
+    if (n % 10 === 1 && n % 100 !== 11) return 'дисплей';
+    if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return 'дисплея';
+    return 'дисплеев';
+  }
+
+  displayMeta(d: DisplaySetting): string {
+    const parts: string[] = [];
+    if (d.serviceTypeFilter !== 'Не использовать') parts.push(d.serviceTypeFilter);
+    if (d.orderSourceFilter !== 'Не использовать') parts.push(d.orderSourceFilter);
+    if (d.sorting !== 'Не использовать') parts.push(d.sorting);
+    return parts.length > 0 ? parts.join(' · ') : 'Фильтры не используются';
+  }
+
+  toggleDisplayAccordion(key: string): void {
+    const next = new Set(this.displayAccordion);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    this.displayAccordion = next;
+  }
+
+  onDisplayNameChange(val: string): void {
+    if (this.selectedDisplay) {
+      this.selectedDisplay.name = val;
+      this.markDirty();
+    }
+  }
+
+  onDisplayNumberChange(field: 'popupIntervalSec' | 'popupDurationSec', val: string): void {
+    if (!this.selectedDisplay) return;
+    const parsed = parseInt(val, 10);
+    this.selectedDisplay[field] = isNaN(parsed) || parsed < 0 ? 0 : parsed;
+    this.markDirty();
+  }
+
   commonName(id: string | null): string {
     if (!id || !this.draft) return this.globalSettingName();
     return this.draft.commonSettings.find(c => c.id === id)?.name ?? this.globalSettingName();
@@ -785,24 +1190,34 @@ export class SystemSettingsModalComponent implements OnChanges {
       if (existing) existing.commonSettingId = this.massSettingId;
       else this.draft.restaurants.push({ restaurantId: r.id, commonSettingId: this.massSettingId });
     }
+    this.appliedNotice = 'Настройка применена ко всем ресторанам (' + this.restaurants.length + ')';
     this.markDirty();
   }
 
   applyToChecked(): void {
     if (!this.draft) return;
+    const count = this.checkedRestaurantIds.size;
     for (const id of this.checkedRestaurantIds) {
       const existing = this.draft.restaurants.find(c => c.restaurantId === id);
       if (existing) existing.commonSettingId = this.massSettingId;
       else this.draft.restaurants.push({ restaurantId: id, commonSettingId: this.massSettingId });
     }
     this.checkedRestaurantIds = new Set();
+    this.appliedNotice = 'Настройка применена к ' + count + ' ' + this.restaurantWord(count);
     this.markDirty();
+  }
+
+  restaurantWord(n: number): string {
+    if (n % 10 === 1 && n % 100 !== 11) return 'ресторану';
+    return 'ресторанам';
   }
 
   saveDraft(): void {
     if (!this.draft) return;
     this.save.emit(JSON.parse(JSON.stringify(this.draft)));
+    this.displaySettingsSave.emit(JSON.parse(JSON.stringify(this.displayDraft)));
     this.dirty = false;
+    this.appliedNotice = '';
   }
 
   confirmSave(): void {
