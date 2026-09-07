@@ -248,7 +248,7 @@ export interface OrderSourceRestaurantInfo {
       .ssm-overlay {
         position: fixed;
         inset: 0;
-        z-index: 60;
+        z-index: 130;
         background: rgba(0, 0, 0, 0.4);
         display: flex;
         align-items: flex-start;
