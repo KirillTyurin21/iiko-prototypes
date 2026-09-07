@@ -3,11 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconsModule } from '@/shared/icons.module';
 import {
-  UiButtonComponent,
-  UiInputComponent,
-  UiConfirmDialogComponent,
-} from '@/components/ui';
-import {
   NetworkOrderSourceConfig,
   CommonOrderSourceSetting,
   OrderSourceSetting,
@@ -35,9 +30,6 @@ export interface OrderSourceRestaurantInfo {
     CommonModule,
     FormsModule,
     IconsModule,
-    UiButtonComponent,
-    UiInputComponent,
-    UiConfirmDialogComponent,
     CommonSettingFieldsComponent,
     SourceSettingsTableComponent,
     SourcePickerModalComponent,
@@ -49,23 +41,23 @@ export interface OrderSourceRestaurantInfo {
           <h3 class="ssm-title">Настройки экрана Arrivals</h3>
           <div class="ssm-header-right">
             <span class="ssm-dirty" *ngIf="dirty">Есть несохранённые изменения</span>
-            <button class="ssm-close" (click)="requestClose()" aria-label="Закрыть">
-              <lucide-icon name="x" [size]="18"></lucide-icon>
+            <button type="button" class="ds-icon-btn" (click)="requestClose()" aria-label="Закрыть" title="Закрыть">
+              <lucide-icon name="x" [size]="20"></lucide-icon>
             </button>
           </div>
         </div>
 
-        <div class="ssm-tabs">
+        <div class="ssm-seg">
           <button
             type="button"
-            class="ssm-tab"
-            [class.ssm-tab--active]="activeTab === 'settings'"
+            class="ssm-seg-btn"
+            [class.ssm-seg-btn--active]="activeTab === 'settings'"
             (click)="activeTab = 'settings'"
           >Настройки</button>
           <button
             type="button"
-            class="ssm-tab"
-            [class.ssm-tab--active]="activeTab === 'assignment'"
+            class="ssm-seg-btn"
+            [class.ssm-seg-btn--active]="activeTab === 'assignment'"
             (click)="activeTab = 'assignment'"
           >Назначение настроек</button>
         </div>
@@ -77,10 +69,12 @@ export interface OrderSourceRestaurantInfo {
             <div class="ssm-section">
               <div class="ssm-sub">
                 <span class="ssm-sub-label">Настройки отображения заказов</span>
-                <ui-button variant="secondary" size="sm" iconName="plus" (click)="addCommonSetting()">
+                <button type="button" class="ds-btn ds-btn--outlined" (click)="addCommonSetting()">
+                  <lucide-icon name="plus" [size]="16"></lucide-icon>
                   Добавить настройку
-                </ui-button>
+                </button>
               </div>
+
               <div class="ssm-list" *ngIf="draft.commonSettings.length > 0">
                 <div
                   class="ssm-list-item"
@@ -89,27 +83,31 @@ export interface OrderSourceRestaurantInfo {
                   (click)="selectCommon(c.id)"
                 >
                   <span class="ssm-list-name">{{ c.name }}</span>
-                  <span class="ssm-tag" *ngIf="c.isGlobal">Сеть</span>
+                  <span class="ds-status" *ngIf="c.isGlobal">Сеть</span>
                   <span class="ssm-list-meta">длина {{ c.length }}{{ c.prefix ? ' · префикс «' + c.prefix + '»' : '' }}</span>
                   <button
                     type="button"
                     *ngIf="!c.isGlobal"
-                    class="ssm-list-delete"
+                    class="ds-icon-btn ds-icon-btn--danger"
                     (click)="requestDeleteCommon(c.id, $event)"
                     [attr.aria-label]="'Удалить настройку ' + c.name"
                     title="Удалить"
                   >
-                    <lucide-icon name="trash-2" [size]="14"></lucide-icon>
+                    <lucide-icon name="trash-2" [size]="16"></lucide-icon>
                   </button>
                 </div>
               </div>
 
               <div class="ssm-selected" *ngIf="selectedCommon">
-                <ui-input
-                  label="Название настройки"
-                  [value]="selectedCommon.name"
-                  (valueChange)="selectedCommon.name = $event; markDirty()"
-                ></ui-input>
+                <div class="ds-field">
+                  <label class="ds-field-label">Название настройки</label>
+                  <input
+                    class="ds-field-input"
+                    type="text"
+                    [ngModel]="selectedCommon.name"
+                    (ngModelChange)="onNameChange($event)"
+                  />
+                </div>
                 <app-common-setting-fields
                   [setting]="selectedCommon"
                   [title]="selectedCommon.isGlobal ? 'Настройка по умолчанию (сеть)' : 'Параметры настройки'"
@@ -119,9 +117,10 @@ export interface OrderSourceRestaurantInfo {
 
               <div class="ssm-sub ssm-sub--mt">
                 <span class="ssm-sub-label">Настройки источников</span>
-                <ui-button variant="secondary" size="sm" iconName="plus" (click)="pickerOpen = true">
+                <button type="button" class="ds-btn ds-btn--outlined" (click)="pickerOpen = true">
+                  <lucide-icon name="plus" [size]="16"></lucide-icon>
                   Добавить источник
-                </ui-button>
+                </button>
               </div>
               <app-source-settings-table
                 [sourceSettings]="draft.sourceSettings"
@@ -129,7 +128,7 @@ export interface OrderSourceRestaurantInfo {
                 (delete)="onDeleteSourceSetting($event)"
               ></app-source-settings-table>
               <div class="ssm-hint">
-                <lucide-icon name="info" [size]="13"></lucide-icon>
+                <lucide-icon name="info" [size]="14"></lucide-icon>
                 <span>Настройка источника перекрывает настройку отображения; настройка отображения применяется к остальным источникам.</span>
               </div>
             </div>
@@ -142,71 +141,73 @@ export interface OrderSourceRestaurantInfo {
                 <span class="ssm-sub-label">Массовое назначение</span>
               </div>
               <div class="ssm-mass">
-                <select class="ssm-select" [(ngModel)]="massSettingId">
+                <select class="ds-select" [(ngModel)]="massSettingId">
                   <option [ngValue]="null">{{ globalSettingName() }}</option>
                   <option *ngFor="let c of childSettings" [ngValue]="c.id">{{ c.name }}</option>
                 </select>
-                <ui-button variant="secondary" size="sm" (click)="applyToAll()">
+                <button type="button" class="ds-btn ds-btn--outlined" (click)="applyToAll()">
                   Применить ко всем ресторанам
-                </ui-button>
+                </button>
               </div>
 
-              <table class="ssm-table">
-                <thead>
-                  <tr>
-                    <th class="ssm-check-col">
-                      <input
-                        type="checkbox"
-                        class="ssm-check"
-                        [checked]="allChecked"
-                        (change)="toggleAll($event)"
-                        aria-label="Выделить все рестораны"
-                      />
-                    </th>
-                    <th>Ресторан</th>
-                    <th>Настройка отображения</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let r of restaurants">
-                    <td class="ssm-check-col">
-                      <input
-                        type="checkbox"
-                        class="ssm-check"
-                        [checked]="checkedRestaurantIds.has(r.id)"
-                        (change)="toggleChecked(r.id)"
-                        [attr.aria-label]="'Выбрать ресторан ' + r.name"
-                      />
-                    </td>
-                    <td class="ssm-cell-name">{{ r.name }}</td>
-                    <td>
-                      <select
-                        class="ssm-select ssm-select--row"
-                        [ngModel]="restaurantSettingId(r.id)"
-                        (ngModelChange)="onRestaurantSettingChange(r.id, $event)"
-                      >
-                        <option [ngValue]="null">{{ globalSettingName() }}</option>
-                        <option *ngFor="let c of childSettings" [ngValue]="c.id">{{ c.name }}</option>
-                      </select>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <ui-button
-                variant="secondary"
-                size="sm"
+              <div class="ssm-table-wrap">
+                <table class="ds-table">
+                  <thead>
+                    <tr>
+                      <th class="ds-table-check">
+                        <input
+                          type="checkbox"
+                          class="ds-check"
+                          [checked]="allChecked"
+                          (change)="toggleAll($event)"
+                          aria-label="Выделить все рестораны"
+                        />
+                      </th>
+                      <th>Ресторан</th>
+                      <th>Настройка отображения</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let r of restaurants">
+                      <td class="ds-table-check">
+                        <input
+                          type="checkbox"
+                          class="ds-check"
+                          [checked]="checkedRestaurantIds.has(r.id)"
+                          (change)="toggleChecked(r.id)"
+                          [attr.aria-label]="'Выбрать ресторан ' + r.name"
+                        />
+                      </td>
+                      <td class="ssm-cell-name">{{ r.name }}</td>
+                      <td>
+                        <select
+                          class="ds-select"
+                          [ngModel]="restaurantSettingId(r.id)"
+                          (ngModelChange)="onRestaurantSettingChange(r.id, $event)"
+                        >
+                          <option [ngValue]="null">{{ globalSettingName() }}</option>
+                          <option *ngFor="let c of childSettings" [ngValue]="c.id">{{ c.name }}</option>
+                        </select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <button
+                type="button"
+                class="ds-btn ds-btn--outlined"
                 [disabled]="checkedRestaurantIds.size === 0"
                 (click)="applyToChecked()"
               >
                 Применить к выбранным ({{ checkedRestaurantIds.size }})
-              </ui-button>
+              </button>
             </div>
           </ng-container>
         </div>
 
         <div class="ssm-footer">
-          <ui-button variant="secondary" size="sm" (click)="requestClose()">Закрыть</ui-button>
-          <ui-button variant="primary" size="sm" (click)="confirmSave()">Сохранить</ui-button>
+          <button type="button" class="ds-btn ds-btn--neutral" (click)="requestClose()">Закрыть</button>
+          <button type="button" class="ds-btn ds-btn--primary" (click)="confirmSave()">Сохранить</button>
         </div>
       </div>
 
@@ -219,15 +220,18 @@ export interface OrderSourceRestaurantInfo {
       ></app-source-picker-modal>
 
       <!-- Подтверждение удаления настройки -->
-      <ui-confirm-dialog
-        [open]="deleteCommonId !== null"
-        title="Удалить настройку?"
-        [message]="deleteCommonId !== null ? 'Настройка «' + commonName(deleteCommonId) + '» будет удалена. Рестораны, которым она назначена, вернутся к настройке по умолчанию (сеть).' : ''"
-        confirmText="Удалить"
-        variant="danger"
-        (confirmed)="confirmDeleteCommon()"
-        (cancelled)="deleteCommonId = null"
-      ></ui-confirm-dialog>
+      <div class="ssm-confirm-overlay" *ngIf="deleteCommonId !== null" (click)="deleteCommonId = null">
+        <div class="ssm-confirm-card" (click)="$event.stopPropagation()">
+          <h4 class="ssm-confirm-title">Удалить настройку?</h4>
+          <p class="ssm-confirm-text">
+            {{ deleteCommonId !== null ? 'Настройка «' + commonName(deleteCommonId) + '» будет удалена. Рестораны, которым она назначена, вернутся к настройке по умолчанию (сеть).' : '' }}
+          </p>
+          <div class="ssm-confirm-actions">
+            <button type="button" class="ds-btn ds-btn--neutral" (click)="deleteCommonId = null">Отмена</button>
+            <button type="button" class="ds-btn ds-btn--danger" (click)="confirmDeleteCommon()">Удалить</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Подтверждение несохранённых изменений -->
       <div class="ssm-confirm-overlay" *ngIf="unsavedOpen" (click)="unsavedCancel()">
@@ -235,9 +239,9 @@ export interface OrderSourceRestaurantInfo {
           <h4 class="ssm-confirm-title">Есть несохранённые изменения</h4>
           <p class="ssm-confirm-text">{{ unsavedText }}</p>
           <div class="ssm-confirm-actions">
-            <ui-button variant="secondary" size="sm" (click)="unsavedDiscard()">Не сохранять</ui-button>
-            <ui-button variant="secondary" size="sm" (click)="unsavedCancel()">Отмена</ui-button>
-            <ui-button variant="primary" size="sm" (click)="unsavedSave()">Сохранить</ui-button>
+            <button type="button" class="ds-btn ds-btn--neutral" (click)="unsavedDiscard()">Не сохранять</button>
+            <button type="button" class="ds-btn ds-btn--neutral" (click)="unsavedCancel()">Отмена</button>
+            <button type="button" class="ds-btn ds-btn--primary" (click)="unsavedSave()">Сохранить</button>
           </div>
         </div>
       </div>
@@ -249,7 +253,7 @@ export interface OrderSourceRestaurantInfo {
         position: fixed;
         inset: 0;
         z-index: 130;
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(33, 33, 33, 0.32);
         display: flex;
         align-items: flex-start;
         justify-content: center;
@@ -260,28 +264,28 @@ export interface OrderSourceRestaurantInfo {
         display: flex;
         flex-direction: column;
         width: 100%;
-        max-width: 860px;
+        max-width: 880px;
         max-height: calc(100vh - 80px);
-        background: var(--dt-surface-primary);
+        background: #FFFFFF;
         border-radius: 4px;
-        box-shadow: var(--dt-shadow-l, 0 6px 28px 6px rgba(33,33,33,0.12));
+        box-shadow: 0 6px 28px 6px rgba(224, 224, 224, 0.9), 0 8px 10px 0 rgba(214, 214, 214, 0.9);
         overflow: hidden;
       }
       .ssm-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 14px 20px;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 16px 24px;
+        border-bottom: 1px solid #D6D6D6;
       }
-      .ssm-title { margin: 0; font-size: 16px; font-weight: 500; color: var(--dt-text-primary); }
+      .ssm-title { margin: 0; font-size: 16px; font-weight: 500; color: #333333; }
       .ssm-header-right { display: flex; align-items: center; gap: 12px; }
       .ssm-dirty {
         display: inline-flex;
         align-items: center;
         gap: 6px;
         font-size: 12px;
-        color: #f57c00;
+        color: #EA7806;
       }
       .ssm-dirty::before {
         content: '';
@@ -290,73 +294,63 @@ export interface OrderSourceRestaurantInfo {
         border-radius: 50%;
         background: currentColor;
       }
-      .ssm-close {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        border: none;
-        border-radius: 4px;
-        background: none;
-        color: var(--dt-text-secondary);
-        cursor: pointer;
-      }
-      .ssm-close:hover { background: #ebebeb; }
 
-      .ssm-tabs {
-        display: flex;
-        gap: 4px;
-        padding: 0 20px;
-        border-bottom: 1px solid #e0e0e0;
-        background: var(--dt-surface-variant);
+      .ssm-seg {
+        display: inline-flex;
+        gap: 2px;
+        margin: 12px 24px 0;
+        padding: 3px;
+        background: #F5F5F5;
+        border-radius: 6px;
       }
-      .ssm-tab {
+      .ssm-seg-btn {
         border: none;
         background: none;
         cursor: pointer;
-        padding: 10px 14px;
+        padding: 7px 18px;
+        border-radius: 4px;
         font-family: Roboto, sans-serif;
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 500;
-        color: var(--dt-text-secondary);
-        border-bottom: 2px solid transparent;
-        margin-bottom: -1px;
+        color: #616161;
+        transition: background 0.15s, color 0.15s;
       }
-      .ssm-tab:hover { color: var(--dt-text-primary); }
-      .ssm-tab--active { color: var(--dt-brand-accent); border-bottom-color: var(--dt-brand-accent); }
+      .ssm-seg-btn:hover { color: #333333; }
+      .ssm-seg-btn--active {
+        background: #FFFFFF;
+        color: #448AFF;
+        box-shadow: 0 1px 2px 0 rgba(33, 33, 33, 0.12);
+      }
 
       .ssm-body {
         flex: 1;
         min-height: 0;
         overflow-y: auto;
-        padding: 16px 20px;
+        padding: 16px 24px 20px;
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 18px;
       }
-
-      .ssm-section { display: flex; flex-direction: column; gap: 10px; }
-
+      .ssm-section { display: flex; flex-direction: column; gap: 12px; }
       .ssm-sub {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
       }
-      .ssm-sub--mt { margin-top: 6px; }
+      .ssm-sub--mt { margin-top: 4px; }
       .ssm-sub-label {
         font-size: 12px;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.3px;
-        color: var(--dt-text-secondary);
+        color: #616161;
       }
 
       .ssm-list {
         display: flex;
         flex-direction: column;
-        border: 1px solid #d6d6d6;
+        border: 1px solid #D6D6D6;
         border-radius: 4px;
         overflow: hidden;
       }
@@ -364,107 +358,53 @@ export interface OrderSourceRestaurantInfo {
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 9px 12px;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 11px 14px;
+        border-bottom: 1px solid #E0E0E0;
         cursor: pointer;
         font-size: 13.5px;
-        color: var(--dt-text-primary);
+        color: #333333;
       }
       .ssm-list-item:last-child { border-bottom: none; }
-      .ssm-list-item:hover { background: #ebebeb; }
+      .ssm-list-item:hover { background: #EBEBEB; }
       .ssm-list-item--active {
-        background: var(--dt-surface-sidebar-selected);
-        box-shadow: inset 2px 0 0 var(--dt-brand-accent);
+        background: #F0F5FF;
+        box-shadow: inset 2px 0 0 #448AFF;
       }
       .ssm-list-name { font-weight: 500; }
-      .ssm-list-meta { flex: 1; min-width: 0; font-size: 12px; color: var(--dt-text-secondary); }
-      .ssm-tag {
-        display: inline-flex;
-        align-items: center;
-        padding: 1px 6px;
-        border-radius: 3px;
-        font-size: 11px;
-        font-weight: 500;
-        background: #e3f2fd;
-        color: var(--dt-brand-accent);
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-      }
-      .ssm-list-delete {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 26px;
-        height: 26px;
-        border: none;
-        border-radius: 4px;
-        background: none;
-        color: var(--dt-text-disable);
-        cursor: pointer;
-      }
-      .ssm-list-delete:hover { background: var(--dt-brand-negative-lighter); color: var(--dt-brand-negative); }
+      .ssm-list-meta { flex: 1; min-width: 0; font-size: 12px; color: #616161; }
 
-      .ssm-selected { display: flex; flex-direction: column; gap: 12px; }
+      .ssm-selected { display: flex; flex-direction: column; gap: 14px; }
 
       .ssm-hint {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: 6px;
         font-size: 12.5px;
-        color: var(--dt-text-secondary);
+        color: #616161;
       }
+      .ssm-hint lucide-icon { flex: none; margin-top: 1px; }
 
       .ssm-mass { display: flex; align-items: center; gap: 10px; }
-      .ssm-select {
-        flex: 1;
-        min-width: 0;
-        height: 34px;
-        padding: 0 8px;
-        border: 1px solid #d6d6d6;
-        border-radius: 4px;
-        font-family: Roboto, sans-serif;
-        font-size: 13.5px;
-        color: var(--dt-text-primary);
-        background: var(--dt-surface-primary);
-      }
-      .ssm-select--row { width: 100%; }
+      .ssm-mass .ds-select { flex: 1; width: auto; min-width: 0; }
 
-      .ssm-table { width: 100%; border-collapse: collapse; }
-      .ssm-table th {
-        padding: 9px 12px;
-        text-align: left;
-        font-size: 12px;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        color: var(--dt-text-secondary);
-        background: var(--dt-table-head);
-      }
-      .ssm-table td {
-        padding: 8px 12px;
-        border-bottom: 1px solid #e0e0e0;
-        font-size: 13.5px;
-        color: var(--dt-text-primary);
-      }
+      .ssm-table-wrap { border: 1px solid #D6D6D6; border-radius: 4px; overflow: hidden; }
       .ssm-cell-name { font-weight: 500; }
-      .ssm-check-col { width: 36px; text-align: center; }
-      .ssm-check { width: 15px; height: 15px; accent-color: var(--dt-brand-accent); cursor: pointer; }
 
       .ssm-footer {
         display: flex;
         align-items: center;
         justify-content: flex-end;
         gap: 8px;
-        padding: 12px 20px;
-        border-top: 1px solid #e0e0e0;
-        background: var(--dt-surface-variant);
+        padding: 12px 24px;
+        border-top: 1px solid #D6D6D6;
+        background: #FFFFFF;
       }
 
       .ssm-confirm-overlay {
         position: fixed;
         inset: 0;
-        z-index: 80;
-        background: rgba(0, 0, 0, 0.45);
+        z-index: 140;
+        background: rgba(33, 33, 33, 0.32);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -472,15 +412,136 @@ export interface OrderSourceRestaurantInfo {
       }
       .ssm-confirm-card {
         width: 100%;
-        max-width: 420px;
-        background: var(--dt-surface-primary);
+        max-width: 440px;
+        background: #FFFFFF;
         border-radius: 4px;
-        box-shadow: var(--dt-shadow-l, 0 6px 28px 6px rgba(33,33,33,0.12));
-        padding: 20px;
+        box-shadow: 0 6px 28px 6px rgba(224, 224, 224, 0.9), 0 8px 10px 0 rgba(214, 214, 214, 0.9);
+        padding: 24px;
       }
-      .ssm-confirm-title { margin: 0 0 8px; font-size: 16px; font-weight: 500; color: var(--dt-text-primary); }
-      .ssm-confirm-text { margin: 0 0 16px; font-size: 13.5px; color: var(--dt-text-secondary); }
+      .ssm-confirm-title { margin: 0 0 8px; font-size: 16px; font-weight: 500; color: #333333; }
+      .ssm-confirm-text { margin: 0 0 20px; font-size: 13.5px; color: #616161; }
       .ssm-confirm-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+      /* ── DS-кнопки ── */
+      .ds-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 36px;
+        padding: 0 16px;
+        border-radius: 4px;
+        font-family: Roboto, sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        border: 1px solid transparent;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+      }
+      .ds-btn:disabled { background: #EBEBEB; color: #9E9E9E; border-color: transparent; cursor: default; }
+      .ds-btn--primary { background: #448AFF; color: #FFFFFF; }
+      .ds-btn--primary:hover:not(:disabled) { background: #3969D5; }
+      .ds-btn--neutral { background: #FFFFFF; color: #333333; border-color: #D6D6D6; }
+      .ds-btn--neutral:hover:not(:disabled) { background: #FAFAFA; }
+      .ds-btn--outlined { background: #FFFFFF; color: #448AFF; border-color: #448AFF; }
+      .ds-btn--outlined:hover:not(:disabled) { background: rgba(68, 138, 255, 0.06); }
+      .ds-btn--danger { background: #FF5252; color: #FFFFFF; }
+      .ds-btn--danger:hover:not(:disabled) { background: #F4372F; }
+
+      /* ── Иконочная кнопка ── */
+      .ds-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 4px;
+        background: none;
+        color: #616161;
+        cursor: pointer;
+      }
+      .ds-icon-btn:hover { background: #EBEBEB; }
+      .ds-icon-btn--danger:hover { background: #FFF2F2; color: #FF5252; }
+
+      /* ── Статус-бейдж ── */
+      .ds-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #448AFF;
+        background: rgba(68, 138, 255, 0.12);
+      }
+
+      /* ── Поле формы ── */
+      .ds-field { display: flex; flex-direction: column; gap: 6px; }
+      .ds-field-label { font-size: 12px; font-weight: 500; color: #616161; }
+      .ds-field-input {
+        width: 100%;
+        height: 38px;
+        padding: 0 12px;
+        border: 1px solid #D6D6D6;
+        border-radius: 4px;
+        font-family: Roboto, sans-serif;
+        font-size: 13.5px;
+        color: #333333;
+        background: #FFFFFF;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .ds-field-input::placeholder { color: #BDBDBD; }
+      .ds-field-input:focus { border-color: #448AFF; box-shadow: 0 0 0 2px rgba(68, 138, 255, 0.16); }
+
+      /* ── Селект ── */
+      .ds-select {
+        width: 100%;
+        height: 38px;
+        padding: 0 32px 0 12px;
+        border: 1px solid #D6D6D6;
+        border-radius: 4px;
+        font-family: Roboto, sans-serif;
+        font-size: 13.5px;
+        color: #333333;
+        background-color: #FFFFFF;
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23616161' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 16px;
+        outline: none;
+        appearance: none;
+        cursor: pointer;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .ds-select:focus { border-color: #448AFF; box-shadow: 0 0 0 2px rgba(68, 138, 255, 0.16); }
+
+      /* ── Таблица ── */
+      .ds-table { width: 100%; border-collapse: collapse; }
+      .ds-table th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #616161;
+        background: #F0F5FF;
+      }
+      .ds-table td {
+        padding: 12px 16px;
+        border-top: 1px solid #E0E0E0;
+        font-size: 13.5px;
+        color: #333333;
+        background: #FFFFFF;
+      }
+      .ds-table tbody tr:hover td { background: #EBEBEB; }
+      .ds-table-check { width: 44px; text-align: center; }
+      .ds-check { width: 16px; height: 16px; accent-color: #448AFF; cursor: pointer; }
     `,
   ],
 })
@@ -553,6 +614,13 @@ export class SystemSettingsModalComponent implements OnChanges {
 
   markDirty(): void {
     this.dirty = true;
+  }
+
+  onNameChange(val: string): void {
+    if (this.selectedCommon) {
+      this.selectedCommon.name = val;
+      this.markDirty();
+    }
   }
 
   onOverlayClick(event: MouseEvent): void {
