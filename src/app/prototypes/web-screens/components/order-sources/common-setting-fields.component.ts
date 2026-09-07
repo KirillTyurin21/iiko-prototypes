@@ -15,7 +15,7 @@ import { CommonOrderSourceSetting } from '../../types';
     <div class="csf">
       <div class="csf-title">
         <lucide-icon name="settings" [size]="14"></lucide-icon>
-        <span>Общая настройка</span>
+        <span>{{ title }}</span>
       </div>
       <div class="csf-grid">
         <ui-input
@@ -76,6 +76,7 @@ import { CommonOrderSourceSetting } from '../../types';
 })
 export class CommonSettingFieldsComponent {
   @Input() setting!: CommonOrderSourceSetting;
+  @Input() title = 'Общая настройка';
   @Output() changed = new EventEmitter<void>();
 
   onLength(val: string): void {

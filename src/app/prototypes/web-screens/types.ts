@@ -400,24 +400,24 @@ export interface OrderSourceSetting {
   fillSymbols: string; // «Символы заполнения» (между префиксом и номером)
 }
 
-/** Общая настройка источника заказов — С ИМЕНЕМ (справочник) */
+/** Настройка отображения заказов по источнику (пачка). Глобальная — неудаляемая запись (isGlobal). */
 export interface CommonOrderSourceSetting {
   id: string;
   name: string;
+  isGlobal?: boolean;   // true — системная сетевая настройка (неудаляемая)
   prefix: string;
   length: number;
   fillSymbols: string;
 }
 
-/** Ресторан: одна общая настройка (null — глобальная/сетевая) */
+/** Ресторан: одна настройка отображения (null — сетевая/глобальная) */
 export interface RestaurantOrderSourceConfig {
   restaurantId: number;
   commonSettingId: string | null;
 }
 
-/** Сеть: глобальная настройка + справочник дочерних + единые настройки источников + назначения */
+/** Сеть: справочник настроек отображения (первая — глобальная) + единые настройки источников + назначения */
 export interface NetworkOrderSourceConfig {
-  global: CommonOrderSourceSetting;
   commonSettings: CommonOrderSourceSetting[];
   sourceSettings: OrderSourceSetting[];
   restaurants: RestaurantOrderSourceConfig[];

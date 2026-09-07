@@ -976,13 +976,14 @@ export const MOCK_ORDER_SOURCES: OrderSourceRef[] = [
 ];
 
 /**
- * Настройки источников заказов сети (модель v2).
- * Глобальная настройка (длина 5) + справочник дочерних («Своя 7» — кейс Вита).
+ * Настройки источников заказов сети (модель v3).
+ * Глобальная настройка — неудаляемая первая запись справочника (isGlobal).
+ * Дочерние («Своя 7» — кейс Вита, «Доставка 6») — назначаются на рестораны.
  * Настройки конкретных источников — единые на сеть (не копируются в ресторан).
  */
 export const MOCK_NETWORK_ORDER_SOURCE_CONFIG: NetworkOrderSourceConfig = {
-  global: { id: 'global', name: 'Общая настройка (сеть)', prefix: '', length: 5, fillSymbols: '' },
   commonSettings: [
+    { id: 'global', name: 'Общая настройка (сеть)', isGlobal: true, prefix: '', length: 5, fillSymbols: '' },
     { id: 'c1', name: 'Своя 7 (Вит)', prefix: '', length: 7, fillSymbols: '' },
     { id: 'c2', name: 'Доставка 6', prefix: 'D-', length: 6, fillSymbols: '0' },
   ],

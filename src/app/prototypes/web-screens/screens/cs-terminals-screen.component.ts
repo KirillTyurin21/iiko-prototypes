@@ -7,7 +7,7 @@ import { IconsModule } from '@/shared/icons.module';
 import { CsTableRowComponent } from '../components/cs-table-row.component';
 import { CsComboboxComponent } from '../components/cs-combobox.component';
 import { StorageService } from '@/shared/storage.service';
-import { NetworkOrderSourceConfig, OrderSourceRef } from '../types';
+import { NetworkOrderSourceConfig, OrderSourceRef, CommonOrderSourceSetting, OrderSourceSetting, RestaurantOrderSourceConfig } from '../types';
 import { MOCK_NETWORK_ORDER_SOURCE_CONFIG, MOCK_ORDER_SOURCES } from '../data/mock-data';
 import { SystemSettingsModalComponent, OrderSourceRestaurantInfo } from '../components/order-sources/system-settings-modal.component';
 
@@ -2565,11 +2565,26 @@ export class CsTerminalsScreenComponent {
 
   private loadNetworkConfig(): NetworkOrderSourceConfig {
     const raw = this.storage.load<NetworkOrderSourceConfig | null>('web-screens', 'order-sources-network', null);
-    // Миграция схемы v1 (без справочника) → мок v2
-    if (raw && raw.global && Array.isArray(raw.commonSettings) && Array.isArray(raw.sourceSettings) && Array.isArray(raw.restaurants)) {
-      return raw;
+    if (!raw || !Array.isArray(raw.commonSettings) || !Array.isArray(raw.sourceSettings) || !Array.isArray(raw.restaurants)) {
+      return JSON.parse(JSON.stringify(MOCK_NETWORK_ORDER_SOURCE_CONFIG));
     }
-    return JSON.parse(JSON.stringify(MOCK_NETWORK_ORDER_SOURCE_CONFIG));
+    // Миграция старой схемы v2 (отдельное поле global) → v3 (global — запись справочника)
+    const legacy = raw as unknown as {
+      global?: CommonOrderSourceSetting;
+      commonSettings: CommonOrderSourceSetting[];
+      sourceSettings: OrderSourceSetting[];
+      restaurants: RestaurantOrderSourceConfig[];
+    };
+    if (legacy.global) {
+      const migrated: NetworkOrderSourceConfig = {
+        commonSettings: [{ ...legacy.global, id: 'global', isGlobal: true }, ...legacy.commonSettings],
+        sourceSettings: legacy.sourceSettings,
+        restaurants: legacy.restaurants,
+      };
+      this.storage.save('web-screens', 'order-sources-network', migrated);
+      return migrated;
+    }
+    return raw;
   }
 
   /** Стабильный список ресторанов для модалки (пересобирается при сохранении) */
