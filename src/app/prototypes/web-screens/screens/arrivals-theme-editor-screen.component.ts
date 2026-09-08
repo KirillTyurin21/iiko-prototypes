@@ -32,12 +32,15 @@ type PanelView = 'theme' | 'add-element' | 'element';
         [modes]="theme.modes ?? []"
         [activeModeId]="theme.activeModeId ?? null"
         [collapsed]="modePanelCollapsed"
+        [width]="modePanelWidth"
         [canvasWidth]="resWidth"
         [canvasHeight]="resHeight"
         (selectMode)="selectMode($event)"
         (toggleCollapse)="modePanelCollapsed = !modePanelCollapsed"
         (addMode)="openNewModeModal()"
-        (deleteMode)="requestDeleteMode($event)">
+        (deleteMode)="requestDeleteMode($event)"
+        (renameMode)="renameMode($event)"
+        (widthChange)="onPanelWidthChange($event)">
       </app-mode-panel>
       <div class="canvas-column">
         <div class="canvas-area" #canvasAreaRef>
@@ -96,22 +99,7 @@ type PanelView = 'theme' | 'add-element' | 'element';
             <div class="field-group"><label class="field-label">Имя темы</label><input class="field-input" [(ngModel)]="theme.name" /></div>
             <div class="field-group"><label class="field-label">Разрешение</label><select class="field-select" [(ngModel)]="theme.resolution" (ngModelChange)="onResolutionChange()"><option *ngFor="let r of resolutionOptions" [value]="r.value">{{ r.label }}</option></select></div>
             <ng-container *ngIf="activeMode">
-              <div class="section-divider">Настройка режима</div>
-              <div class="field-group" *ngIf="activeMode.isCustom">
-                <label class="field-label">Название *</label>
-                <input class="field-input" [(ngModel)]="activeMode.name" placeholder="Название режима" />
-                <div class="condition-row" *ngFor="let c of activeMode.conditions ?? []; let i = index">
-                  <label class="field-label cond-label">Операция</label>
-                  <select class="field-select cond-select" [(ngModel)]="c.operation">
-                    <option value="AND">AND</option>
-                    <option value="OR">OR</option>
-                  </select>
-                  <button type="button" class="cond-remove" (click)="removeCondition(activeMode, i)" title="Убрать условие" aria-label="Убрать условие">
-                    <lucide-icon name="x" [size]="14"></lucide-icon>
-                  </button>
-                </div>
-                <button type="button" class="btn-add-condition" (click)="addCondition(activeMode)">Добавить условие</button>
-              </div>
+              <div class="section-divider">Страница: {{ activeMode.name }}</div>
               <div class="field-group" *ngIf="!activeMode.isCustom && activeMode.id !== 'order-screen'">
                 <label class="field-toggle">
                   <input type="checkbox" class="toggle-input" [(ngModel)]="activeMode.activated" />
@@ -123,6 +111,20 @@ type PanelView = 'theme' | 'add-element' | 'element';
             <div class="section-divider">Элементы</div>
             <div *ngFor="let el of activeElements; let i = index" class="element-list-item" [class.active]="selectedElementId === el.id" [class.list-dragging]="listDragIndex === i" [class.list-drag-above]="listDragOverIndex === i && listDragIndex !== null && listDragIndex! > i" [class.list-drag-below]="listDragOverIndex === i && listDragIndex !== null && listDragIndex! < i" (click)="selectElementFromList(el.id)" (mousedown)="onListMouseDown(i, $event)"><span class="el-list-name">{{ el.name }}</span><span *ngIf="el.type === 'area'" class="premium-badge" title="Платный элемент — доступен при платной лицензии"><lucide-icon name="alert-circle" [size]="14"></lucide-icon></span><button class="el-list-delete" (click)="requestDeleteElement(el, $event)" title="Удалить"><lucide-icon name="x" [size]="14"></lucide-icon></button></div>
             <button class="btn-add-element" (click)="panelView = 'add-element'">Добавить элемент</button>
+            <ng-container *ngIf="activeMode?.isCustom">
+              <div class="section-divider">Условия отображения страницы</div>
+              <p class="cond-hint">Страница показывается, когда выполняются условия</p>
+              <div class="condition-row" *ngFor="let c of activeMode!.conditions ?? []; let i = index">
+                <div class="cond-seg" role="group" aria-label="Логическая операция">
+                  <button type="button" class="cond-seg-btn" [class.active]="c.operation !== 'OR'" (click)="c.operation = 'AND'" title="И">И</button>
+                  <button type="button" class="cond-seg-btn" [class.active]="c.operation === 'OR'" (click)="c.operation = 'OR'" title="ИЛИ">ИЛИ</button>
+                </div>
+                <button type="button" class="cond-remove" (click)="removeCondition(activeMode!, i)" title="Убрать условие" aria-label="Убрать условие">
+                  <lucide-icon name="x" [size]="14"></lucide-icon>
+                </button>
+              </div>
+              <button type="button" class="btn-add-condition" (click)="addCondition(activeMode!)">Добавить условие</button>
+            </ng-container>
           </ng-container>
           <app-element-palette
             *ngIf="panelView === 'add-element'"
@@ -146,13 +148,13 @@ type PanelView = 'theme' | 'add-element' | 'element';
     </div>
       <div *ngIf="toastMessage" class="toast">{{ toastMessage }}</div>
       <ui-confirm-dialog *ngIf="deleteElementTarget" [open]="true" title="Удалить элемент" [message]="'Удалить элемент «' + deleteElementTarget.name + '»?'" confirmText="Удалить" variant="danger" (confirmed)="confirmDeleteElement()" (cancelled)="deleteElementTarget = null"></ui-confirm-dialog>
-      <ui-confirm-dialog *ngIf="deleteModeTarget" [open]="true" title="Удалить режим" [message]="'Удалить режим «' + deleteModeTarget.name + '»? Элементы режима будут удалены.'" confirmText="Удалить" variant="danger" (confirmed)="confirmDeleteMode()" (cancelled)="deleteModeTarget = null"></ui-confirm-dialog>
+      <ui-confirm-dialog *ngIf="deleteModeTarget" [open]="true" title="Удалить страницу" [message]="'Удалить страницу «' + deleteModeTarget.name + '»? Элементы страницы будут удалены.'" confirmText="Удалить" variant="danger" (confirmed)="confirmDeleteMode()" (cancelled)="deleteModeTarget = null"></ui-confirm-dialog>
       <div *ngIf="newModeModalOpen" class="mode-modal-overlay" (click)="closeNewModeModal()">
-        <div class="mode-modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Новый режим">
-          <div class="mode-modal-title">Новый режим</div>
+        <div class="mode-modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Новая страница">
+          <div class="mode-modal-title">Новая страница</div>
           <div class="field-group">
-            <label class="field-label">Название режима</label>
-            <input class="field-input" [(ngModel)]="newModeName" (keydown.enter)="confirmNewMode()" placeholder="Напр. Режим доставки" />
+            <label class="field-label">Название страницы</label>
+            <input class="field-input" [(ngModel)]="newModeName" (keydown.enter)="confirmNewMode()" placeholder="Напр. Страница доставки" />
           </div>
           <div class="mode-modal-actions">
             <button class="btn-save" (click)="confirmNewMode()">Создать</button>
@@ -214,8 +216,13 @@ type PanelView = 'theme' | 'add-element' | 'element';
     .toggle-input:checked + .toggle-track { background: #448AFF; }
     .toggle-input:checked + .toggle-track::after { transform: translateX(16px); }
     .condition-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .cond-label { margin-bottom: 0; flex-shrink: 0; width: 56px; }
-    .cond-select { width: 110px; }
+    .cond-seg { display: inline-flex; flex: 1; border: 1px solid #D6D6D6; border-radius: 4px; overflow: hidden; }
+    .cond-seg-btn { flex: 1; height: 32px; border: none; background: #FFFFFF; color: #616161; font-size: 12px; font-weight: 500; font-family: Roboto, sans-serif; cursor: pointer; }
+    .cond-seg-btn + .cond-seg-btn { border-left: 1px solid #D6D6D6; }
+    .cond-seg-btn:hover { background: #FAFAFA; }
+    .cond-seg-btn.active { background: #F0F5FF; color: #448AFF; }
+    .cond-seg-btn:focus-visible { outline: 2px solid #448aff; outline-offset: -2px; }
+    .cond-hint { margin: -4px 0 10px; font-size: 12px; color: #9E9E9E; line-height: 1.45; }
     .cond-remove { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: none; border-radius: 4px; background: transparent; color: #9E9E9E; cursor: pointer; flex-shrink: 0; }
     .cond-remove:hover { background: #FFF2F2; color: #FF5252; }
     .btn-add-condition { height: 36px; padding: 0 14px; border: 1px solid #448AFF; border-radius: 4px; background: #FFFFFF; color: #448AFF; font-size: 13px; font-weight: 500; font-family: Roboto, sans-serif; cursor: pointer; }
@@ -258,6 +265,7 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
   selectedElementId: string | null = null;
   deleteElementTarget: ArrivalsThemeElement | null = null;
   modePanelCollapsed = false;
+  modePanelWidth = this.loadPanelWidth();
   deleteModeTarget: ArrivalsThemeMode | null = null;
   newModeModalOpen = false;
   newModeName = '';
@@ -359,12 +367,12 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
 
   get resWidth(): number { return parseInt(this.theme.resolution.split('x')[0]) || 1024; }
   get resHeight(): number { return parseInt(this.theme.resolution.split('x')[1]) || 768; }
-  /** Активный режим темы */
+  /** Активная страница темы */
   get activeMode(): ArrivalsThemeMode | null {
     if (!this.theme.modes || this.theme.modes.length === 0) return null;
     return this.theme.modes.find(m => m.id === this.theme.activeModeId) ?? this.theme.modes[0];
   }
-  /** Элементы активного режима (для канваса и списка) */
+  /** Элементы активной страницы (для канваса и списка) */
   get activeElements(): ArrivalsThemeElement[] {
     return this.activeMode?.elements ?? [];
   }
@@ -592,7 +600,7 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
   selectElementFromList(id: string): void { this.selectedElementId = id; this.panelView = 'element'; }
   deselectElement(): void { this.selectedElementId = null; this.panelView = 'theme'; }
 
-  /* ── Режимы (левая панель) ── */
+  /* ── Страницы (левая панель) ── */
   selectMode(id: string): void {
     if (!this.theme.modes?.some(m => m.id === id)) return;
     this.theme.activeModeId = id;
@@ -614,7 +622,36 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
     this.newModeModalOpen = false;
     this.selectedElementId = null;
     this.panelView = 'theme';
-    this.showToast('Режим «' + name + '» создан');
+    this.showToast('Страница «' + name + '» создана');
+  }
+
+  /** Переименование страницы из левой панели (карандаш) */
+  renameMode(ev: { id: string; name: string }): void {
+    const mode = this.theme.modes?.find(m => m.id === ev.id);
+    const name = (ev.name || '').trim();
+    if (mode && name) mode.name = name;
+  }
+
+  /** Ресайз левой панели: клампим, сохраняем в storage, пересчитываем центрирование канваса */
+  onPanelWidthChange(width: number): void {
+    this.modePanelWidth = Math.min(360, Math.max(140, Math.round(width)));
+    this.storage.save('web-screens', 'mode-panel-width', this.modePanelWidth);
+    this.recenterCanvasAfterPanelResize();
+  }
+
+  private loadPanelWidth(): number {
+    const saved = this.storage.load<number>('web-screens', 'mode-panel-width', 172);
+    return Math.min(360, Math.max(140, saved));
+  }
+
+  /** Ширина панели изменилась — удерживаем канвас по центру, зум не трогаем */
+  private recenterCanvasAfterPanelResize(): void {
+    requestAnimationFrame(() => {
+      const area = this.canvasAreaRef?.nativeElement;
+      if (!area) return;
+      area.scrollLeft = Math.max(0, (area.scrollWidth - area.clientWidth) / 2);
+      area.scrollTop = Math.max(0, (area.scrollHeight - area.clientHeight) / 2);
+    });
   }
 
   requestDeleteMode(modeId: string): void {
@@ -641,7 +678,7 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
     this.selectedElementId = null;
     this.panelView = 'theme';
     this.deleteModeTarget = null;
-    this.showToast('Режим удалён');
+    this.showToast('Страница удалена');
   }
 
   /* ── Add / Delete ── */

@@ -4,28 +4,35 @@ import { IconsModule } from '@/shared/icons.module';
 import { ArrivalsThemeMode } from '../../types';
 
 /**
- * Панель режимов слева в конструкторе тем (как панель слайдов в PowerPoint).
- * Карточки-миниатюры с превью элементов режима, сворачивание, добавление кастомных режимов.
+ * Панель страниц слева в конструкторе тем (как панель слайдов в PowerPoint).
+ * Карточки-миниатюры с превью элементов страницы, сворачивание, переименование карандашом,
+ * ресайз перетаскиванием правой границы, добавление кастомных страниц.
  */
 @Component({
   selector: 'app-mode-panel',
   standalone: true,
   imports: [CommonModule, IconsModule],
   template: `
-    <div class="mode-panel" [class.collapsed]="collapsed">
+    <div class="mode-panel" [class.collapsed]="collapsed" [style.width.px]="collapsed ? 36 : width">
       <ng-container *ngIf="!collapsed">
         <div class="mp-header">
-          <span class="mp-title">Режимы</span>
+          <span class="mp-title">Страницы</span>
           <button type="button" class="mp-collapse" (click)="toggleCollapse.emit()" title="Свернуть панель" aria-label="Свернуть панель">
             <lucide-icon name="chevrons-left" [size]="16"></lucide-icon>
           </button>
         </div>
         <div class="mp-list">
+          <div class="mp-empty" *ngIf="modes.length === 0">
+            <span>Страниц пока нет</span>
+          </div>
           <div
             class="mp-card"
             *ngFor="let m of modes"
             [class.active]="m.id === activeModeId"
+            tabindex="0"
             (click)="selectMode.emit(m.id)"
+            (keydown.enter)="selectMode.emit(m.id)"
+            (keydown.space)="selectMode.emit(m.id); $event.preventDefault()"
             [attr.aria-current]="m.id === activeModeId ? 'true' : null">
             <div class="mp-thumb" [style.width.px]="thumbWidth" [style.height.px]="thumbHeight">
               <div
@@ -45,16 +52,37 @@ import { ArrivalsThemeMode } from '../../types';
               <div class="mp-thumb-empty" *ngIf="!m.elements?.length">Пусто</div>
             </div>
             <div class="mp-card-body">
-              <span class="mp-name" [title]="m.name">{{ m.name }}</span>
-              <span class="mp-id" *ngIf="m.isCustom">{{ m.id }}</span>
+              <ng-container *ngIf="editingId !== m.id">
+                <span class="mp-name" [title]="m.name">{{ m.name }}</span>
+                <span class="mp-id" *ngIf="m.isCustom">{{ m.id }}</span>
+                <button
+                  type="button"
+                  class="mp-rename"
+                  (click)="startRename(m); $event.stopPropagation()"
+                  title="Переименовать страницу"
+                  aria-label="Переименовать страницу">
+                  <lucide-icon name="pencil" [size]="12"></lucide-icon>
+                </button>
+              </ng-container>
+              <ng-container *ngIf="editingId === m.id">
+                <input
+                  class="mp-name-input"
+                  type="text"
+                  [value]="editName"
+                  maxlength="60"
+                  (input)="editName = $any($event.target).value"
+                  (keydown.enter)="commitRename(m.id); $event.stopPropagation()"
+                  (keydown.escape)="cancelRename(); $event.stopPropagation()"
+                  (blur)="commitRename(m.id)" />
+              </ng-container>
             </div>
             <button
               type="button"
               class="mp-delete"
               *ngIf="m.isCustom"
               (click)="deleteMode.emit(m.id); $event.stopPropagation()"
-              title="Удалить режим"
-              aria-label="Удалить режим">
+              title="Удалить страницу"
+              aria-label="Удалить страницу">
               <lucide-icon name="x" [size]="12"></lucide-icon>
             </button>
           </div>
@@ -62,13 +90,13 @@ import { ArrivalsThemeMode } from '../../types';
         <div class="mp-footer">
           <button type="button" class="mp-add" (click)="addMode.emit()">
             <lucide-icon name="plus" [size]="16"></lucide-icon>
-            <span>Добавить режим</span>
+            <span>Добавить страницу</span>
           </button>
         </div>
       </ng-container>
 
       <ng-container *ngIf="collapsed">
-        <button type="button" class="mp-expand" (click)="toggleCollapse.emit()" title="Развернуть панель режимов" aria-label="Развернуть панель режимов">
+        <button type="button" class="mp-expand" (click)="toggleCollapse.emit()" title="Развернуть панель страниц" aria-label="Развернуть панель страниц">
           <lucide-icon name="chevrons-right" [size]="16"></lucide-icon>
         </button>
         <button
@@ -78,19 +106,30 @@ import { ArrivalsThemeMode } from '../../types';
           [class.active]="m.id === activeModeId"
           (click)="selectMode.emit(m.id)"
           [title]="m.name"
-          [attr.aria-label]="'Режим ' + m.name">
+          [attr.aria-label]="'Страница ' + m.name">
           {{ m.name.charAt(0) }}
         </button>
-        <button type="button" class="mp-add-mini" (click)="addMode.emit()" title="Добавить режим" aria-label="Добавить режим">
+        <button type="button" class="mp-add-mini" (click)="addMode.emit()" title="Добавить страницу" aria-label="Добавить страницу">
           <lucide-icon name="plus" [size]="16"></lucide-icon>
         </button>
       </ng-container>
+
+      <div
+        class="mp-resizer"
+        *ngIf="!collapsed"
+        (mousedown)="onResizeStart($event)"
+        role="separator"
+        aria-orientation="vertical"
+        [attr.aria-valuenow]="width"
+        aria-valuemin="140"
+        aria-valuemax="360"
+        aria-label="Изменить ширину панели"></div>
     </div>
   `,
   styles: [`
     :host { display: block; }
     .mode-panel {
-      width: 172px;
+      position: relative;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
@@ -99,7 +138,6 @@ import { ArrivalsThemeMode } from '../../types';
       font-family: Roboto, sans-serif;
     }
     .mode-panel.collapsed {
-      width: 36px;
       align-items: center;
       padding-top: 8px;
       gap: 6px;
@@ -194,6 +232,47 @@ import { ArrivalsThemeMode } from '../../types';
       gap: 6px;
       padding: 0 2px 2px;
     }
+    .mp-rename {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: #9E9E9E;
+      cursor: pointer;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.12s ease-out;
+    }
+    .mp-card:hover .mp-rename, .mp-card:focus-within .mp-rename, .mp-rename:focus-visible { opacity: 1; }
+    .mp-rename:hover { background: #EBEBEB; color: #333333; }
+    .mp-name-input {
+      flex: 1;
+      min-width: 0;
+      height: 22px;
+      padding: 0 4px;
+      border: 1px solid #448AFF;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: Roboto, sans-serif;
+      color: #333333;
+      background: #fff;
+      box-sizing: border-box;
+    }
+    .mp-name-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(68, 138, 255, 0.16); }
+    .mp-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 24px 8px;
+      font-size: 12px;
+      color: #9E9E9E;
+      text-align: center;
+    }
     .mp-name {
       flex: 1;
       min-width: 0;
@@ -264,6 +343,17 @@ import { ArrivalsThemeMode } from '../../types';
     }
     .mp-mini:hover, .mp-add-mini:hover { background: #EBEBEB; }
     .mp-mini.active { border-color: #448AFF; background: #F0F5FF; color: #448AFF; }
+    .mp-resizer {
+      position: absolute;
+      top: 0;
+      right: -3px;
+      width: 6px;
+      height: 100%;
+      cursor: col-resize;
+      z-index: 10;
+      background: transparent;
+    }
+    .mp-resizer:hover, .mp-resizer:active { background: rgba(68, 138, 255, 0.25); }
     .mp-collapse:focus-visible, .mp-expand:focus-visible, .mp-card:focus-visible,
     .mp-add:focus-visible, .mp-mini:focus-visible, .mp-add-mini:focus-visible, .mp-delete:focus-visible {
       outline: 2px solid #448aff;
@@ -275,6 +365,8 @@ export class ModePanelComponent {
   @Input() modes: ArrivalsThemeMode[] = [];
   @Input() activeModeId: string | null = null;
   @Input() collapsed = false;
+  /** Ширина панели в развёрнутом виде (px) */
+  @Input() width = 172;
   /** Разрешение холста для расчёта миниатюры */
   @Input() canvasWidth = 1024;
   @Input() canvasHeight = 768;
@@ -283,6 +375,64 @@ export class ModePanelComponent {
   @Output() toggleCollapse = new EventEmitter<void>();
   @Output() addMode = new EventEmitter<void>();
   @Output() deleteMode = new EventEmitter<string>();
+  @Output() renameMode = new EventEmitter<{ id: string; name: string }>();
+  @Output() widthChange = new EventEmitter<number>();
+
+  /** Инлайн-переименование */
+  editingId: string | null = null;
+  editName = '';
+
+  /** Ресайз за правую границу */
+  private resizing = false;
+  private startX = 0;
+  private startWidth = 172;
+  private readonly boundResizeMove = (e: MouseEvent) => this.onResizeMove(e);
+  private readonly boundResizeEnd = () => this.onResizeEnd();
+
+  startRename(mode: ArrivalsThemeMode): void {
+    this.editingId = mode.id;
+    this.editName = mode.name;
+    // Фокус + выделение после рендера input'а (setTimeout надёжнее rAF в скрытых табах)
+    const focusInput = () => {
+      const el = document.querySelector('.mp-name-input') as HTMLInputElement | null;
+      if (el) { el.focus(); el.select(); }
+    };
+    setTimeout(focusInput, 0);
+    setTimeout(focusInput, 120);
+  }
+
+  commitRename(id: string): void {
+    if (this.editingId !== id) return;
+    const name = (this.editName || '').trim().slice(0, 60);
+    this.editingId = null;
+    if (name) this.renameMode.emit({ id, name });
+  }
+
+  cancelRename(): void {
+    this.editingId = null;
+  }
+
+  onResizeStart(event: MouseEvent): void {
+    event.preventDefault();
+    this.resizing = true;
+    this.startX = event.clientX;
+    this.startWidth = this.width;
+    document.addEventListener('mousemove', this.boundResizeMove);
+    document.addEventListener('mouseup', this.boundResizeEnd);
+  }
+
+  private onResizeMove(event: MouseEvent): void {
+    if (!this.resizing) return;
+    const next = Math.min(360, Math.max(140, Math.round(this.startWidth + event.clientX - this.startX)));
+    this.widthChange.emit(next);
+  }
+
+  private onResizeEnd(): void {
+    if (!this.resizing) return;
+    this.resizing = false;
+    document.removeEventListener('mousemove', this.boundResizeMove);
+    document.removeEventListener('mouseup', this.boundResizeEnd);
+  }
 
   get thumbWidth(): number { return 124; }
   get thumbHeight(): number {

@@ -297,27 +297,27 @@ export interface ArrivalsTheme {
   resolution: string;
   screenMode: string;
   elements: ArrivalsThemeElement[];
-  /** Режимы темы (панель слева). При отсутствии — миграция из elements/screenMode. */
+  /** Страницы темы (панель слева). При отсутствии — миграция из elements/screenMode. */
   modes?: ArrivalsThemeMode[];
-  /** Активный режим (id). */
+  /** Активная страница (id). */
   activeModeId?: string;
 }
 
 export interface ArrivalsThemeMode {
-  /** 'order-screen', 'idle-screen' или авто-ID кастомного (A1, A2, …) */
+  /** 'order-screen', 'idle-screen' или авто-ID кастомной (A1, A2, …) */
   id: string;
   name: string;
-  /** Кастомные режимы можно удалять; стандартные — нет. */
+  /** Кастомные страницы можно удалять; стандартные — нет. */
   isCustom?: boolean;
-  /** Свой набор элементов у режима. */
+  /** Свой набор элементов у страницы. */
   elements: ArrivalsThemeElement[];
   /** Переключатель «Активировать» (у стандартных, кроме главного экрана). */
   activated?: boolean;
-  /** Условия показа кастомного режима (строки «Операция» AND/OR — как на стенде). */
+  /** Условия показа кастомной страницы (строки «Операция» AND/OR — как на стенде). */
   conditions?: ModeCondition[];
 }
 
-/** Строка условия показа режима (как на стенде: «Операция» — AND/OR). */
+/** Строка условия показа страницы (как на стенде: «Операция» — AND/OR). */
 export interface ModeCondition {
   operation: 'AND' | 'OR';
 }
