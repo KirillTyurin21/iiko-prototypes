@@ -115,13 +115,11 @@ type PanelView = 'theme' | 'add-element' | 'element';
               <div class="section-divider">Условия отображения страницы</div>
               <p class="cond-hint">Страница показывается, когда выполняются условия</p>
               <div class="condition-row" *ngFor="let c of activeMode!.conditions ?? []; let i = index">
-                <div class="cond-seg" role="group" aria-label="Логическая операция">
-                  <button type="button" class="cond-seg-btn" [class.active]="c.operation !== 'OR'" (click)="c.operation = 'AND'" title="И">И</button>
-                  <button type="button" class="cond-seg-btn" [class.active]="c.operation === 'OR'" (click)="c.operation = 'OR'" title="ИЛИ">ИЛИ</button>
-                </div>
-                <button type="button" class="cond-remove" (click)="removeCondition(activeMode!, i)" title="Убрать условие" aria-label="Убрать условие">
-                  <lucide-icon name="x" [size]="14"></lucide-icon>
-                </button>
+                <label class="field-label cond-label" [attr.for]="'cond-op-' + i">Операция</label>
+                <select class="field-select cond-select" [id]="'cond-op-' + i" [(ngModel)]="c.operation">
+                  <option value="AND">AND</option>
+                  <option value="OR">OR</option>
+                </select>
               </div>
               <button type="button" class="btn-add-condition" (click)="addCondition(activeMode!)">Добавить условие</button>
             </ng-container>
@@ -216,12 +214,8 @@ type PanelView = 'theme' | 'add-element' | 'element';
     .toggle-input:checked + .toggle-track { background: #448AFF; }
     .toggle-input:checked + .toggle-track::after { transform: translateX(16px); }
     .condition-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .cond-seg { display: inline-flex; flex: 1; border: 1px solid #D6D6D6; border-radius: 4px; overflow: hidden; }
-    .cond-seg-btn { flex: 1; height: 32px; border: none; background: #FFFFFF; color: #616161; font-size: 12px; font-weight: 500; font-family: Roboto, sans-serif; cursor: pointer; }
-    .cond-seg-btn + .cond-seg-btn { border-left: 1px solid #D6D6D6; }
-    .cond-seg-btn:hover { background: #FAFAFA; }
-    .cond-seg-btn.active { background: #F0F5FF; color: #448AFF; }
-    .cond-seg-btn:focus-visible { outline: 2px solid #448aff; outline-offset: -2px; }
+    .cond-label { margin-bottom: 0; flex-shrink: 0; width: 56px; }
+    .cond-select { width: 110px; }
     .cond-hint { margin: -4px 0 10px; font-size: 12px; color: #9E9E9E; line-height: 1.45; }
     .cond-remove { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: none; border-radius: 4px; background: transparent; color: #9E9E9E; cursor: pointer; flex-shrink: 0; }
     .cond-remove:hover { background: #FFF2F2; color: #FF5252; }
@@ -659,15 +653,10 @@ export class ArrivalsThemeEditorScreenComponent implements OnInit, OnDestroy, Af
     if (mode?.isCustom) this.deleteModeTarget = mode;
   }
 
-  /** Добавить строку условия показа (как на стенде: «Операция» AND/OR) */
+  /** Добавить строку условия показа (как на стенде: «Операция» AND/OR, по умолчанию OR) */
   addCondition(mode: ArrivalsThemeMode): void {
     if (!mode.conditions) mode.conditions = [];
     mode.conditions.push({ operation: 'OR' });
-  }
-
-  /** Убрать строку условия */
-  removeCondition(mode: ArrivalsThemeMode, index: number): void {
-    if (mode.conditions) mode.conditions.splice(index, 1);
   }
 
   confirmDeleteMode(): void {
