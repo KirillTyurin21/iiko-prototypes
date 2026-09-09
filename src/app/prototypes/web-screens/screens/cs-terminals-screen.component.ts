@@ -7,8 +7,8 @@ import { IconsModule } from '@/shared/icons.module';
 import { CsTableRowComponent } from '../components/cs-table-row.component';
 import { CsComboboxComponent } from '../components/cs-combobox.component';
 import { StorageService } from '@/shared/storage.service';
-import { NetworkOrderSourceConfig, OrderSourceRef, CommonOrderSourceSetting, OrderSourceSetting, RestaurantOrderSourceConfig } from '../types';
-import { MOCK_NETWORK_ORDER_SOURCE_CONFIG, MOCK_ORDER_SOURCES } from '../data/mock-data';
+import { NetworkOrderSourceConfig, OrderSourceRef, CommonOrderSourceSetting, OrderSourceSetting, RestaurantOrderSourceConfig, DisplaySetting } from '../types';
+import { MOCK_NETWORK_ORDER_SOURCE_CONFIG, MOCK_ORDER_SOURCES, MOCK_DISPLAY_SETTINGS } from '../data/mock-data';
 import { SystemSettingsModalComponent, OrderSourceRestaurantInfo } from '../components/order-sources/system-settings-modal.component';
 
 @Component({
@@ -134,6 +134,8 @@ import { SystemSettingsModalComponent, OrderSourceRestaurantInfo } from '../comp
                   [terminalGroupOptions]="dataService.terminalGroupOptions"
                   [campaignOptions]="dataService.campaignOptions"
                   [settingsOptions]="settingsOptions"
+                  [settingValue]="displaySettingByRow.get(row.id) ?? null"
+                  (settingsChange)="onRowSettingsChange($event)"
                   (toggleExpand)="toggleComputerExpand($event)"
                   (toggleSelect)="toggleRowSelect($event)"
                   (themeChange)="onThemeChange(restaurant.id, $event)"
@@ -177,7 +179,7 @@ import { SystemSettingsModalComponent, OrderSourceRestaurantInfo } from '../comp
           <label class="cs-search-label">Поиск по терминалу</label>
           <input type="text" class="cs-search-input" placeholder="Поиск по терминалу" [(ngModel)]="searchTerminal" (ngModelChange)="invalidateCache()" />
         </div>
-        <button class="cs-btn cs-btn-system" (click)="showSystemSettingsModal = true">Системные настройки</button>
+        <button class="cs-btn cs-btn-system" (click)="openSystemSettings('number')">Настройки отображения</button>
       </div>
 
       <!-- Restaurants accordions (Variant B) -->
@@ -434,7 +436,7 @@ import { SystemSettingsModalComponent, OrderSourceRestaurantInfo } from '../comp
           <label class="cs-search-label">Поиск по терминалу</label>
           <input type="text" class="cs-search-input" placeholder="Поиск по терминалу" [(ngModel)]="searchTerminal" (ngModelChange)="invalidateCache()" />
         </div>
-        <button class="cs-btn cs-btn-system" (click)="showSystemSettingsModal = true">Системные настройки</button>
+        <button class="cs-btn cs-btn-system" (click)="openSystemSettings('number')">Настройки отображения</button>
       </div>
 
       <!-- Restaurants accordions (Variant C) -->
@@ -652,10 +654,15 @@ import { SystemSettingsModalComponent, OrderSourceRestaurantInfo } from '../comp
                               <app-cs-combobox
                                 placeholder="Выбрать"
                                 [options]="settingsOptions"
-                                [value]="null"
+                                [value]="displaySettingByRow.get(row.id) ?? null"
                                 displayKey="name"
                                 valueKey="id"
+                                (valueChange)="onRowSettingsChange({ rowId: row.id, settingId: $event })"
                               ></app-cs-combobox>
+                              <button type="button" class="cs-config-manage" (click)="openSystemSettings('displays'); $event.stopPropagation()">
+                                <lucide-icon name="list" [size]="13"></lucide-icon>
+                                Управлять настройками
+                              </button>
                             </div>
                           </div>
 
@@ -938,10 +945,15 @@ import { SystemSettingsModalComponent, OrderSourceRestaurantInfo } from '../comp
                 <app-cs-combobox
                   placeholder="Выбрать"
                   [options]="settingsOptions"
-                  [value]="null"
+                  [value]="selectedTerminalIdD !== null ? (displaySettingByRow.get(selectedTerminalIdD) ?? null) : null"
                   displayKey="name"
                   valueKey="id"
+                  (valueChange)="onRowSettingsChange({ rowId: selectedTerminalIdD!, settingId: $event })"
                 ></app-cs-combobox>
+                <button type="button" class="cs-config-manage" (click)="openSystemSettings('displays')">
+                  <lucide-icon name="list" [size]="13"></lucide-icon>
+                  Управлять настройками
+                </button>
               </div>
             </div>
 
@@ -1027,14 +1039,18 @@ import { SystemSettingsModalComponent, OrderSourceRestaurantInfo } from '../comp
       </div>
     </div>
 
-    <!-- System Settings Modal: «Настройки экрана Arrivals» (источники заказов) -->
+    <!-- System Settings Modal: «Настройки отображения» (номер заказа + дисплеи + назначение) -->
     <app-system-settings-modal
       [open]="showSystemSettingsModal"
       [config]="networkConfig"
       [restaurants]="orderSourceRestaurants"
       [sources]="orderSources"
+      [displaySettings]="displaySettings"
+      [assignedDisplayCounts]="assignedDisplayCounts"
+      [initialTab]="systemSettingsInitialTab"
       (close)="showSystemSettingsModal = false"
       (save)="onOrderSourceSettingsSave($event)"
+      (displaySettingsSave)="onDisplaySettingsSave($event)"
     ></app-system-settings-modal>
 
   `,
@@ -2131,6 +2147,21 @@ import { SystemSettingsModalComponent, OrderSourceRestaurantInfo } from '../comp
       color: #616161;
       margin-bottom: 4px;
     }
+    .cs-config-manage {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #448AFF;
+    }
+    .cs-config-manage:hover { color: #3969D5; }
 
     /* ─── Variant D: Persistent Split View ─── */
     .cs-d-split {
@@ -2611,8 +2642,74 @@ export class CsTerminalsScreenComponent {
     this.storage.save('web-screens', 'order-sources-network', config);
     this.showToast = true;
     this.toastType = 'success';
-    this.toastMessage = 'Системные настройки сохранены';
+    this.toastMessage = 'Настройки отображения сохранены';
     setTimeout(() => (this.showToast = false), 3200);
+  }
+
+  // ─── Справочник настроек отображения уровня дисплея ───
+  displaySettings: DisplaySetting[] = this.loadDisplaySettings();
+  displaySettingByRow = this.loadDisplayAssignments();
+  systemSettingsInitialTab: 'number' | 'displays' | 'assignment' = 'number';
+
+  private loadDisplaySettings(): DisplaySetting[] {
+    const fallback = JSON.parse(JSON.stringify(MOCK_DISPLAY_SETTINGS)) as DisplaySetting[];
+    const stored = this.storage.load<DisplaySetting[]>('web-screens', 'display-settings', fallback);
+    // Нормализация: дополняем поля, добавленные позже (миграция старой схемы справочника)
+    const defaults = fallback[0] || ({} as DisplaySetting);
+    return (stored || []).map(d => ({ ...(defaults as object), ...(d as object) }) as DisplaySetting);
+  }
+
+  private loadDisplayAssignments(): Map<number, string> {
+    const raw = this.storage.load<Record<string, string>>('web-screens', 'display-assignments', {});
+    const map = new Map<number, string>();
+    Object.keys(raw || {}).forEach(k => {
+      const id = parseInt(k, 10);
+      if (!isNaN(id) && raw[k]) map.set(id, raw[k]);
+    });
+    return map;
+  }
+
+  get settingsOptions(): { id: string; name: string }[] {
+    return this.displaySettings.map(d => ({ id: d.id, name: d.name }));
+  }
+
+  get assignedDisplayCounts(): Record<string, number> {
+    const counts: Record<string, number> = {};
+    for (const settingId of this.displaySettingByRow.values()) {
+      counts[settingId] = (counts[settingId] || 0) + 1;
+    }
+    return counts;
+  }
+
+  openSystemSettings(tab: 'number' | 'displays' | 'assignment' = 'number'): void {
+    this.systemSettingsInitialTab = tab;
+    this.showSystemSettingsModal = true;
+  }
+
+  onRowSettingsChange(ev: { rowId: number; settingId: string | null }): void {
+    if (ev.settingId === null) {
+      this.displaySettingByRow.delete(ev.rowId);
+    } else {
+      this.displaySettingByRow.set(ev.rowId, ev.settingId);
+    }
+    this.storage.save('web-screens', 'display-assignments', Object.fromEntries(this.displaySettingByRow));
+  }
+
+  onDisplaySettingsSave(list: DisplaySetting[]): void {
+    this.displaySettings = list;
+    this.storage.save('web-screens', 'display-settings', list);
+    // Снять с дисплеев удалённые настройки
+    const alive = new Set(list.map(d => d.id));
+    let removed = false;
+    for (const [rowId, settingId] of Array.from(this.displaySettingByRow.entries())) {
+      if (!alive.has(settingId)) {
+        this.displaySettingByRow.delete(rowId);
+        removed = true;
+      }
+    }
+    if (removed) {
+      this.storage.save('web-screens', 'display-assignments', Object.fromEntries(this.displaySettingByRow));
+    }
   }
 
   ngOnInit(): void {
@@ -2641,9 +2738,6 @@ export class CsTerminalsScreenComponent {
   showSystemSettingsModal = false;
   searchRestaurant = '';
   searchTerminal = '';
-
-  /** Заглушка для селекта «Настройки» (будет наполнено позже) */
-  settingsOptions: { id: number; name: string }[] = [];
 
   // ─── Variant B: Slide-out Panel State ───
   activePanelTerminalId: number | null = null;

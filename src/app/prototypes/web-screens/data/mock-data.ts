@@ -26,6 +26,7 @@ import {
   OrderSourceRef,
   AdvertiseCompany,
   NetworkOrderSourceConfig,
+  DisplaySetting,
 } from '../types';
 
 /** Секции бокового меню Web */
@@ -997,6 +998,82 @@ export const MOCK_NETWORK_ORDER_SOURCE_CONFIG: NetworkOrderSourceConfig = {
     { restaurantId: 3, commonSettingId: 'c2' },
   ],
 };
+
+/** Опции селектов формы настройки отображения (как на стенде) */
+export const DISPLAY_FILTER_OPTIONS = ['Не использовать', 'Ресторан', 'Доставка', 'Самовывоз'];
+export const DISPLAY_SORTING_OPTIONS = ['Не использовать', 'По времени создания', 'По времени готовности'];
+export const DISPLAY_TABLE_VISIBILITY_OPTIONS = ['Не использовать', 'Показывать столы', 'Скрыть столы'];
+export const DISPLAY_CLIENT_NAME_OPTIONS = [
+  'Фамилия И. О.',
+  'Имя',
+  'Имя + первая буква фамилии',
+  'Полное имя',
+  'Скрыть имя',
+];
+
+/**
+ * Справочник настроек отображения уровня дисплея («Основные настройки» стенда).
+ * Назначаются на дисплеи в строках «Настройка терминалов».
+ */
+export const MOCK_DISPLAY_SETTINGS: DisplaySetting[] = [
+  {
+    id: 'd1',
+    name: 'Моя настройка',
+    serviceTypeFilter: 'Не использовать',
+    orderSourceFilter: 'Не использовать',
+    sorting: 'Не использовать',
+    popupIntervalSec: 30,
+    popupDurationSec: 5,
+    tableVisibility: 'Не использовать',
+    selectedTables: '',
+    startCookingTimeFormat: 'HH:mm',
+    waitingTimeFormat: 'HH:mm',
+    deliveryTimeFormat: 'HH:mm',
+    clientNameType: 'Имя',
+    clientNameDefault: 'Гость',
+    queueType: '1',
+    showQueues: '1, 2',
+    hideQueues: '',
+  },
+  {
+    id: 'd2',
+    name: 'Настройка для Вани',
+    serviceTypeFilter: 'Ресторан',
+    orderSourceFilter: 'Киоск (Kiosk)',
+    sorting: 'По времени готовности',
+    popupIntervalSec: 60,
+    popupDurationSec: 8,
+    tableVisibility: 'Показывать столы',
+    selectedTables: '1, 2, 5, 6',
+    startCookingTimeFormat: 'YYYY:MM:dd HH.mm.Sec',
+    waitingTimeFormat: 'HH:mm',
+    deliveryTimeFormat: 'HH:mm',
+    clientNameType: 'Имя + первая буква фамилии',
+    clientNameDefault: '',
+    queueType: '2',
+    showQueues: '1, 2, 3',
+    hideQueues: '4',
+  },
+  {
+    id: 'd3',
+    name: 'тест',
+    serviceTypeFilter: 'Доставка',
+    orderSourceFilter: 'Доставка (Delivery Club)',
+    sorting: 'По времени создания',
+    popupIntervalSec: 45,
+    popupDurationSec: 6,
+    tableVisibility: 'Скрыть столы',
+    selectedTables: '',
+    startCookingTimeFormat: 'HH:mm',
+    waitingTimeFormat: 'HH:mm',
+    deliveryTimeFormat: 'HH:mm',
+    clientNameType: 'Фамилия И. О.',
+    clientNameDefault: '',
+    queueType: '1',
+    showQueues: '',
+    hideQueues: '',
+  },
+];
 
 /** Терминалы в новой модели: у каждого — несколько устройств вывода */
 export const MOCK_SOUND_TERMINAL_GROUPS_V2: SoundTerminalGroupV2[] = [
